@@ -117,3 +117,5 @@ export { Toaster } from './components/sonner'
 
 // Custom primitives
 export { SegmentedControl, segmentedControlVariants, type SegmentedControlProps } from './components/segmented-control'
+export { StatusBadge, statusBadgeVariants, type StatusBadgeProps } from './components/status-badge'
+export { CostBadge, type CostBadgeProps } from './components/cost-badge'
