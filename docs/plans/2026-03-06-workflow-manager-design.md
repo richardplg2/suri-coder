@@ -217,6 +217,18 @@ Desktop App (Electron + React) ←→ FastAPI Backend ←→ Claude Code SDK
 
 1. Claude Code session management + WebSocket streaming (core infrastructure)
 2. Skills management per project
-3. Figma design-to-code pipeline
-4. E2E testing with Cypress
-5. File review workflow
+3. Git worktree management
+4. Figma design-to-code pipeline
+5. E2E testing with Cypress
+6. File review workflow
+
+## Implementation Plans
+
+Each feature has its own plan doc, designed to be executed independently (in worktrees or branches):
+
+- [Feature 1: Session Management](2026-03-06-feature-1-session-management.md)
+- [Feature 2: Skills Management](2026-03-06-feature-2-skills-management.md)
+- [Feature 3: Worktree Management](2026-03-06-feature-3-worktree-management.md)
+- [Feature 4: Figma Pipeline](2026-03-06-feature-4-figma-pipeline.md)
+- [Feature 5: Cypress Testing](2026-03-06-feature-5-cypress-testing.md)
+- [Feature 6: File Review](2026-03-06-feature-6-file-review.md)
