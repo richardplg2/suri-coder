@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8000/api/v1'
+const API_BASE = 'http://localhost:8000'
 
 export class ApiError extends Error {
   constructor(
@@ -20,8 +20,11 @@ export async function apiClient<T>(
   })
 
   if (!res.ok) {
-    throw new ApiError(res.status, `API error: ${res.status}`)
+    const body = await res.json().catch(() => null)
+    throw new ApiError(res.status, body?.detail ?? `API error: ${res.status}`)
   }
+
+  if (res.status === 204) return undefined as T
 
   return res.json()
 }

@@ -20,8 +20,7 @@ export function useTickets(projectId: string) {
 export function useTicket(projectId: string, ticketId: string) {
   return useQuery({
     queryKey: ['projects', projectId, 'tickets', ticketId],
-    queryFn: () =>
-      apiClient<Ticket>(`/projects/${projectId}/tickets/${ticketId}`),
+    queryFn: () => apiClient<Ticket>(`/tickets/${ticketId}`),
     enabled: !!projectId && !!ticketId,
   })
 }
@@ -43,7 +42,7 @@ export function useUpdateTicket(projectId: string, ticketId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: TicketUpdate) =>
-      apiClient<Ticket>(`/projects/${projectId}/tickets/${ticketId}`, {
+      apiClient<Ticket>(`/tickets/${ticketId}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),

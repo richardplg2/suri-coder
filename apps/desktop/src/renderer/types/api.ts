@@ -28,10 +28,22 @@ export interface ProjectUpdate {
   settings?: Record<string, unknown> | null
 }
 
-export type TicketType = 'feature' | 'bug' | 'chore' | 'spike'
-export type TicketStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done'
+export type TicketType = 'feature' | 'bug' | 'improvement' | 'chore' | 'spike'
+export type TicketStatus =
+  | 'backlog'
+  | 'todo'
+  | 'in_progress'
+  | 'in_review'
+  | 'done'
+  | 'cancelled'
 export type TicketPriority = 'none' | 'low' | 'medium' | 'high' | 'urgent'
-export type StepStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped'
+export type StepStatus =
+  | 'pending'
+  | 'ready'
+  | 'running'
+  | 'completed'
+  | 'failed'
+  | 'skipped'
 
 export interface WorkflowStep {
   id: string
