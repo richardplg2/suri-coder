@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Callable
 
 import redis.asyncio as aioredis
 from fastapi import WebSocket
@@ -11,16 +12,10 @@ from app.schemas.websocket import SYSTEM_CHANNEL, WsClientMessage, WsServerMessa
 
 logger = logging.getLogger(__name__)
 
-CHANNEL_TO_REDIS_KEY: dict[WsChannel, callable] = {
+CHANNEL_TO_REDIS_KEY: dict[WsChannel, Callable[[dict[str, str]], str]] = {
     WsChannel.project_tickets: lambda p: f"project:{p['project_id']}:tickets",
     WsChannel.ticket_progress: lambda p: f"ticket:{p['ticket_id']}",
     WsChannel.session_stream: lambda p: f"session:{p['session_id']}",
-}
-
-REDIS_PREFIX_TO_CHANNEL: dict[str, WsChannel] = {
-    "project:": WsChannel.project_tickets,
-    "ticket:": WsChannel.ticket_progress,
-    "session:": WsChannel.session_stream,
 }
 
 
@@ -43,7 +38,7 @@ class ConnectionManager:
             redis_key = CHANNEL_TO_REDIS_KEY[channel](params)
         except KeyError:
             msg = f"missing params for {channel.value}"
-            await self._send_system(
+            await self.send_system(
                 WsEvent.error, data={"message": msg},
             )
             return
@@ -51,14 +46,14 @@ class ConnectionManager:
         ref = _make_ref(channel, params)
         await self.pubsub.subscribe(redis_key)
         self.subscriptions[redis_key] = (channel, ref)
-        await self._send_system(WsEvent.subscribed, ref=ref)
+        await self.send_system(WsEvent.subscribed, ref=ref)
 
     async def unsubscribe(self, channel: WsChannel, params: dict[str, str]) -> None:
         try:
             redis_key = CHANNEL_TO_REDIS_KEY[channel](params)
         except KeyError:
             msg = f"missing params for {channel.value}"
-            await self._send_system(
+            await self.send_system(
                 WsEvent.error, data={"message": msg},
             )
             return
@@ -66,14 +61,14 @@ class ConnectionManager:
         ref = _make_ref(channel, params)
         await self.pubsub.unsubscribe(redis_key)
         self.subscriptions.pop(redis_key, None)
-        await self._send_system(WsEvent.unsubscribed, ref=ref)
+        await self.send_system(WsEvent.unsubscribed, ref=ref)
 
     async def handle_client_message(self, msg: WsClientMessage) -> None:
         if msg.action == WsAction.ping:
-            await self._send_system(WsEvent.pong)
+            await self.send_system(WsEvent.pong)
         elif msg.action == WsAction.subscribe:
             if msg.channel is None:
-                await self._send_system(
+                await self.send_system(
                     WsEvent.error,
                     data={"message": "channel required"},
                 )
@@ -81,7 +76,7 @@ class ConnectionManager:
             await self.subscribe(msg.channel, msg.params or {})
         elif msg.action == WsAction.unsubscribe:
             if msg.channel is None:
-                await self._send_system(
+                await self.send_system(
                     WsEvent.error,
                     data={"message": "channel required"},
                 )
@@ -103,10 +98,19 @@ class ConnectionManager:
             event = "message"
             event_data = data
 
+        try:
+            ws_event = WsEvent(event)
+        except ValueError:
+            logger.warning(
+                "Unknown event %r from redis key %s, dropping",
+                event, redis_key,
+            )
+            return
+
         msg = WsServerMessage(
             channel=channel.value,
             ref=ref,
-            event=WsEvent(event),
+            event=ws_event,
             data=event_data,
         )
         await self.websocket.send_text(msg.model_dump_json())
@@ -117,7 +121,7 @@ class ConnectionManager:
         self.subscriptions.clear()
         await self.redis.aclose()
 
-    async def _send_system(
+    async def send_system(
         self, event: WsEvent, ref: str | None = None, data: dict | None = None
     ) -> None:
         msg = WsServerMessage(

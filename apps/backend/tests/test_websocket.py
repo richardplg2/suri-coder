@@ -88,6 +88,92 @@ class TestConnectionManager:
         assert sent["event"] == WsEvent.error.value
 
     @pytest.mark.asyncio
+    async def test_handle_subscribe_via_client_message(self, mock_websocket, mock_redis):
+        manager = ConnectionManager(mock_websocket, mock_redis)
+        await manager.handle_client_message(
+            WsClientMessage(
+                action=WsAction.subscribe,
+                channel=WsChannel.session_stream,
+                params={"session_id": "x"},
+            )
+        )
+
+        assert "session:x" in manager.subscriptions
+
+    @pytest.mark.asyncio
+    async def test_handle_subscribe_missing_channel(self, mock_websocket, mock_redis):
+        manager = ConnectionManager(mock_websocket, mock_redis)
+        await manager.handle_client_message(
+            WsClientMessage(action=WsAction.subscribe)
+        )
+
+        sent = json.loads(mock_websocket.send_text.call_args[0][0])
+        assert sent["event"] == WsEvent.error.value
+        assert "channel required" in sent["data"]["message"]
+
+    @pytest.mark.asyncio
+    async def test_handle_unsubscribe_via_client_message(self, mock_websocket, mock_redis):
+        manager = ConnectionManager(mock_websocket, mock_redis)
+        await manager.subscribe(WsChannel.session_stream, {"session_id": "x"})
+        await manager.handle_client_message(
+            WsClientMessage(
+                action=WsAction.unsubscribe,
+                channel=WsChannel.session_stream,
+                params={"session_id": "x"},
+            )
+        )
+
+        assert "session:x" not in manager.subscriptions
+
+
+class TestForwardRedisMessage:
+    @pytest.mark.asyncio
+    async def test_forward_valid_json(self, mock_websocket, mock_redis):
+        manager = ConnectionManager(mock_websocket, mock_redis)
+        await manager.subscribe(WsChannel.session_stream, {"session_id": "a"})
+        mock_websocket.send_text.reset_mock()
+
+        payload = json.dumps({"event": "message", "data": {"text": "hello"}})
+        await manager.forward_redis_message("session:a", payload)
+
+        sent = json.loads(mock_websocket.send_text.call_args[0][0])
+        assert sent["event"] == "message"
+        assert sent["data"] == {"text": "hello"}
+        assert sent["channel"] == WsChannel.session_stream.value
+
+    @pytest.mark.asyncio
+    async def test_forward_invalid_json_falls_back(self, mock_websocket, mock_redis):
+        manager = ConnectionManager(mock_websocket, mock_redis)
+        await manager.subscribe(WsChannel.session_stream, {"session_id": "a"})
+        mock_websocket.send_text.reset_mock()
+
+        await manager.forward_redis_message("session:a", "plain text")
+
+        sent = json.loads(mock_websocket.send_text.call_args[0][0])
+        assert sent["event"] == "message"
+        assert sent["data"] == "plain text"
+
+    @pytest.mark.asyncio
+    async def test_forward_unknown_event_drops(self, mock_websocket, mock_redis):
+        manager = ConnectionManager(mock_websocket, mock_redis)
+        await manager.subscribe(WsChannel.session_stream, {"session_id": "a"})
+        mock_websocket.send_text.reset_mock()
+
+        payload = json.dumps({"event": "nonexistent_event", "data": {}})
+        await manager.forward_redis_message("session:a", payload)
+
+        mock_websocket.send_text.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_forward_unsubscribed_key_noop(self, mock_websocket, mock_redis):
+        manager = ConnectionManager(mock_websocket, mock_redis)
+
+        payload = json.dumps({"event": "message", "data": {}})
+        await manager.forward_redis_message("session:unknown", payload)
+
+        mock_websocket.send_text.assert_not_called()
+
+    @pytest.mark.asyncio
     async def test_cleanup_unsubscribes_all(self, mock_websocket, mock_redis):
         manager = ConnectionManager(mock_websocket, mock_redis)
         await manager.subscribe(WsChannel.session_stream, {"session_id": "a"})

@@ -7,6 +7,7 @@ type EventCallback = (event: WsEvent, data: unknown) => void
 interface WsState {
   ws: WebSocket | null
   status: 'connecting' | 'connected' | 'disconnected'
+  shouldReconnect: boolean
   listeners: Map<string, Set<EventCallback>>
   activeChannels: Map<string, { channel: WsChannel; params: Record<string, string> }>
 }
@@ -28,12 +29,13 @@ function makeRef(channel: WsChannel, params: Record<string, string>): string {
 export const useWsStore = create<WsState & WsActions>((set, get) => ({
   ws: null,
   status: 'disconnected',
+  shouldReconnect: true,
   listeners: new Map(),
   activeChannels: new Map(),
 
   connect: (url: string) => {
     const ws = new WebSocket(url)
-    set({ ws, status: 'connecting' })
+    set({ ws, status: 'connecting', shouldReconnect: true })
 
     ws.onopen = () => {
       set({ status: 'connected' })
@@ -57,12 +59,14 @@ export const useWsStore = create<WsState & WsActions>((set, get) => ({
 
     ws.onclose = () => {
       set({ status: 'disconnected', ws: null })
-      // Reconnect with backoff
-      setTimeout(() => get().connect(url), 1000)
+      if (get().shouldReconnect) {
+        setTimeout(() => get().connect(url), 1000)
+      }
     }
   },
 
   disconnect: () => {
+    set({ shouldReconnect: false })
     get().ws?.close()
     set({ ws: null, status: 'disconnected', activeChannels: new Map() })
   },

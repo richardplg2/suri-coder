@@ -28,7 +28,7 @@ async def ws_endpoint(websocket: WebSocket):
                 msg = WsClientMessage.model_validate_json(raw)
                 await manager.handle_client_message(msg)
             except ValidationError as e:
-                await manager._send_system(
+                await manager.send_system(
                     WsEvent.error, data={"message": str(e)},
                 )
 
