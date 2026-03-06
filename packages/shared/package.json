@@ -18,6 +18,7 @@
     "lint": "biome check ."
   },
   "devDependencies": {
+    "@types/node": "^24.10.1",
     "tsup": "^8.4.0"
   }
 }

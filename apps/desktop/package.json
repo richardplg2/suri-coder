@@ -11,6 +11,9 @@
   },
   "homepage": "https://github.com/nicholasmolina2019/agent-coding",
   "license": "MIT",
+  "pnpm": {
+    "onlyBuiltDependenciesFile": "../../trusted-dependencies-scripts.json"
+  },
   "scripts": {
     "start": "electron-vite preview",
     "predev": "run-s clean:dev",
