@@ -42,6 +42,9 @@ function SourceListRow({
     <>
       <button
         type="button"
+        role="treeitem"
+        aria-expanded={hasChildren ? isExpanded : undefined}
+        aria-selected={isSelected}
         onClick={() => {
           if (hasChildren) onToggleExpand?.(item.id)
           onSelect?.(item.id)

@@ -24,7 +24,7 @@ function Spinner({ className, size = 'default', label, ...props }: SpinnerProps)
     >
       <Loader2 className={cn('animate-spin', sizeMap[size])} />
       {label && <span className="text-[12px]">{label}</span>}
-      <span className="sr-only">{label ?? 'Loading...'}</span>
+      {!label && <span className="sr-only">Loading...</span>}
     </div>
   )
 }

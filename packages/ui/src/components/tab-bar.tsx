@@ -67,7 +67,7 @@ function TabBar({
                   onTabClose(tab.id)
                 }
               }}
-              className="ml-1 rounded-sm p-0.5 opacity-0 transition-opacity hover:bg-muted group-hover:opacity-100"
+              className="ml-1 cursor-pointer rounded-sm p-0.5 opacity-0 transition-opacity hover:bg-muted group-hover:opacity-100"
               aria-label={`Close ${tab.label}`}
             >
               <X className="size-3" />

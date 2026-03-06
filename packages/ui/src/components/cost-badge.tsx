@@ -9,7 +9,7 @@ interface CostBadgeProps extends React.ComponentProps<'span'> {
 }
 
 function CostBadge({ className, amount, currency = '$', ...props }: CostBadgeProps) {
-  const formatted = amount < 0.01 ? '<$0.01' : `${currency}${amount.toFixed(2)}`
+  const formatted = amount < 0.01 ? `<${currency}0.01` : `${currency}${amount.toFixed(2)}`
 
   return (
     <span

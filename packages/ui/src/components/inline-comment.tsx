@@ -1,9 +1,8 @@
 import * as React from 'react'
 import { Bot, MessageSquare } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
 
-interface InlineCommentProps extends React.ComponentProps<'div'> {
+interface InlineCommentProps extends React.ComponentProps<'tr'> {
   author?: 'ai' | 'user'
   content: string
   actions?: React.ReactNode
@@ -17,15 +16,10 @@ function InlineComment({
   ...props
 }: InlineCommentProps) {
   return (
-    <tr>
+    <tr className={className} data-slot="inline-comment" {...props}>
       <td colSpan={4}>
         <div
-          className={cn(
-            'mx-3 my-1 rounded-md border border-primary/20 bg-primary/5 p-3',
-            className
-          )}
-          data-slot="inline-comment"
-          {...props}
+          className="mx-3 my-1 rounded-md border border-primary/20 bg-primary/5 p-3"
         >
           <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
             {author === 'ai' ? (

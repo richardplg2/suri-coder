@@ -64,7 +64,7 @@ function DataTable<T>({
                   'h-8 border-b border-border transition-colors duration-150',
                   isSelected
                     ? 'bg-[var(--selection)]'
-                    : 'even:bg-[rgba(255,255,255,0.02)] hover:bg-secondary',
+                    : 'even:bg-muted/30 hover:bg-secondary',
                   onRowClick && 'cursor-pointer'
                 )}
               >

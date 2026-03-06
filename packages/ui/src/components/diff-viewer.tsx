@@ -10,7 +10,6 @@ interface DiffLine {
 
 interface DiffViewerProps extends React.ComponentProps<'div'> {
   lines: DiffLine[]
-  mode?: 'unified' | 'side-by-side'
   renderLineAnnotation?: (lineIndex: number) => React.ReactNode
 }
 
@@ -29,7 +28,6 @@ const lineTypePrefix: Record<DiffLine['type'], string> = {
 function DiffViewer({
   className,
   lines,
-  mode = 'unified',
   renderLineAnnotation,
   ...props
 }: DiffViewerProps) {
@@ -47,16 +45,9 @@ function DiffViewer({
                 <td className="w-10 select-none border-r border-border px-2 text-right text-muted-foreground/50">
                   {line.lineNumber?.old ?? ''}
                 </td>
-                {mode === 'side-by-side' && (
-                  <td className="w-10 select-none border-r border-border px-2 text-right text-muted-foreground/50">
-                    {line.lineNumber?.new ?? ''}
-                  </td>
-                )}
-                {mode === 'unified' && (
-                  <td className="w-10 select-none border-r border-border px-2 text-right text-muted-foreground/50">
-                    {line.lineNumber?.new ?? ''}
-                  </td>
-                )}
+                <td className="w-10 select-none border-r border-border px-2 text-right text-muted-foreground/50">
+                  {line.lineNumber?.new ?? ''}
+                </td>
                 <td className="w-5 select-none text-center">
                   {lineTypePrefix[line.type]}
                 </td>

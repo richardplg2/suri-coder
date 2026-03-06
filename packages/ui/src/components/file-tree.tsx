@@ -59,6 +59,9 @@ function FileTreeRow({
     <>
       <button
         type="button"
+        role="treeitem"
+        aria-expanded={isDir ? isExpanded : undefined}
+        aria-selected={isSelected}
         onClick={() => {
           if (isDir) onToggleExpand?.(node.path)
           else onSelect?.(node.path)
