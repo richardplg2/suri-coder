@@ -33,13 +33,15 @@
   "dependencies": {
     "@agent-coding/shared": "workspace:*",
     "@agent-coding/ui": "workspace:*",
+    "@tanstack/react-query": "^5.90.21",
     "electron-router-dom": "^2.1.0",
     "lucide-react": "^0.556.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router-dom": "^7.10.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.17",
