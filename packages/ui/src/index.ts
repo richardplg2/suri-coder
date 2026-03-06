@@ -131,3 +131,5 @@ export { SourceList, type SourceListProps, type SourceListItem } from './compone
 export { FileTree, type FileTreeProps, type FileTreeNode, type FileStatus } from './components/file-tree'
 export { ChatBubble, type ChatBubbleProps } from './components/chat-bubble'
 export { StreamingText, type StreamingTextProps } from './components/streaming-text'
+export { ToolCallCard, type ToolCallCardProps } from './components/tool-call-card'
+export { SessionStatusBar, type SessionStatusBarProps } from './components/session-status-bar'
