@@ -38,3 +38,5 @@ uv run ruff check --fix .                   # Auto-fix lint
 
 - [Architecture](.claude/architecture.md) — monorepo structure, electron-vite targets, backend layout, shadcn/ui
 - [Code Style](.claude/code-style.md) — Biome (TS) and Ruff (Python) conventions
+- [UI Design Spec](docs/design/) — macOS-style design, components, screen layouts
+- [Design System](docs/design/design-system.md) — colors, typography, spacing tokens

@@ -73,6 +73,22 @@ The CLI writes components to `packages/ui/src/components/` and imports `cn` from
 - Components use CVA (`class-variance-authority`) for variants and `cn()` for class merging
 - `rsc: false` in config — no React Server Components (Electron renderer)
 
-## Design Doc
+## Design Docs
 
-See `docs/plans/2026-03-06-workflow-manager-design.md` for data models, feature flows, and build priority.
+- **Feature Plan:** `docs/plans/2026-03-06-workflow-manager-design.md` — data models, feature flows, build priority
+
+### UI Design (`docs/design/`)
+
+| File | Content |
+|------|---------|
+| `app-shell.md` | Layout, sidebar, toolbar, electron config, shortcuts |
+| `components.md` | Component catalog with macOS references |
+| `design-system.md` | Colors, typography, spacing tokens (source of truth) |
+| `pages/sessions.md` | Sessions screen design |
+| `pages/skills.md` | Skills management screen design |
+| `pages/worktrees.md` | Worktree management screen design |
+| `pages/figma-pipeline.md` | Figma pipeline screen design |
+| `pages/cypress-testing.md` | Cypress testing screen design |
+| `pages/file-review.md` | File review screen design |
+
+When building a specific page, read its `docs/design/pages/[page].md` file. Page-level rules override `design-system.md`.
