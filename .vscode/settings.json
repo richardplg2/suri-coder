@@ -31,5 +31,5 @@
     "*.css": "tailwindcss"
   },
 
-  "tailwindCSS.experimental.configFile": "src/renderer/globals.css"
+  "tailwindCSS.experimental.configFile": "apps/desktop/src/renderer/globals.css"
 }
