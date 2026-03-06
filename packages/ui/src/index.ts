@@ -134,3 +134,5 @@ export { StreamingText, type StreamingTextProps } from './components/streaming-t
 export { ToolCallCard, type ToolCallCardProps } from './components/tool-call-card'
 export { SessionStatusBar, type SessionStatusBarProps } from './components/session-status-bar'
 export { CodeBlock, type CodeBlockProps } from './components/code-block'
+export { DiffViewer, type DiffViewerProps, type DiffLine } from './components/diff-viewer'
+export { InlineComment, type InlineCommentProps } from './components/inline-comment'
