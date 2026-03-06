@@ -6,6 +6,8 @@ A project management and agent orchestration system for the Workflow Manager app
 
 **Target users**: Small team (2-5 developers)
 
+> **Note**: Workflow execution, step lifecycle, brainstorm step, review flow, SDK integration, and related API/data model changes have been moved to [Ticket Workflow Execution — Revised Design](2026-03-07-ticket-workflow-execution-design.md). This file retains the base data models and architecture overview.
+
 ## Architecture
 
 ```
@@ -81,6 +83,8 @@ Defines an agent type, customizable per project.
 | max_turns | int | default 25 |
 | created_at | datetime | |
 
+> **Updated**: See [revised design](2026-03-07-ticket-workflow-execution-design.md#data-model-changes) for additional fields: `default_requires_approval`.
+
 ### AgentSkill (many-to-many: AgentConfig <-> Skill)
 
 | Column | Type | Notes |
@@ -111,7 +115,7 @@ Defines an agent type, customizable per project.
 | steps_config | JSON | DAG definition (see below) |
 | created_at | datetime | |
 
-**steps_config JSON format:**
+**steps_config JSON format** (see [revised design](2026-03-07-ticket-workflow-execution-design.md#data-model-changes) for additional per-step fields: `requires_approval`, `brainstorm_schema`):
 ```json
 {
   "steps": [
@@ -125,6 +129,8 @@ Defines an agent type, customizable per project.
 ```
 
 ### Ticket
+
+> **Updated**: See [revised design](2026-03-07-ticket-workflow-execution-design.md#data-model-changes) for additional field: `auto_execute`.
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -145,6 +151,8 @@ Defines an agent type, customizable per project.
 ### WorkflowStep
 
 Instantiated from template when ticket is created.
+
+> **Updated**: See [revised design](2026-03-07-ticket-workflow-execution-design.md#data-model-changes) for additional fields: `requires_approval`, `user_prompt_override`, `brainstorm_output`, `step_breakdown`. StepStatus enum adds: `awaiting_approval`, `review`, `changes_requested`.
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -241,113 +249,13 @@ Actual Claude Code CLI execution for a step.
 | error_message | text | nullable |
 | duration_ms | int | |
 
-### ReviewSession
+### ~~ReviewSession / FileReview~~ → StepReview
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID | PK |
-| session_id | UUID | FK -> Session |
-| branch | str | branch or commit ref |
-| status | enum | `in_progress`, `completed` |
-| created_at | datetime | |
+> **Superseded**: Replaced by `StepReview` in [revised design](2026-03-07-ticket-workflow-execution-design.md#data-model-changes).
 
-### FileReview
+## ~~Workflow Engine~~ → Revised
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID | PK |
-| review_id | UUID | FK -> ReviewSession |
-| file_path | str | |
-| diff_content | text | |
-| ai_comments | JSON | AI-generated comments |
-| user_status | enum | `pending`, `approved`, `rejected` |
-| conversation | JSON | per-file Q&A history |
-
-## Workflow Engine
-
-### DAG Execution Logic
-
-```python
-class WorkflowEngine:
-    async def tick(self, ticket_id):
-        """Called after any step status change. Advances the DAG."""
-        steps = await get_steps(ticket_id)
-
-        for step in steps:
-            if step.status == "pending":
-                deps = [s for s in steps if s.id in step.depends_on_ids]
-                if all(d.status == "completed" for d in deps):
-                    step.status = "ready"
-                    await self.schedule_step(step)
-
-            if step.status == "failed":
-                await self.block_downstream(step, steps)
-
-        if all(s.status in ("completed", "skipped") for s in steps):
-            await self.complete_ticket(ticket_id)
-
-    async def schedule_step(self, step):
-        """Launch a Claude Code SDK session for this step."""
-        agent_config = step.agent_config
-        project = step.ticket.project
-
-        branch = f"{step.ticket.key}/{step.name}"
-        worktree = await create_worktree(project.path, branch)
-        dep_context = await gather_dependency_context(step)
-
-        session = await create_session(step_id=step.id, git_branch=branch)
-
-        await arq_queue.enqueue(
-            "run_claude_agent",
-            session_id=session.id,
-            cwd=worktree.path,
-            system_prompt=agent_config.system_prompt,
-            skills=agent_config.skills,
-            mcp_servers=agent_config.mcp_servers,
-            tools=agent_config.tools_list,
-            model=agent_config.claude_model,
-            context=dep_context,
-            max_turns=agent_config.max_turns,
-        )
-```
-
-### Step Lifecycle
-
-```
-pending -> ready -> running -> completed
-                           \-> failed -> (retry -> ready)
-                                      -> (skip -> skipped)
-```
-
-- **Auto-advance**: When a step completes, `tick()` schedules all newly-ready steps (enables parallelism).
-- **Failure handling**: Failed step blocks downstream. User can retry (creates new session) or skip.
-- **Git strategy**: Each step gets its own worktree/branch. Steps merge upstream dependency branches before starting.
-- **Context passing**: Each step receives file references and summaries from completed dependency steps.
-
-### Tester Agent + Cypress Integration
-
-The tester agent config includes Cypress-specific setup:
-
-```python
-AgentConfig(
-    name="tester",
-    system_prompt="You are a test engineer. Write and run E2E tests using Cypress...",
-    mcp_servers={"cypress-runner": cypress_mcp_config},
-    tools_list=["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
-    claude_model="sonnet",
-)
-```
-
-Step config for tester steps:
-```json
-{
-  "cypress_config_path": "cypress.config.ts",
-  "video": true,
-  "screenshot_on_failure": true
-}
-```
-
-Test results (TestRun + TestResult) are saved when the tester session completes.
+> **Superseded**: Workflow engine, step lifecycle, SDK integration, and context passing have been moved to [Ticket Workflow Execution — Revised Design](2026-03-07-ticket-workflow-execution-design.md). Key changes: `ClaudeSDKClient` replaces ARQ fire-and-forget, added `needs_approval()` check, review flow with changes-requested loop, brainstorm step with structured output.
 
 ## API Design
 
@@ -393,6 +301,9 @@ DELETE /tickets/:id
 ```
 
 ### Workflow Steps (per ticket)
+
+> **Updated**: See [revised design](2026-03-07-ticket-workflow-execution-design.md#api-changes) for additional endpoints: `approve`, `approve-review`, `request-changes`, `regenerate`, `prompt`.
+
 ```
 GET    /tickets/:id/steps              # returns DAG with status
 POST   /tickets/:id/steps/:step_id/run # manually trigger a step
@@ -421,11 +332,9 @@ GET    /sessions/:id/test-results
 GET    /test-runs/:id/results
 ```
 
-### File Reviews
-```
-GET    /sessions/:id/reviews
-PATCH  /reviews/:id/files/:file_id
-```
+### ~~File Reviews~~ → StepReview API
+
+> **Superseded**: See [revised design](2026-03-07-ticket-workflow-execution-design.md#api-changes).
 
 ### WebSocket
 
