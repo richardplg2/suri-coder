@@ -2,328 +2,66 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Manage git worktrees per project via API. Users create/list/delete worktrees in the UI, then assign Claude Code sessions to run in specific worktrees for isolation.
+**Goal:** Manage git worktrees per project via REST API and UI. Users create/list/delete worktrees, then workflow steps run Claude Code sessions in isolated worktree directories.
 
-**Architecture:** Worktree model in PostgreSQL tracks worktree metadata. Service layer wraps `git worktree` CLI commands via subprocess. Sessions reference an optional worktree_id — worker uses worktree path as `cwd` instead of project root.
+**Architecture:** GitWorktreeService already wraps `git worktree` CLI. Need a REST router to expose worktree CRUD, and a frontend UI showing worktree list with branch info and status indicators — all using `@agent-coding/ui` primitives.
 
-**Tech Stack:** FastAPI, SQLAlchemy async, PostgreSQL, asyncio.subprocess (git CLI)
+**Tech Stack:** FastAPI, SQLAlchemy async, asyncio.subprocess (git CLI), React 19, @agent-coding/ui
 
-**Depends on:** Feature 1 (Project model, Session model)
+**Depends on:** Feature 0 (app shell, API client), UI Primitives plan (packages/ui built)
 
----
+**Already built (backend):**
+- git_worktree service (`apps/backend/app/services/git_worktree.py`) — create_worktree, cleanup_worktree, merge_branches
+- Session model has `worktree_path` field
+- WorkflowStep references worktree paths
 
-### Task 1: Worktree model
+**Already built (UI package — no need to create locally):**
+- `SourceList` — tree list with expand/collapse
+- `Panel` — compound component for layout sections
+- `SplitPane` — for 2-panel layout
+- `EmptyState`, `Spinner`, `StatusBadge`, `KVRow`
+- shadcn: `Breadcrumb`, `Button`, `Input`, `Label`, `Sheet`, `Dialog`, `Badge`, `Card`, `ScrollArea`, `Separator`, `Tooltip`
 
-**Files:**
-- Create: `apps/backend/app/models/worktree.py`
-- Modify: `apps/backend/app/models/__init__.py`
-- Modify: `apps/backend/app/models/session.py` (add worktree_id FK)
-- Test: `apps/backend/tests/test_models_worktree.py`
+**Remaining work:**
+- Backend: Worktrees REST router (CRUD endpoints scoped to projects)
+- Backend: Worktree Pydantic schemas
+- Frontend: Worktree list, create/delete UI, status indicators
 
-**Step 1: Write the failing test**
-
-Create `apps/backend/tests/test_models_worktree.py`:
-
-```python
-import uuid
-
-from app.models.worktree import Worktree, WorktreeStatus
-
-
-def test_worktree_model_fields():
-    wt = Worktree(
-        id=uuid.uuid4(),
-        project_id=uuid.uuid4(),
-        branch="feature/auth",
-        path="/tmp/worktrees/feature-auth",
-        status=WorktreeStatus.ACTIVE,
-    )
-    assert wt.branch == "feature/auth"
-    assert wt.status == WorktreeStatus.ACTIVE
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_models_worktree.py -v`
-Expected: FAIL
-
-**Step 3: Write the model**
-
-Create `apps/backend/app/models/worktree.py`:
-
-```python
-import enum
-import uuid
-from datetime import datetime, timezone
-
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
-
-from app.database import Base
-
-
-class WorktreeStatus(str, enum.Enum):
-    ACTIVE = "active"
-    LOCKED = "locked"
-    REMOVING = "removing"
-
-
-class Worktree(Base):
-    __tablename__ = "worktrees"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
-    branch: Mapped[str] = mapped_column(String(255), nullable=False)
-    path: Mapped[str] = mapped_column(Text, nullable=False)
-    status: Mapped[WorktreeStatus] = mapped_column(Enum(WorktreeStatus), default=WorktreeStatus.ACTIVE)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-```
-
-Add `worktree_id` to Session model in `apps/backend/app/models/session.py`:
-
-```python
-# Add this field to the Session class, after worker_id:
-worktree_id: Mapped[uuid.UUID | None] = mapped_column(
-    UUID(as_uuid=True), ForeignKey("worktrees.id"), nullable=True
-)
-```
-
-Update `apps/backend/app/models/__init__.py`:
-
-```python
-from app.models.project import Project
-from app.models.session import Session, SessionMessage, SessionStatus, SessionType
-from app.models.skill import ProjectSkill, Skill
-from app.models.worktree import Worktree, WorktreeStatus
-
-__all__ = [
-    "Project",
-    "ProjectSkill",
-    "Session",
-    "SessionMessage",
-    "SessionStatus",
-    "SessionType",
-    "Skill",
-    "Worktree",
-    "WorktreeStatus",
-]
-```
-
-**Step 4: Run test**
-
-Run: `cd apps/backend && uv run pytest tests/test_models_worktree.py -v`
-Expected: PASS
-
-**Step 5: Commit**
-
-```bash
-git add apps/backend/app/models/ apps/backend/tests/test_models_worktree.py
-git commit -m "feat(backend): add Worktree model and session worktree_id FK"
-```
+**Design ref:** `docs/design/pages/worktrees.md`
 
 ---
 
-### Task 2: Git worktree service (subprocess wrapper)
-
-**Files:**
-- Create: `apps/backend/app/services/git_worktree.py`
-- Test: `apps/backend/tests/test_git_worktree_service.py`
-
-**Step 1: Write the failing test**
-
-Create `apps/backend/tests/test_git_worktree_service.py`:
-
-```python
-import os
-import tempfile
-
-import pytest
-
-from app.services.git_worktree import GitWorktreeService
-
-
-@pytest.fixture
-def git_repo():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        os.system(f"cd {tmpdir} && git init && git commit --allow-empty -m 'init'")
-        yield tmpdir
-
-
-@pytest.mark.asyncio
-async def test_create_worktree(git_repo):
-    service = GitWorktreeService()
-    wt_path = os.path.join(git_repo, ".worktrees", "test-branch")
-
-    result = await service.create(
-        repo_path=git_repo,
-        branch="test-branch",
-        worktree_path=wt_path,
-        new_branch=True,
-    )
-    assert result["success"] is True
-    assert os.path.isdir(wt_path)
-
-
-@pytest.mark.asyncio
-async def test_list_worktrees(git_repo):
-    service = GitWorktreeService()
-    result = await service.list(repo_path=git_repo)
-    assert isinstance(result, list)
-    assert len(result) >= 1  # main worktree always listed
-
-
-@pytest.mark.asyncio
-async def test_remove_worktree(git_repo):
-    service = GitWorktreeService()
-    wt_path = os.path.join(git_repo, ".worktrees", "to-remove")
-    await service.create(repo_path=git_repo, branch="to-remove", worktree_path=wt_path, new_branch=True)
-
-    result = await service.remove(repo_path=git_repo, worktree_path=wt_path)
-    assert result["success"] is True
-    assert not os.path.isdir(wt_path)
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_git_worktree_service.py -v`
-Expected: FAIL
-
-**Step 3: Write the implementation**
-
-Create `apps/backend/app/services/git_worktree.py`:
-
-```python
-import asyncio
-import os
-
-
-class GitWorktreeService:
-    async def _run(self, cmd: list[str], cwd: str) -> tuple[int, str, str]:
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            cwd=cwd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await proc.communicate()
-        return proc.returncode, stdout.decode(), stderr.decode()
-
-    async def create(
-        self,
-        repo_path: str,
-        branch: str,
-        worktree_path: str,
-        new_branch: bool = True,
-    ) -> dict:
-        os.makedirs(os.path.dirname(worktree_path), exist_ok=True)
-
-        cmd = ["git", "worktree", "add"]
-        if new_branch:
-            cmd.extend(["-b", branch])
-        cmd.append(worktree_path)
-        if not new_branch:
-            cmd.append(branch)
-
-        returncode, stdout, stderr = await self._run(cmd, repo_path)
-        return {
-            "success": returncode == 0,
-            "path": worktree_path,
-            "branch": branch,
-            "error": stderr if returncode != 0 else None,
-        }
-
-    async def list(self, repo_path: str) -> list[dict]:
-        returncode, stdout, stderr = await self._run(
-            ["git", "worktree", "list", "--porcelain"], repo_path
-        )
-        if returncode != 0:
-            return []
-
-        worktrees = []
-        current = {}
-        for line in stdout.strip().split("\n"):
-            if line.startswith("worktree "):
-                if current:
-                    worktrees.append(current)
-                current = {"path": line.split(" ", 1)[1]}
-            elif line.startswith("HEAD "):
-                current["head"] = line.split(" ", 1)[1]
-            elif line.startswith("branch "):
-                current["branch"] = line.split(" ", 1)[1].replace("refs/heads/", "")
-            elif line == "bare":
-                current["bare"] = True
-            elif line == "":
-                if current:
-                    worktrees.append(current)
-                    current = {}
-        if current:
-            worktrees.append(current)
-        return worktrees
-
-    async def remove(self, repo_path: str, worktree_path: str, force: bool = False) -> dict:
-        cmd = ["git", "worktree", "remove"]
-        if force:
-            cmd.append("--force")
-        cmd.append(worktree_path)
-
-        returncode, stdout, stderr = await self._run(cmd, repo_path)
-        return {
-            "success": returncode == 0,
-            "error": stderr if returncode != 0 else None,
-        }
-```
-
-**Step 4: Run test**
-
-Run: `cd apps/backend && uv run pytest tests/test_git_worktree_service.py -v`
-Expected: PASS
-
-**Step 5: Commit**
-
-```bash
-git add apps/backend/app/services/git_worktree.py apps/backend/tests/test_git_worktree_service.py
-git commit -m "feat(backend): add git worktree subprocess service"
-```
-
----
-
-### Task 3: Worktree Pydantic schemas
+### Task 1: Worktree Pydantic schemas
 
 **Files:**
 - Create: `apps/backend/app/schemas/worktree.py`
-- Test: `apps/backend/tests/test_schemas_worktree.py`
+- Test: `apps/backend/tests/test_worktree_schemas.py`
 
 **Step 1: Write the failing test**
 
-Create `apps/backend/tests/test_schemas_worktree.py`:
+Create `apps/backend/tests/test_worktree_schemas.py`:
 
 ```python
-import uuid
-
 from app.schemas.worktree import WorktreeCreate, WorktreeResponse
 
 
 def test_worktree_create():
-    data = WorktreeCreate(branch="feature/auth", new_branch=True)
+    data = WorktreeCreate(branch="feature/auth")
     assert data.branch == "feature/auth"
-    assert data.new_branch is True
 
 
 def test_worktree_response():
     resp = WorktreeResponse(
-        id=uuid.uuid4(),
-        project_id=uuid.uuid4(),
         branch="feature/auth",
-        path="/tmp/wt",
-        status="active",
+        path="/tmp/wt/feature-auth",
+        head="abc123",
     )
-    assert resp.status == "active"
+    assert resp.branch == "feature/auth"
 ```
 
 **Step 2: Run test to verify it fails**
 
-Run: `cd apps/backend && uv run pytest tests/test_schemas_worktree.py -v`
+Run: `cd apps/backend && uv run pytest tests/test_worktree_schemas.py -v`
 Expected: FAIL
 
 **Step 3: Write the schemas**
@@ -331,75 +69,118 @@ Expected: FAIL
 Create `apps/backend/app/schemas/worktree.py`:
 
 ```python
-import uuid
-from datetime import datetime
-
 from pydantic import BaseModel
-
-from app.models.worktree import WorktreeStatus
 
 
 class WorktreeCreate(BaseModel):
     branch: str
-    new_branch: bool = True
+    base_branch: str = "main"
 
 
 class WorktreeResponse(BaseModel):
-    id: uuid.UUID
-    project_id: uuid.UUID
     branch: str
     path: str
-    status: WorktreeStatus
-    created_at: datetime | None = None
-
-    model_config = {"from_attributes": True}
+    head: str | None = None
+    bare: bool = False
 ```
 
 **Step 4: Run test**
 
-Run: `cd apps/backend && uv run pytest tests/test_schemas_worktree.py -v`
+Run: `cd apps/backend && uv run pytest tests/test_worktree_schemas.py -v`
 Expected: PASS
 
 **Step 5: Commit**
 
 ```bash
-git add apps/backend/app/schemas/worktree.py apps/backend/tests/test_schemas_worktree.py
+git add apps/backend/app/schemas/worktree.py apps/backend/tests/test_worktree_schemas.py
 git commit -m "feat(backend): add Worktree Pydantic schemas"
 ```
 
 ---
 
-### Task 4: Worktree REST API router
+### Task 2: Worktrees REST router
 
 **Files:**
 - Create: `apps/backend/app/routers/worktrees.py`
 - Modify: `apps/backend/app/main.py`
-- Test: `apps/backend/tests/test_router_worktrees.py`
+- Test: `apps/backend/tests/test_worktrees_router.py`
 
 **Step 1: Write the failing test**
 
-Create `apps/backend/tests/test_router_worktrees.py`:
+Create `apps/backend/tests/test_worktrees_router.py`:
 
 ```python
-from httpx import ASGITransport, AsyncClient
+import os
+import tempfile
+import uuid
 
-from app.main import app
+import pytest
+
+from tests.conftest import auth_headers, create_user
 
 
-async def test_list_worktrees():
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
-        response = await client.get(
-            "/api/projects/00000000-0000-0000-0000-000000000001/worktrees"
+async def test_list_worktrees(client, db_session):
+    user = await create_user(db_session)
+    headers = auth_headers(user.id)
+
+    # Create a project with a real git repo path
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.system(f"cd {tmpdir} && git init && git commit --allow-empty -m 'init'")
+
+        # Create project pointing to the temp dir
+        proj_resp = await client.post(
+            "/projects",
+            json={"name": "Test", "slug": "test", "path": tmpdir},
+            headers=headers,
         )
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
+        project_id = proj_resp.json()["id"]
+
+        response = await client.get(
+            f"/projects/{project_id}/worktrees",
+            headers=headers,
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) >= 1  # main worktree always present
+
+
+async def test_create_and_delete_worktree(client, db_session):
+    user = await create_user(db_session)
+    headers = auth_headers(user.id)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.system(f"cd {tmpdir} && git init && git commit --allow-empty -m 'init'")
+
+        proj_resp = await client.post(
+            "/projects",
+            json={"name": "Test2", "slug": "test2", "path": tmpdir},
+            headers=headers,
+        )
+        project_id = proj_resp.json()["id"]
+
+        # Create worktree
+        create_resp = await client.post(
+            f"/projects/{project_id}/worktrees",
+            json={"branch": "feature/test"},
+            headers=headers,
+        )
+        assert create_resp.status_code == 201
+        wt = create_resp.json()
+        assert wt["branch"] == "feature/test"
+        assert os.path.isdir(wt["path"])
+
+        # Delete worktree
+        del_resp = await client.delete(
+            f"/projects/{project_id}/worktrees/{wt['branch']}",
+            headers=headers,
+        )
+        assert del_resp.status_code == 204
 ```
 
 **Step 2: Run test to verify it fails**
 
-Run: `cd apps/backend && uv run pytest tests/test_router_worktrees.py -v`
+Run: `cd apps/backend && uv run pytest tests/test_worktrees_router.py -v`
 Expected: FAIL
 
 **Step 3: Write the router**
@@ -416,95 +197,107 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.project import Project
-from app.models.worktree import Worktree, WorktreeStatus
 from app.schemas.worktree import WorktreeCreate, WorktreeResponse
-from app.services.git_worktree import GitWorktreeService
+from app.services.auth import get_current_user
+from app.services.git_worktree import create_worktree, cleanup_worktree
+from app.services.project import require_project_member
 
-router = APIRouter(prefix="/api/projects/{project_id}/worktrees", tags=["worktrees"])
-git_service = GitWorktreeService()
+router = APIRouter(
+    prefix="/projects/{project_id}/worktrees",
+    tags=["worktrees"],
+)
 
 
 @router.get("", response_model=list[WorktreeResponse])
 async def list_worktrees(
     project_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _member=Depends(require_project_member),
 ):
-    result = await db.execute(
-        select(Worktree).where(Worktree.project_id == project_id)
-    )
-    return result.scalars().all()
-
-
-@router.post("", status_code=201, response_model=WorktreeResponse)
-async def create_worktree(
-    project_id: uuid.UUID,
-    body: WorktreeCreate,
-    db: AsyncSession = Depends(get_db),
-):
-    # Get project path
     result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # Build worktree path
+    # List worktrees via git CLI
+    import asyncio
+
+    proc = await asyncio.create_subprocess_exec(
+        "git", "worktree", "list", "--porcelain",
+        cwd=project.path,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stdout, _ = await proc.communicate()
+
+    worktrees = []
+    current = {}
+    for line in stdout.decode().strip().split("\n"):
+        if line.startswith("worktree "):
+            if current:
+                worktrees.append(current)
+            current = {"path": line.split(" ", 1)[1]}
+        elif line.startswith("HEAD "):
+            current["head"] = line.split(" ", 1)[1]
+        elif line.startswith("branch "):
+            current["branch"] = line.split(" ", 1)[1].replace("refs/heads/", "")
+        elif line == "bare":
+            current["bare"] = True
+        elif line == "":
+            if current:
+                worktrees.append(current)
+                current = {}
+    if current:
+        worktrees.append(current)
+
+    return worktrees
+
+
+@router.post("", status_code=201, response_model=WorktreeResponse)
+async def create_worktree_endpoint(
+    project_id: uuid.UUID,
+    body: WorktreeCreate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _member=Depends(require_project_member),
+):
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
     safe_branch = body.branch.replace("/", "-")
     wt_path = os.path.join(project.path, ".worktrees", safe_branch)
 
-    # Create via git
-    git_result = await git_service.create(
-        repo_path=project.path,
-        branch=body.branch,
-        worktree_path=wt_path,
-        new_branch=body.new_branch,
-    )
-    if not git_result["success"]:
-        raise HTTPException(status_code=400, detail=git_result["error"])
+    try:
+        await create_worktree(project.path, body.branch, wt_path)
+    except RuntimeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    # Save to DB
-    worktree = Worktree(
-        id=uuid.uuid4(),
-        project_id=project_id,
-        branch=body.branch,
-        path=wt_path,
-        status=WorktreeStatus.ACTIVE,
-    )
-    db.add(worktree)
-    await db.commit()
-    await db.refresh(worktree)
-    return worktree
+    return WorktreeResponse(branch=body.branch, path=wt_path)
 
 
-@router.delete("/{worktree_id}", status_code=204)
-async def remove_worktree(
+@router.delete("/{branch:path}", status_code=204)
+async def delete_worktree_endpoint(
     project_id: uuid.UUID,
-    worktree_id: uuid.UUID,
+    branch: str,
     db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _member=Depends(require_project_member),
 ):
-    result = await db.execute(
-        select(Worktree).where(
-            Worktree.id == worktree_id,
-            Worktree.project_id == project_id,
-        )
-    )
-    worktree = result.scalar_one_or_none()
-    if not worktree:
-        raise HTTPException(status_code=404, detail="Worktree not found")
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
 
-    # Get project for repo path
-    proj_result = await db.execute(select(Project).where(Project.id == project_id))
-    project = proj_result.scalar_one_or_none()
+    safe_branch = branch.replace("/", "-")
+    wt_path = os.path.join(project.path, ".worktrees", safe_branch)
 
-    # Remove via git
-    git_result = await git_service.remove(
-        repo_path=project.path,
-        worktree_path=worktree.path,
-    )
-    if not git_result["success"]:
-        raise HTTPException(status_code=400, detail=git_result["error"])
-
-    await db.delete(worktree)
-    await db.commit()
+    try:
+        await cleanup_worktree(project.path, wt_path)
+    except RuntimeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 ```
 
 **Step 4: Register router in main.py**
@@ -513,120 +306,300 @@ Add to `apps/backend/app/main.py`:
 
 ```python
 from app.routers.worktrees import router as worktrees_router
-
 app.include_router(worktrees_router)
 ```
 
 **Step 5: Run tests**
 
-Run: `cd apps/backend && uv run pytest tests/ -v`
-Expected: ALL PASS
+Run: `cd apps/backend && uv run pytest tests/test_worktrees_router.py -v`
+Expected: PASS
 
 **Step 6: Commit**
 
 ```bash
-git add apps/backend/app/routers/worktrees.py apps/backend/app/main.py apps/backend/tests/test_router_worktrees.py
-git commit -m "feat(backend): add Worktree REST API with git integration"
+git add apps/backend/app/routers/worktrees.py apps/backend/app/main.py apps/backend/tests/test_worktrees_router.py
+git commit -m "feat(backend): add Worktrees REST router"
 ```
 
 ---
 
-### Task 5: Wire worktree into session runner
+### Task 3: Worktrees screen in frontend
 
 **Files:**
-- Modify: `apps/backend/app/services/session_runner.py`
-- Modify: `apps/backend/app/routers/sessions.py`
-- Test: `apps/backend/tests/test_session_runner.py` (add worktree test)
+- Create: `apps/desktop/src/renderer/hooks/use-worktrees.ts`
+- Modify: `apps/desktop/src/renderer/screens/worktrees.tsx`
 
-**Step 1: Add test for worktree-aware session**
+**UI imports from `@agent-coding/ui`:** `Breadcrumb`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbList`, `BreadcrumbPage`, `BreadcrumbSeparator`, `SourceList`, `Panel`, `SplitPane`, `SplitPanePanel`, `SplitPaneHandle`, `Button`, `Input`, `Label`, `Sheet`, `SheetContent`, `SheetHeader`, `SheetTitle`, `SheetFooter`, `SheetTrigger`, `EmptyState`, `StatusBadge`, `KVRow`, `Spinner`, `Badge`, `Card`, `CardContent`, `ScrollArea`, `Separator`, `Dialog`, `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogDescription`, `DialogFooter`
 
-Add to `apps/backend/tests/test_session_runner.py`:
+**Step 1: Create useWorktrees hook**
 
-```python
-def test_build_agent_options_with_worktree_path():
-    options = build_agent_options(
-        session_type="chat",
-        project_path="/home/user/project/.worktrees/feature-auth",
-        prompt="Hello",
-        skills_content=None,
+```typescript
+import { useCallback, useEffect, useState } from 'react'
+import { api } from '../lib/api-client'
+
+interface Worktree {
+  branch: string
+  path: string
+  head: string | null
+  bare: boolean
+}
+
+export function useWorktrees(projectId: string) {
+  const [worktrees, setWorktrees] = useState<Worktree[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetch = useCallback(async () => {
+    setLoading(true)
+    try {
+      setWorktrees(await api.get<Worktree[]>(`/projects/${projectId}/worktrees`))
+    } catch {
+      setWorktrees([])
+    } finally {
+      setLoading(false)
+    }
+  }, [projectId])
+
+  useEffect(() => { fetch() }, [fetch])
+
+  const create = async (branch: string) => {
+    await api.post(`/projects/${projectId}/worktrees`, { branch })
+    await fetch()
+  }
+
+  const remove = async (branch: string) => {
+    await api.delete(`/projects/${projectId}/worktrees/${branch}`)
+    await fetch()
+  }
+
+  return { worktrees, loading, refresh: fetch, create, remove }
+}
+```
+
+**Step 2: Build the worktrees screen**
+
+Replace placeholder with worktrees UI per `docs/design/pages/worktrees.md`:
+
+```tsx
+import { useState } from 'react'
+import { GitBranch, Plus, Trash2 } from 'lucide-react'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  SourceList,
+  Panel,
+  SplitPane,
+  SplitPanePanel,
+  SplitPaneHandle,
+  Button,
+  Input,
+  Label,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetTrigger,
+  EmptyState,
+  StatusBadge,
+  KVRow,
+  Spinner,
+  Badge,
+  Card,
+  CardContent,
+  ScrollArea,
+  Separator,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  type SourceListItem,
+} from '@agent-coding/ui'
+
+import { useWorktrees } from '../hooks/use-worktrees'
+
+export function WorktreesScreen() {
+  const projectId = 'current-project-id' // TODO: get from route/context
+  const { worktrees, loading, create, remove } = useWorktrees(projectId)
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null)
+  const [newBranch, setNewBranch] = useState('')
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  const selectedWorktree = worktrees.find((w) => w.branch === selectedBranch)
+
+  const sourceItems: SourceListItem[] = worktrees.map((wt) => ({
+    id: wt.branch,
+    label: wt.branch,
+    icon: <GitBranch size={14} className="text-muted-foreground" />,
+    badge: <StatusBadge status={wt.bare ? 'idle' : 'connected'} showDot />,
+  }))
+
+  async function handleCreate() {
+    if (!newBranch.trim()) return
+    await create(newBranch)
+    setNewBranch('')
+    setSheetOpen(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Spinner label="Loading worktrees..." />
+      </div>
     )
-    assert options.cwd.as_posix() == "/home/user/project/.worktrees/feature-auth"
+  }
+
+  return (
+    <div className="flex h-full flex-col">
+      {/* Breadcrumb */}
+      <div className="border-b border-border px-4 py-2">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Projects</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Worktrees</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
+      <SplitPane direction="horizontal" className="flex-1">
+        {/* Worktree list */}
+        <SplitPanePanel defaultSize={30} minSize={20}>
+          <Panel>
+            <Panel.Header>
+              <Panel.Title>Worktrees</Panel.Title>
+              <Panel.Actions>
+                <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button size="xs"><Plus size={14} /></Button>
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetHeader>
+                      <SheetTitle>Create Worktree</SheetTitle>
+                    </SheetHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="branch-name">Branch Name</Label>
+                        <Input
+                          id="branch-name"
+                          placeholder="feature/my-feature"
+                          value={newBranch}
+                          onChange={(e) => setNewBranch(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <SheetFooter>
+                      <Button onClick={handleCreate}>Create</Button>
+                    </SheetFooter>
+                  </SheetContent>
+                </Sheet>
+              </Panel.Actions>
+            </Panel.Header>
+            <Panel.Content>
+              <ScrollArea className="h-full">
+                {worktrees.length === 0 ? (
+                  <EmptyState
+                    icon={GitBranch}
+                    title="No worktrees"
+                    description="Create a worktree to start working on a branch"
+                    action={<Button size="sm" onClick={() => setSheetOpen(true)}>Create Worktree</Button>}
+                  />
+                ) : (
+                  <SourceList
+                    items={sourceItems}
+                    selectedId={selectedBranch ?? undefined}
+                    onSelect={setSelectedBranch}
+                  />
+                )}
+              </ScrollArea>
+            </Panel.Content>
+          </Panel>
+        </SplitPanePanel>
+
+        <SplitPaneHandle />
+
+        {/* Detail panel */}
+        <SplitPanePanel defaultSize={70}>
+          <Panel>
+            {selectedWorktree ? (
+              <>
+                <Panel.Header>
+                  <Panel.Title>
+                    <Badge variant="outline">{selectedWorktree.branch}</Badge>
+                  </Panel.Title>
+                  <Panel.Actions>
+                    <Button variant="destructive" size="xs" onClick={() => setDeleteDialogOpen(true)}>
+                      <Trash2 size={14} /> Remove
+                    </Button>
+                  </Panel.Actions>
+                </Panel.Header>
+                <Panel.Content>
+                  <Card className="m-4">
+                    <CardContent className="pt-4">
+                      <div className="space-y-1">
+                        <KVRow label="Branch" value={selectedWorktree.branch} />
+                        <Separator />
+                        <KVRow label="Path" value={selectedWorktree.path} />
+                        <Separator />
+                        <KVRow label="HEAD" value={selectedWorktree.head ?? 'N/A'} />
+                        <Separator />
+                        <KVRow
+                          label="Status"
+                          value={<StatusBadge status={selectedWorktree.bare ? 'idle' : 'connected'}>{selectedWorktree.bare ? 'Bare' : 'Active'}</StatusBadge>}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Panel.Content>
+              </>
+            ) : (
+              <Panel.Content>
+                <EmptyState
+                  icon={GitBranch}
+                  title="No worktree selected"
+                  description="Select a worktree from the list to view details"
+                />
+              </Panel.Content>
+            )}
+          </Panel>
+        </SplitPanePanel>
+      </SplitPane>
+
+      {/* Delete confirmation */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Worktree</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove the worktree for "{selectedWorktree?.branch}"?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => { if (selectedBranch) { remove(selectedBranch); setSelectedBranch(null); setDeleteDialogOpen(false) } }}>
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
 ```
-
-**Step 2: Run test — should already pass**
-
-Run: `cd apps/backend && uv run pytest tests/test_session_runner.py -v`
-Expected: PASS (build_agent_options already takes project_path as param)
-
-**Step 3: Update session creation to accept optional worktree_id**
-
-In `apps/backend/app/schemas/session.py`, add to `SessionCreate`:
-
-```python
-class SessionCreate(BaseModel):
-    project_id: uuid.UUID
-    type: SessionType
-    prompt: str
-    worktree_id: uuid.UUID | None = None
-```
-
-In `apps/backend/app/routers/sessions.py`, resolve worktree path when creating session:
-
-```python
-# In create_session, after creating the Session object:
-# Resolve working directory
-work_dir = "/tmp"  # default
-if body.worktree_id:
-    wt_result = await db.execute(
-        select(Worktree).where(Worktree.id == body.worktree_id)
-    )
-    wt = wt_result.scalar_one_or_none()
-    if wt:
-        work_dir = wt.path
-else:
-    proj_result = await db.execute(
-        select(Project).where(Project.id == body.project_id)
-    )
-    proj = proj_result.scalar_one_or_none()
-    if proj:
-        work_dir = proj.path
-
-await pool.enqueue_job(
-    "run_session_task",
-    str(session.id),
-    work_dir,
-    body.type.value,
-    body.prompt,
-)
-```
-
-**Step 4: Run all tests**
-
-Run: `cd apps/backend && uv run pytest tests/ -v`
-Expected: ALL PASS
-
-**Step 5: Commit**
-
-```bash
-git add apps/backend/app/schemas/session.py apps/backend/app/routers/sessions.py apps/backend/tests/test_session_runner.py
-git commit -m "feat(backend): wire worktree path into session runner"
-```
-
----
-
-### Task 6: Alembic migration for worktree table
-
-**Step 1: Generate migration**
-
-Run: `cd apps/backend && uv run alembic revision --autogenerate -m "add worktree table and session worktree_id"`
-
-**Step 2: Review and run**
-
-Run: `cd apps/backend && uv run alembic upgrade head`
 
 **Step 3: Commit**
 
 ```bash
-git add apps/backend/alembic/versions/
-git commit -m "feat(backend): add migration for worktree table"
+git add apps/desktop/src/renderer/hooks/use-worktrees.ts apps/desktop/src/renderer/screens/worktrees.tsx
+git commit -m "feat(desktop): build worktrees screen with @agent-coding/ui"
 ```

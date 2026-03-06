@@ -1,14 +1,18 @@
 from contextlib import asynccontextmanager
 
+import redis.asyncio as aioredis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routers import auth, projects, agents, templates, tickets, sessions, workflow, websocket
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.redis = aioredis.from_url(settings.redis_url)
     yield
+    await app.state.redis.aclose()
 
 
 app = FastAPI(
@@ -23,6 +27,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth.router)
+app.include_router(projects.router)
+app.include_router(agents.router)
+app.include_router(templates.router)
+app.include_router(tickets.router)
+app.include_router(sessions.router)
+app.include_router(workflow.router)
+app.include_router(websocket.router)
 
 
 @app.get("/health")

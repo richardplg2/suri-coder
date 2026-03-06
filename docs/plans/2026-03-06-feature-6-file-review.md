@@ -2,165 +2,58 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Per-file code review with AI-generated comments, inline diff viewer, interactive Q&A per file, and approve/reject/fix actions.
+**Goal:** Per-file code review with AI-generated comments, inline diff viewer, interactive Q&A per file, and approve/reject/fix actions. Users select a branch to review, Claude generates comments per changed file, then users can discuss and resolve.
 
-**Architecture:** ReviewSession and FileReview models. When a review is triggered, the backend runs `git diff` to get changed files, then spawns a Claude session per file to generate review comments. Users can interact with Claude per-file and trigger fix sessions.
+**Architecture:** ReviewSession/FileReview models already exist. Need a git diff service, review prompt builder, review REST router, and a frontend UI with file tree, diff viewer, and inline comments — all using `@agent-coding/ui` primitives (FileTree, DiffViewer, InlineComment are provided by the UI package).
 
-**Tech Stack:** FastAPI, SQLAlchemy async, claude_agent_sdk, git CLI (subprocess), PostgreSQL
+**Tech Stack:** FastAPI, SQLAlchemy async, claude_agent_sdk, git CLI (subprocess), React 19, @agent-coding/ui
 
-**Depends on:** Feature 1 (Session management), Feature 3 (Worktree — review can target worktree branch)
+**Depends on:** Feature 1 (session management), Feature 3 (worktrees — review can target worktree branches), UI Primitives plan (packages/ui built)
 
----
+**Already built (backend):**
+- ReviewSession model (`apps/backend/app/models/review.py`) — session_id, status, summary
+- FileReview model (`apps/backend/app/models/review.py`) — file_path, status, comments (JSON)
 
-### Task 1: ReviewSession and FileReview models
+**Already built (UI package — no need to create locally):**
+- `FileTree` — file list with status icons (modified/added/deleted)
+- `DiffViewer` — unified diff with line annotations
+- `InlineComment` — comment card for AI/user feedback
+- `SplitPane` — for 2-panel layout
+- `Panel` — compound component for layout sections
+- `EmptyState`, `Spinner`, `StatusBadge`, `Progress`
+- shadcn: `Select`, `Button`, `Textarea`, `ScrollArea`, `Badge`, `Separator`, `Tooltip`
 
-**Files:**
-- Create: `apps/backend/app/models/review.py`
-- Modify: `apps/backend/app/models/__init__.py`
-- Test: `apps/backend/tests/test_models_review.py`
+**Remaining work:**
+- Backend: Git diff service, review prompt builder, review schemas, review REST router
+- Frontend: Branch selector, file tree, diff viewer, inline comments, Q&A panel (using @agent-coding/ui)
 
-**Step 1: Write the failing test**
-
-Create `apps/backend/tests/test_models_review.py`:
-
-```python
-import uuid
-
-from app.models.review import FileReview, FileReviewStatus, ReviewSession, ReviewStatus
-
-
-def test_review_session_fields():
-    rs = ReviewSession(
-        id=uuid.uuid4(),
-        project_id=uuid.uuid4(),
-        branch="feature/auth",
-        status=ReviewStatus.IN_PROGRESS,
-    )
-    assert rs.branch == "feature/auth"
-    assert rs.session_id is None
-
-
-def test_file_review_fields():
-    fr = FileReview(
-        id=uuid.uuid4(),
-        review_id=uuid.uuid4(),
-        file_path="src/auth/login.ts",
-        diff_content="- old\n+ new",
-        user_status=FileReviewStatus.PENDING,
-    )
-    assert fr.file_path == "src/auth/login.ts"
-    assert fr.ai_comments is None
-    assert fr.conversation is None
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_models_review.py -v`
-Expected: FAIL
-
-**Step 3: Write the models**
-
-Create `apps/backend/app/models/review.py`:
-
-```python
-import enum
-import uuid
-from datetime import datetime, timezone
-
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import JSON, UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from app.database import Base
-
-
-class ReviewStatus(str, enum.Enum):
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-
-
-class FileReviewStatus(str, enum.Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-
-
-class ReviewSession(Base):
-    __tablename__ = "review_sessions"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
-    session_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("sessions.id"), nullable=True)
-    branch: Mapped[str] = mapped_column(String(255), nullable=False)
-    base_branch: Mapped[str] = mapped_column(String(255), default="main")
-    status: Mapped[ReviewStatus] = mapped_column(Enum(ReviewStatus), default=ReviewStatus.IN_PROGRESS)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-
-    files: Mapped[list["FileReview"]] = relationship(back_populates="review", cascade="all, delete-orphan")
-
-
-class FileReview(Base):
-    __tablename__ = "file_reviews"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    review_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("review_sessions.id"), nullable=False)
-    file_path: Mapped[str] = mapped_column(Text, nullable=False)
-    diff_content: Mapped[str] = mapped_column(Text, nullable=False)
-    ai_comments: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    user_status: Mapped[FileReviewStatus] = mapped_column(Enum(FileReviewStatus), default=FileReviewStatus.PENDING)
-    conversation: Mapped[list | None] = mapped_column(JSON, nullable=True)
-
-    review: Mapped["ReviewSession"] = relationship(back_populates="files")
-```
-
-Update `apps/backend/app/models/__init__.py` to include:
-
-```python
-from app.models.review import FileReview, FileReviewStatus, ReviewSession, ReviewStatus
-```
-
-**Step 4: Run test**
-
-Run: `cd apps/backend && uv run pytest tests/test_models_review.py -v`
-Expected: PASS
-
-**Step 5: Commit**
-
-```bash
-git add apps/backend/app/models/ apps/backend/tests/test_models_review.py
-git commit -m "feat(backend): add ReviewSession and FileReview models"
-```
+**Design ref:** `docs/design/pages/file-review.md`
 
 ---
 
-### Task 2: Git diff service
+### Task 1: Git diff service
 
 **Files:**
 - Create: `apps/backend/app/services/git_diff.py`
-- Test: `apps/backend/tests/test_git_diff_service.py`
+- Test: `apps/backend/tests/test_git_diff.py`
 
 **Step 1: Write the failing test**
-
-Create `apps/backend/tests/test_git_diff_service.py`:
 
 ```python
 import os
 import tempfile
-
 import pytest
 
-from app.services.git_diff import GitDiffService
+from app.services.git_diff import get_changed_files, get_file_diff
 
 
 @pytest.fixture
 def git_repo_with_changes():
     with tempfile.TemporaryDirectory() as tmpdir:
         os.system(f"cd {tmpdir} && git init && git checkout -b main")
-        # Create initial file
         with open(os.path.join(tmpdir, "hello.py"), "w") as f:
             f.write("print('hello')\n")
         os.system(f"cd {tmpdir} && git add . && git commit -m 'init'")
-        # Create branch with changes
         os.system(f"cd {tmpdir} && git checkout -b feature/test")
         with open(os.path.join(tmpdir, "hello.py"), "w") as f:
             f.write("print('hello world')\n")
@@ -172,8 +65,7 @@ def git_repo_with_changes():
 
 @pytest.mark.asyncio
 async def test_get_changed_files(git_repo_with_changes):
-    service = GitDiffService()
-    files = await service.get_changed_files(
+    files = await get_changed_files(
         repo_path=git_repo_with_changes,
         branch="feature/test",
         base_branch="main",
@@ -186,93 +78,76 @@ async def test_get_changed_files(git_repo_with_changes):
 
 @pytest.mark.asyncio
 async def test_get_file_diff(git_repo_with_changes):
-    service = GitDiffService()
-    diff = await service.get_file_diff(
+    diff = await get_file_diff(
         repo_path=git_repo_with_changes,
         file_path="hello.py",
         branch="feature/test",
         base_branch="main",
     )
     assert "hello" in diff
-    assert "+" in diff or "-" in diff
 ```
 
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_git_diff_service.py -v`
-Expected: FAIL
-
-**Step 3: Write the implementation**
-
-Create `apps/backend/app/services/git_diff.py`:
+**Step 2: Write the implementation**
 
 ```python
 import asyncio
 
 
-class GitDiffService:
-    async def _run(self, cmd: list[str], cwd: str) -> tuple[int, str, str]:
-        proc = await asyncio.create_subprocess_exec(
-            *cmd,
-            cwd=cwd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = await proc.communicate()
-        return proc.returncode, stdout.decode(), stderr.decode()
+async def _run_git(cmd: list[str], cwd: str) -> tuple[int, str]:
+    proc = await asyncio.create_subprocess_exec(
+        *cmd,
+        cwd=cwd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stdout, _ = await proc.communicate()
+    return proc.returncode, stdout.decode()
 
-    async def get_changed_files(
-        self,
-        repo_path: str,
-        branch: str,
-        base_branch: str = "main",
-    ) -> list[dict]:
-        returncode, stdout, stderr = await self._run(
-            ["git", "diff", "--name-status", f"{base_branch}...{branch}"],
-            repo_path,
-        )
-        if returncode != 0:
-            return []
 
-        files = []
-        for line in stdout.strip().split("\n"):
-            if not line:
-                continue
-            parts = line.split("\t")
-            status = parts[0]
-            path = parts[1] if len(parts) > 1 else ""
-            files.append({"status": status, "path": path})
-        return files
+async def get_changed_files(
+    repo_path: str,
+    branch: str,
+    base_branch: str = "main",
+) -> list[dict]:
+    rc, stdout = await _run_git(
+        ["git", "diff", "--name-status", f"{base_branch}...{branch}"],
+        repo_path,
+    )
+    if rc != 0:
+        return []
 
-    async def get_file_diff(
-        self,
-        repo_path: str,
-        file_path: str,
-        branch: str,
-        base_branch: str = "main",
-    ) -> str:
-        returncode, stdout, stderr = await self._run(
-            ["git", "diff", f"{base_branch}...{branch}", "--", file_path],
-            repo_path,
-        )
-        return stdout
+    files = []
+    for line in stdout.strip().split("\n"):
+        if not line:
+            continue
+        parts = line.split("\t")
+        files.append({"status": parts[0], "path": parts[1] if len(parts) > 1 else ""})
+    return files
+
+
+async def get_file_diff(
+    repo_path: str,
+    file_path: str,
+    branch: str,
+    base_branch: str = "main",
+) -> str:
+    _, stdout = await _run_git(
+        ["git", "diff", f"{base_branch}...{branch}", "--", file_path],
+        repo_path,
+    )
+    return stdout
 ```
 
-**Step 4: Run test**
-
-Run: `cd apps/backend && uv run pytest tests/test_git_diff_service.py -v`
-Expected: PASS
-
-**Step 5: Commit**
+**Step 3: Run test, commit**
 
 ```bash
-git add apps/backend/app/services/git_diff.py apps/backend/tests/test_git_diff_service.py
+git add apps/backend/app/services/git_diff.py apps/backend/tests/test_git_diff.py
 git commit -m "feat(backend): add git diff service"
 ```
 
 ---
 
-### Task 3: Review prompt builder service
+### Task 2: Review prompt builder
 
 **Files:**
 - Create: `apps/backend/app/services/review_prompt.py`
@@ -280,65 +155,59 @@ git commit -m "feat(backend): add git diff service"
 
 **Step 1: Write the failing test**
 
-Create `apps/backend/tests/test_review_prompt.py`:
-
 ```python
-from app.services.review_prompt import build_file_review_prompt, build_fix_prompt
+from app.services.review_prompt import build_review_prompt, build_fix_prompt
 
 
-def test_build_file_review_prompt():
-    prompt = build_file_review_prompt(
+def test_build_review_prompt():
+    prompt = build_review_prompt(
         file_path="src/auth/login.ts",
         diff_content="- old line\n+ new line",
     )
     assert "src/auth/login.ts" in prompt
     assert "- old line" in prompt
-    assert "review" in prompt.lower()
 
 
 def test_build_fix_prompt():
     prompt = build_fix_prompt(
         file_path="src/auth/login.ts",
-        ai_comment="Missing error handling for async jwt.sign",
+        comment="Missing error handling for async call",
     )
     assert "src/auth/login.ts" in prompt
     assert "Missing error handling" in prompt
 ```
 
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_review_prompt.py -v`
-Expected: FAIL
-
-**Step 3: Write the implementation**
-
-Create `apps/backend/app/services/review_prompt.py`:
+**Step 2: Write the implementation**
 
 ```python
-def build_file_review_prompt(file_path: str, diff_content: str) -> str:
+def build_review_prompt(file_path: str, diff_content: str) -> str:
     return (
         f"Review the following file changes and provide detailed feedback.\n\n"
         f"File: {file_path}\n\n"
         f"```diff\n{diff_content}\n```\n\n"
-        f"For each issue found, provide:\n"
+        f"For each issue, provide:\n"
         f"1. Line reference\n"
         f"2. Severity (critical, warning, suggestion)\n"
-        f"3. Description of the issue\n"
+        f"3. Description\n"
         f"4. Suggested fix\n\n"
-        f"Respond in JSON format:\n"
-        f'{{"comments": [{{"line": number, "severity": string, "message": string, "suggestion": string}}]}}'
+        f'Respond in JSON: {{"comments": [{{"line": int, "severity": str, "message": str, "suggestion": str}}]}}'
     )
 
 
-def build_fix_prompt(file_path: str, ai_comment: str) -> str:
+def build_fix_prompt(file_path: str, comment: str) -> str:
     return (
         f"Fix the following issue in {file_path}:\n\n"
-        f"{ai_comment}\n\n"
+        f"{comment}\n\n"
         f"Read the file, understand the context, apply the fix, and verify it works."
     )
 
 
-def build_question_prompt(file_path: str, diff_content: str, question: str, history: list[dict] | None = None) -> str:
+def build_question_prompt(
+    file_path: str,
+    diff_content: str,
+    question: str,
+    history: list[dict] | None = None,
+) -> str:
     parts = [
         f"Context: reviewing changes in {file_path}\n",
         f"```diff\n{diff_content}\n```\n",
@@ -352,12 +221,7 @@ def build_question_prompt(file_path: str, diff_content: str, question: str, hist
     return "\n".join(parts)
 ```
 
-**Step 4: Run test**
-
-Run: `cd apps/backend && uv run pytest tests/test_review_prompt.py -v`
-Expected: PASS
-
-**Step 5: Commit**
+**Step 3: Run test, commit**
 
 ```bash
 git add apps/backend/app/services/review_prompt.py apps/backend/tests/test_review_prompt.py
@@ -366,65 +230,19 @@ git commit -m "feat(backend): add review prompt builder service"
 
 ---
 
-### Task 4: Review Pydantic schemas
+### Task 3: Review schemas and REST router
 
 **Files:**
 - Create: `apps/backend/app/schemas/review.py`
-- Test: `apps/backend/tests/test_schemas_review.py`
+- Create: `apps/backend/app/routers/reviews.py`
+- Modify: `apps/backend/app/main.py`
+- Test: `apps/backend/tests/test_reviews_router.py`
 
-**Step 1: Write the failing test**
-
-Create `apps/backend/tests/test_schemas_review.py`:
-
-```python
-import uuid
-
-from app.schemas.review import FileReviewResponse, ReviewCreate, ReviewResponse
-
-
-def test_review_create():
-    data = ReviewCreate(branch="feature/auth")
-    assert data.base_branch == "main"
-
-
-def test_review_response():
-    resp = ReviewResponse(
-        id=uuid.uuid4(),
-        project_id=uuid.uuid4(),
-        branch="feature/auth",
-        base_branch="main",
-        status="in_progress",
-        files=[],
-    )
-    assert len(resp.files) == 0
-
-
-def test_file_review_response():
-    fr = FileReviewResponse(
-        id=uuid.uuid4(),
-        file_path="src/login.ts",
-        diff_content="+ new",
-        user_status="pending",
-    )
-    assert fr.ai_comments is None
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_schemas_review.py -v`
-Expected: FAIL
-
-**Step 3: Write the schemas**
-
-Create `apps/backend/app/schemas/review.py`:
+**Step 1: Write schemas**
 
 ```python
 import uuid
-from datetime import datetime
-
 from pydantic import BaseModel
-
-from app.models.review import FileReviewStatus, ReviewStatus
 
 
 class ReviewCreate(BaseModel):
@@ -435,379 +253,359 @@ class ReviewCreate(BaseModel):
 class FileReviewResponse(BaseModel):
     id: uuid.UUID
     file_path: str
-    diff_content: str
-    ai_comments: dict | None = None
-    user_status: FileReviewStatus
-    conversation: list | None = None
+    status: str
+    comments: list | None = None
 
     model_config = {"from_attributes": True}
 
 
 class ReviewResponse(BaseModel):
     id: uuid.UUID
-    project_id: uuid.UUID
     session_id: uuid.UUID | None = None
-    branch: str
-    base_branch: str
-    status: ReviewStatus
-    files: list[FileReviewResponse] = []
-    created_at: datetime | None = None
+    status: str
+    summary: str | None = None
+    file_reviews: list[FileReviewResponse] = []
 
     model_config = {"from_attributes": True}
 
 
 class FileReviewAction(BaseModel):
-    action: FileReviewStatus  # approved or rejected
+    status: str  # "approved" or "rejected"
 
 
 class FileReviewQuestion(BaseModel):
     question: str
 ```
 
-**Step 4: Run test**
+**Step 2: Write router**
 
-Run: `cd apps/backend && uv run pytest tests/test_schemas_review.py -v`
-Expected: PASS
+Router endpoints:
+- `GET /projects/{id}/reviews` — list reviews for project
+- `POST /projects/{id}/reviews` — create review (runs git diff, creates FileReview per changed file, enqueues AI review)
+- `GET /projects/{id}/reviews/{review_id}` — get review detail with file reviews
+- `PATCH /projects/{id}/reviews/{review_id}/files/{file_id}/status` — approve/reject file
+- `POST /projects/{id}/reviews/{review_id}/files/{file_id}/ask` — ask question about file (appends to conversation, enqueues Claude)
+- `POST /projects/{id}/reviews/{review_id}/files/{file_id}/fix` — trigger Claude fix session
 
-**Step 5: Commit**
+The create endpoint should:
+1. Get project path
+2. Call `get_changed_files()` to find modified files
+3. Call `get_file_diff()` per file
+4. Create ReviewSession + FileReview records
+5. For each file, build review prompt and enqueue ARQ job
+
+**Step 3: Write failing test, register router, run tests, commit**
 
 ```bash
-git add apps/backend/app/schemas/review.py apps/backend/tests/test_schemas_review.py
-git commit -m "feat(backend): add Review Pydantic schemas"
+git add apps/backend/app/schemas/review.py apps/backend/app/routers/reviews.py apps/backend/app/main.py apps/backend/tests/test_reviews_router.py
+git commit -m "feat(backend): add Review REST router with ask/fix endpoints"
 ```
 
 ---
 
-### Task 5: Review REST API router
+### Task 4: File review screen in frontend
 
 **Files:**
-- Create: `apps/backend/app/routers/reviews.py`
-- Modify: `apps/backend/app/main.py`
-- Test: `apps/backend/tests/test_router_reviews.py`
+- Create: `apps/desktop/src/renderer/hooks/use-reviews.ts`
+- Modify: `apps/desktop/src/renderer/screens/reviews.tsx`
 
-**Step 1: Write the failing test**
+**UI imports from `@agent-coding/ui`:** `FileTree`, `DiffViewer`, `InlineComment`, `SplitPane`, `SplitPanePanel`, `SplitPaneHandle`, `Panel`, `Select`, `SelectTrigger`, `SelectValue`, `SelectContent`, `SelectItem`, `Button`, `Textarea`, `EmptyState`, `Spinner`, `StatusBadge`, `Progress`, `ScrollArea`, `Badge`, `Separator`, `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider`, `type FileTreeNode`, `type DiffLine`
 
-Create `apps/backend/tests/test_router_reviews.py`:
+**Step 1: Create useReviews hook**
 
-```python
-from httpx import ASGITransport, AsyncClient
+Manages review state, file selection, comments, Q&A, and actions.
 
-from app.main import app
+**Step 2: Build reviews screen**
 
+Per `docs/design/pages/file-review.md`:
 
-async def test_list_reviews():
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
-        response = await client.get(
-            "/api/projects/00000000-0000-0000-0000-000000000001/reviews"
-        )
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
+- Layout: SplitPane 2-panel (FileTree 200px | DiffViewer full-width) — no inspector panel
+- Top: Select for branch selection, Button "Start Review"
+- FileTree on left with file status icons (modified/added/deleted) + review status
+- DiffViewer on right with inline AI comments via renderLineAnnotation + InlineComment
+- Per-file actions: Button Approve, Button Reject, Button "Fix" (spawns Claude session)
+- Per-comment: Textarea reply input for follow-up questions
+- States: EmptyState (no review), Spinner (AI reviewing), comments visible, summary
+
+```tsx
+import { useState } from 'react'
+import { Check, FileCode2, MessageSquare, X, Wrench } from 'lucide-react'
+import {
+  FileTree,
+  DiffViewer,
+  InlineComment,
+  SplitPane,
+  SplitPanePanel,
+  SplitPaneHandle,
+  Panel,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Button,
+  Textarea,
+  EmptyState,
+  Spinner,
+  StatusBadge,
+  Progress,
+  ScrollArea,
+  Badge,
+  Separator,
+  type FileTreeNode,
+  type DiffLine,
+} from '@agent-coding/ui'
+
+import { useReviews } from '../hooks/use-reviews'
+
+// Map git status to FileTree status
+function mapGitStatus(gitStatus: string): 'modified' | 'added' | 'deleted' | 'unchanged' {
+  if (gitStatus === 'M') return 'modified'
+  if (gitStatus === 'A') return 'added'
+  if (gitStatus === 'D') return 'deleted'
+  return 'unchanged'
+}
+
+// Parse unified diff into DiffLine array
+function parseDiff(diffContent: string): DiffLine[] {
+  const lines: DiffLine[] = []
+  let oldLine = 0
+  let newLine = 0
+
+  for (const line of diffContent.split('\n')) {
+    if (line.startsWith('@@')) {
+      const match = line.match(/@@ -(\d+)/)
+      if (match) oldLine = parseInt(match[1]) - 1
+      const match2 = line.match(/\+(\d+)/)
+      if (match2) newLine = parseInt(match2[1]) - 1
+      continue
+    }
+    if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('diff')) continue
+
+    if (line.startsWith('+')) {
+      newLine++
+      lines.push({ type: 'added', content: line.slice(1), lineNumber: { new: newLine } })
+    } else if (line.startsWith('-')) {
+      oldLine++
+      lines.push({ type: 'removed', content: line.slice(1), lineNumber: { old: oldLine } })
+    } else {
+      oldLine++
+      newLine++
+      lines.push({ type: 'unchanged', content: line.slice(1) || '', lineNumber: { old: oldLine, new: newLine } })
+    }
+  }
+  return lines
+}
+
+export function ReviewsScreen() {
+  const {
+    branches,
+    selectedBranch,
+    setSelectedBranch,
+    review,
+    fileReviews,
+    selectedFilePath,
+    setSelectedFilePath,
+    diffContent,
+    comments,
+    isReviewing,
+    startReview,
+    approveFile,
+    rejectFile,
+    fixFile,
+    askQuestion,
+  } = useReviews()
+
+  const [replyInput, setReplyInput] = useState('')
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set())
+
+  // Build FileTree nodes from file reviews
+  const fileNodes: FileTreeNode[] = fileReviews.map((fr) => ({
+    name: fr.file_path.split('/').pop() ?? fr.file_path,
+    path: fr.file_path,
+    type: 'file' as const,
+    status: mapGitStatus(fr.git_status ?? 'M'),
+  }))
+
+  // Parse diff into DiffLine array
+  const diffLines = diffContent ? parseDiff(diffContent) : []
+
+  // Build comment map by line index
+  const commentsByLine = new Map<number, typeof comments>()
+  if (comments) {
+    for (const comment of comments) {
+      const lineIdx = diffLines.findIndex(
+        (l) => l.lineNumber?.new === comment.line || l.lineNumber?.old === comment.line
+      )
+      if (lineIdx >= 0) {
+        const existing = commentsByLine.get(lineIdx) ?? []
+        existing.push(comment)
+        commentsByLine.set(lineIdx, existing)
+      }
+    }
+  }
+
+  const selectedFileReview = fileReviews.find((fr) => fr.file_path === selectedFilePath)
+
+  return (
+    <div className="flex h-full flex-col">
+      {/* Top bar: branch selector + actions */}
+      <div className="flex items-center gap-3 border-b border-border px-4 py-2">
+        <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+          <SelectTrigger className="w-[250px]">
+            <SelectValue placeholder="Select branch..." />
+          </SelectTrigger>
+          <SelectContent>
+            {branches.map((b) => (
+              <SelectItem key={b} value={b}>{b}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Button onClick={startReview} disabled={!selectedBranch || isReviewing}>
+          {isReviewing ? <Spinner size="sm" /> : 'Start Review'}
+        </Button>
+
+        {review && (
+          <StatusBadge status={review.status === 'completed' ? 'passed' : review.status === 'reviewing' ? 'running' : 'pending'}>
+            {review.status}
+          </StatusBadge>
+        )}
+
+        {isReviewing && <Progress value={undefined} className="w-32" />}
+      </div>
+
+      {/* Main content: FileTree | DiffViewer */}
+      {!review ? (
+        <div className="flex flex-1 items-center justify-center">
+          <EmptyState
+            icon={FileCode2}
+            title="No review active"
+            description="Select a branch and start a review to see file changes"
+          />
+        </div>
+      ) : (
+        <SplitPane direction="horizontal" className="flex-1">
+          {/* File tree */}
+          <SplitPanePanel defaultSize={20} minSize={15}>
+            <Panel>
+              <Panel.Header>
+                <Panel.Title>Files</Panel.Title>
+                <Panel.Actions>
+                  <Badge variant="secondary">{fileReviews.length}</Badge>
+                </Panel.Actions>
+              </Panel.Header>
+              <Panel.Content>
+                <ScrollArea className="h-full">
+                  <FileTree
+                    nodes={fileNodes}
+                    selectedPath={selectedFilePath ?? undefined}
+                    onSelect={setSelectedFilePath}
+                    expandedPaths={expandedPaths}
+                    onToggleExpand={(path) => {
+                      const next = new Set(expandedPaths)
+                      next.has(path) ? next.delete(path) : next.add(path)
+                      setExpandedPaths(next)
+                    }}
+                  />
+                </ScrollArea>
+              </Panel.Content>
+            </Panel>
+          </SplitPanePanel>
+
+          <SplitPaneHandle />
+
+          {/* Diff viewer */}
+          <SplitPanePanel defaultSize={80}>
+            <Panel>
+              {selectedFilePath && selectedFileReview ? (
+                <>
+                  <Panel.Header>
+                    <Panel.Title>
+                      <span className="font-mono text-[12px]">{selectedFilePath}</span>
+                    </Panel.Title>
+                    <Panel.Actions>
+                      <StatusBadge status={selectedFileReview.status === 'approved' ? 'passed' : selectedFileReview.status === 'rejected' ? 'failed' : 'pending'}>
+                        {selectedFileReview.status}
+                      </StatusBadge>
+                      <Separator orientation="vertical" className="h-4" />
+                      <Button variant="outline" size="xs" onClick={() => approveFile(selectedFileReview.id)}>
+                        <Check size={12} /> Approve
+                      </Button>
+                      <Button variant="outline" size="xs" onClick={() => rejectFile(selectedFileReview.id)}>
+                        <X size={12} /> Reject
+                      </Button>
+                      <Button variant="outline" size="xs" onClick={() => fixFile(selectedFileReview.id)}>
+                        <Wrench size={12} /> Fix
+                      </Button>
+                    </Panel.Actions>
+                  </Panel.Header>
+                  <Panel.Content>
+                    <ScrollArea className="h-full">
+                      <DiffViewer
+                        lines={diffLines}
+                        mode="unified"
+                        renderLineAnnotation={(lineIndex) => {
+                          const lineComments = commentsByLine.get(lineIndex)
+                          if (!lineComments) return null
+                          return (
+                            <>
+                              {lineComments.map((comment, i) => (
+                                <InlineComment
+                                  key={i}
+                                  author="ai"
+                                  content={comment.message}
+                                  actions={
+                                    <div className="flex items-center gap-2">
+                                      <Textarea
+                                        value={replyInput}
+                                        onChange={(e) => setReplyInput(e.target.value)}
+                                        placeholder="Ask a question..."
+                                        rows={1}
+                                        className="w-64 resize-none text-[12px]"
+                                      />
+                                      <Button
+                                        size="xs"
+                                        variant="outline"
+                                        onClick={() => {
+                                          askQuestion(selectedFileReview.id, replyInput)
+                                          setReplyInput('')
+                                        }}
+                                      >
+                                        <MessageSquare size={12} /> Ask
+                                      </Button>
+                                    </div>
+                                  }
+                                />
+                              ))}
+                            </>
+                          )
+                        }}
+                      />
+                    </ScrollArea>
+                  </Panel.Content>
+                </>
+              ) : (
+                <Panel.Content>
+                  <EmptyState
+                    icon={FileCode2}
+                    title="No file selected"
+                    description="Select a file from the tree to view its diff and review comments"
+                  />
+                </Panel.Content>
+              )}
+            </Panel>
+          </SplitPanePanel>
+        </SplitPane>
+      )}
+    </div>
+  )
+}
 ```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_router_reviews.py -v`
-Expected: FAIL
-
-**Step 3: Write the router**
-
-Create `apps/backend/app/routers/reviews.py`:
-
-```python
-import uuid
-
-from arq import ArqRedis
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
-
-from app.database import get_db
-from app.models.project import Project
-from app.models.review import FileReview, FileReviewStatus, ReviewSession, ReviewStatus
-from app.models.session import Session, SessionStatus, SessionType
-from app.routers.sessions import get_arq_pool
-from app.schemas.review import (
-    FileReviewAction,
-    FileReviewQuestion,
-    ReviewCreate,
-    ReviewResponse,
-)
-from app.services.git_diff import GitDiffService
-from app.services.review_prompt import build_file_review_prompt, build_fix_prompt, build_question_prompt
-
-router = APIRouter(prefix="/api/projects/{project_id}/reviews", tags=["reviews"])
-git_diff_service = GitDiffService()
-
-
-@router.get("", response_model=list[ReviewResponse])
-async def list_reviews(
-    project_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await db.execute(
-        select(ReviewSession)
-        .options(selectinload(ReviewSession.files))
-        .where(ReviewSession.project_id == project_id)
-        .order_by(ReviewSession.created_at.desc())
-    )
-    return result.scalars().all()
-
-
-@router.post("", status_code=201, response_model=ReviewResponse)
-async def create_review(
-    project_id: uuid.UUID,
-    body: ReviewCreate,
-    db: AsyncSession = Depends(get_db),
-    pool: ArqRedis = Depends(get_arq_pool),
-):
-    # Get project
-    proj_result = await db.execute(select(Project).where(Project.id == project_id))
-    project = proj_result.scalar_one_or_none()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    # Get changed files
-    changed_files = await git_diff_service.get_changed_files(
-        repo_path=project.path,
-        branch=body.branch,
-        base_branch=body.base_branch,
-    )
-    if not changed_files:
-        raise HTTPException(status_code=400, detail="No changes found")
-
-    # Create review session
-    session = Session(
-        id=uuid.uuid4(),
-        project_id=project_id,
-        type=SessionType.CODE_REVIEW,
-        status=SessionStatus.PENDING,
-    )
-    db.add(session)
-
-    review = ReviewSession(
-        id=uuid.uuid4(),
-        project_id=project_id,
-        session_id=session.id,
-        branch=body.branch,
-        base_branch=body.base_branch,
-        status=ReviewStatus.IN_PROGRESS,
-    )
-
-    # Create FileReview for each changed file
-    for cf in changed_files:
-        diff = await git_diff_service.get_file_diff(
-            repo_path=project.path,
-            file_path=cf["path"],
-            branch=body.branch,
-            base_branch=body.base_branch,
-        )
-        file_review = FileReview(
-            id=uuid.uuid4(),
-            file_path=cf["path"],
-            diff_content=diff,
-            user_status=FileReviewStatus.PENDING,
-        )
-        review.files.append(file_review)
-
-    db.add(review)
-    await db.commit()
-    await db.refresh(review, ["files"])
-
-    # Enqueue AI review for each file
-    for fr in review.files:
-        prompt = build_file_review_prompt(fr.file_path, fr.diff_content)
-        await pool.enqueue_job(
-            "run_session_task",
-            str(session.id),
-            project.path,
-            "code_review",
-            prompt,
-        )
-
-    return review
-
-
-@router.get("/{review_id}", response_model=ReviewResponse)
-async def get_review(
-    project_id: uuid.UUID,
-    review_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await db.execute(
-        select(ReviewSession)
-        .options(selectinload(ReviewSession.files))
-        .where(ReviewSession.id == review_id, ReviewSession.project_id == project_id)
-    )
-    review = result.scalar_one_or_none()
-    if not review:
-        raise HTTPException(status_code=404, detail="Review not found")
-    return review
-
-
-@router.patch("/{review_id}/files/{file_id}/status")
-async def update_file_status(
-    project_id: uuid.UUID,
-    review_id: uuid.UUID,
-    file_id: uuid.UUID,
-    body: FileReviewAction,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await db.execute(
-        select(FileReview).where(
-            FileReview.id == file_id,
-            FileReview.review_id == review_id,
-        )
-    )
-    fr = result.scalar_one_or_none()
-    if not fr:
-        raise HTTPException(status_code=404, detail="File review not found")
-    fr.user_status = body.action
-    await db.commit()
-    return {"status": "updated"}
-
-
-@router.post("/{review_id}/files/{file_id}/ask")
-async def ask_about_file(
-    project_id: uuid.UUID,
-    review_id: uuid.UUID,
-    file_id: uuid.UUID,
-    body: FileReviewQuestion,
-    db: AsyncSession = Depends(get_db),
-    pool: ArqRedis = Depends(get_arq_pool),
-):
-    # Get file review
-    result = await db.execute(
-        select(FileReview).where(FileReview.id == file_id, FileReview.review_id == review_id)
-    )
-    fr = result.scalar_one_or_none()
-    if not fr:
-        raise HTTPException(status_code=404, detail="File review not found")
-
-    # Get project
-    proj_result = await db.execute(select(Project).where(Project.id == project_id))
-    project = proj_result.scalar_one_or_none()
-
-    # Build prompt with conversation history
-    prompt = build_question_prompt(
-        file_path=fr.file_path,
-        diff_content=fr.diff_content,
-        question=body.question,
-        history=fr.conversation,
-    )
-
-    # Append to conversation
-    conversation = fr.conversation or []
-    conversation.append({"role": "user", "content": body.question})
-    fr.conversation = conversation
-    await db.commit()
-
-    # Create session for the question
-    session = Session(
-        id=uuid.uuid4(),
-        project_id=project_id,
-        type=SessionType.CODE_REVIEW,
-        status=SessionStatus.PENDING,
-    )
-    db.add(session)
-    await db.commit()
-
-    await pool.enqueue_job(
-        "run_session_task",
-        str(session.id),
-        project.path,
-        "code_review",
-        prompt,
-    )
-
-    return {"session_id": str(session.id)}
-
-
-@router.post("/{review_id}/files/{file_id}/fix", status_code=202)
-async def fix_file(
-    project_id: uuid.UUID,
-    review_id: uuid.UUID,
-    file_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-    pool: ArqRedis = Depends(get_arq_pool),
-):
-    result = await db.execute(
-        select(FileReview).where(FileReview.id == file_id, FileReview.review_id == review_id)
-    )
-    fr = result.scalar_one_or_none()
-    if not fr:
-        raise HTTPException(status_code=404, detail="File review not found")
-    if not fr.ai_comments:
-        raise HTTPException(status_code=400, detail="No AI comments to fix")
-
-    proj_result = await db.execute(select(Project).where(Project.id == project_id))
-    project = proj_result.scalar_one_or_none()
-
-    # Build fix prompt from AI comments
-    comments_text = "\n".join(
-        f"- {c.get('message', '')}" for c in fr.ai_comments.get("comments", [])
-    )
-    prompt = build_fix_prompt(fr.file_path, comments_text)
-
-    session = Session(
-        id=uuid.uuid4(),
-        project_id=project_id,
-        type=SessionType.CODE_REVIEW,
-        status=SessionStatus.PENDING,
-    )
-    db.add(session)
-    await db.commit()
-
-    await pool.enqueue_job(
-        "run_session_task",
-        str(session.id),
-        project.path,
-        "code_review",
-        prompt,
-    )
-
-    return {"session_id": str(session.id), "message": "Fix session started"}
-```
-
-**Step 4: Register router in main.py**
-
-Add to `apps/backend/app/main.py`:
-
-```python
-from app.routers.reviews import router as reviews_router
-
-app.include_router(reviews_router)
-```
-
-**Step 5: Run tests**
-
-Run: `cd apps/backend && uv run pytest tests/ -v`
-Expected: ALL PASS
-
-**Step 6: Commit**
-
-```bash
-git add apps/backend/app/routers/reviews.py apps/backend/app/main.py apps/backend/tests/test_router_reviews.py
-git commit -m "feat(backend): add Review REST API with ask/fix endpoints"
-```
-
----
-
-### Task 6: Alembic migration for review tables
-
-**Step 1: Generate migration**
-
-Run: `cd apps/backend && uv run alembic revision --autogenerate -m "add review_sessions and file_reviews tables"`
-
-**Step 2: Run migration**
-
-Run: `cd apps/backend && uv run alembic upgrade head`
 
 **Step 3: Commit**
 
 ```bash
-git add apps/backend/alembic/versions/
-git commit -m "feat(backend): add migration for review tables"
+git add apps/desktop/src/renderer/hooks/use-reviews.ts apps/desktop/src/renderer/screens/reviews.tsx
+git commit -m "feat(desktop): build file review screen with @agent-coding/ui"
 ```

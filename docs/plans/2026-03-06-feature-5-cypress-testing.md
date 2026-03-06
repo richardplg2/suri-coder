@@ -4,134 +4,34 @@
 
 **Goal:** Run Cypress tests via the backend, capture videos/screenshots, store results. Users can trigger test runs, view results with video playback, and use Claude to write new tests or fix failures.
 
-**Architecture:** TestRun and TestResult models in PostgreSQL. Worker runs Cypress as subprocess, parses results, saves artifacts to file storage. Claude sessions can be spawned to write or fix tests.
+**Architecture:** TestRun/TestResult models already exist. Need a Cypress runner service (subprocess), test REST router, ARQ worker task, and frontend UI with test list, video player, and "Fix with AI" integration — all using `@agent-coding/ui` primitives.
 
-**Tech Stack:** FastAPI, Cypress (subprocess), SQLAlchemy async, file storage (local), claude_agent_sdk
+**Tech Stack:** FastAPI, Cypress (subprocess), SQLAlchemy async, file storage (local), React 19, @agent-coding/ui
 
-**Depends on:** Feature 1 (Session management, ARQ workers)
+**Depends on:** Feature 1 (session management, ARQ workers), UI Primitives plan (packages/ui built)
 
----
+**Already built (backend):**
+- TestRun model (`apps/backend/app/models/testing.py`) — command, status, total_tests, passed, failed, skipped, duration_ms
+- TestResult model (`apps/backend/app/models/testing.py`) — test_name, status, duration_ms, error_message, stack_trace
 
-### Task 1: TestRun and TestResult models
+**Already built (UI package — no need to create locally):**
+- `SegmentedControl` — for view filter tabs
+- `DataTable` — for test results table
+- `StatusBadge` — for test status indicators
+- `Panel` — compound component for layout sections
+- `SplitPane` — for list | detail layout
+- `EmptyState`, `Spinner`, `KVRow`, `Progress`
+- shadcn: `Button`, `Card`, `Badge`, `ScrollArea`, `Separator`, `Alert`, `Tooltip`
 
-**Files:**
-- Create: `apps/backend/app/models/test_run.py`
-- Modify: `apps/backend/app/models/__init__.py`
-- Test: `apps/backend/tests/test_models_test_run.py`
+**Remaining work:**
+- Backend: Cypress runner service, test schemas, test REST router, ARQ task
+- Frontend: Test runs list, results table, video player, "Fix with AI" button
 
-**Step 1: Write the failing test**
-
-Create `apps/backend/tests/test_models_test_run.py`:
-
-```python
-import uuid
-
-from app.models.test_run import TestResult, TestResultStatus, TestRun, TestRunStatus
-
-
-def test_test_run_fields():
-    run = TestRun(
-        id=uuid.uuid4(),
-        project_id=uuid.uuid4(),
-        status=TestRunStatus.PENDING,
-    )
-    assert run.status == TestRunStatus.PENDING
-    assert run.video_path is None
-
-
-def test_test_result_fields():
-    result = TestResult(
-        id=uuid.uuid4(),
-        run_id=uuid.uuid4(),
-        spec_file="cypress/e2e/login.cy.ts",
-        status=TestResultStatus.PASSED,
-        duration_ms=1200,
-    )
-    assert result.spec_file == "cypress/e2e/login.cy.ts"
-    assert result.error_message is None
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_models_test_run.py -v`
-Expected: FAIL
-
-**Step 3: Write the models**
-
-Create `apps/backend/app/models/test_run.py`:
-
-```python
-import enum
-import uuid
-from datetime import datetime, timezone
-
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from app.database import Base
-
-
-class TestRunStatus(str, enum.Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-    PASSED = "passed"
-    FAILED = "failed"
-
-
-class TestResultStatus(str, enum.Enum):
-    PASSED = "passed"
-    FAILED = "failed"
-
-
-class TestRun(Base):
-    __tablename__ = "test_runs"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
-    session_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("sessions.id"), nullable=True)
-    status: Mapped[TestRunStatus] = mapped_column(Enum(TestRunStatus), default=TestRunStatus.PENDING)
-    video_path: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-
-    results: Mapped[list["TestResult"]] = relationship(back_populates="run", cascade="all, delete-orphan")
-
-
-class TestResult(Base):
-    __tablename__ = "test_results"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    run_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("test_runs.id"), nullable=False)
-    spec_file: Mapped[str] = mapped_column(String(500), nullable=False)
-    status: Mapped[TestResultStatus] = mapped_column(Enum(TestResultStatus), nullable=False)
-    screenshot_path: Mapped[str | None] = mapped_column(Text, nullable=True)
-    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
-
-    run: Mapped["TestRun"] = relationship(back_populates="results")
-```
-
-Update `apps/backend/app/models/__init__.py` to include:
-
-```python
-from app.models.test_run import TestResult, TestResultStatus, TestRun, TestRunStatus
-```
-
-**Step 4: Run test**
-
-Run: `cd apps/backend && uv run pytest tests/test_models_test_run.py -v`
-Expected: PASS
-
-**Step 5: Commit**
-
-```bash
-git add apps/backend/app/models/ apps/backend/tests/test_models_test_run.py
-git commit -m "feat(backend): add TestRun and TestResult models"
-```
+**Design ref:** `docs/design/pages/cypress-testing.md`
 
 ---
 
-### Task 2: Cypress runner service
+### Task 1: Cypress runner service
 
 **Files:**
 - Create: `apps/backend/app/services/cypress_runner.py`
@@ -139,35 +39,28 @@ git commit -m "feat(backend): add TestRun and TestResult models"
 
 **Step 1: Write the failing test**
 
-Create `apps/backend/tests/test_cypress_runner.py`:
-
 ```python
-from app.services.cypress_runner import build_cypress_command, parse_cypress_results
+from app.services.cypress_runner import build_cypress_command, parse_cypress_json
 
 
 def test_build_cypress_command_all():
-    cmd = build_cypress_command(
-        project_path="/home/user/project",
-        video=True,
-    )
-    assert "cypress" in cmd[1]
+    cmd = build_cypress_command(project_path="/home/user/project", video=True)
+    assert "cypress" in " ".join(cmd)
     assert "run" in cmd
-    assert "--config" in cmd
-    assert "video=true" in cmd
+    assert "video=true" in " ".join(cmd)
 
 
 def test_build_cypress_command_specific_spec():
     cmd = build_cypress_command(
         project_path="/home/user/project",
         spec="cypress/e2e/login.cy.ts",
-        video=True,
     )
     assert "--spec" in cmd
     assert "cypress/e2e/login.cy.ts" in cmd
 
 
-def test_parse_cypress_results_json():
-    raw_json = {
+def test_parse_cypress_json():
+    raw = {
         "totalPassed": 3,
         "totalFailed": 1,
         "totalDuration": 5200,
@@ -177,31 +70,25 @@ def test_parse_cypress_results_json():
                 "stats": {"duration": 1200},
                 "tests": [
                     {"title": ["Login", "should login"], "state": "passed"},
+                    {"title": ["Login", "should fail"], "state": "failed"},
                 ],
-                "screenshots": [],
+                "screenshots": [{"path": "/tmp/screenshots/fail.png"}],
                 "video": "/tmp/videos/login.cy.ts.mp4",
             }
         ],
     }
-    results = parse_cypress_results(raw_json)
+    results = parse_cypress_json(raw)
     assert len(results) == 1
     assert results[0]["spec_file"] == "cypress/e2e/login.cy.ts"
     assert results[0]["video"] == "/tmp/videos/login.cy.ts.mp4"
+    assert len(results[0]["screenshots"]) == 1
 ```
 
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_cypress_runner.py -v`
-Expected: FAIL
-
-**Step 3: Write the implementation**
-
-Create `apps/backend/app/services/cypress_runner.py`:
+**Step 2: Write the implementation**
 
 ```python
 import asyncio
 import json
-import os
 
 
 def build_cypress_command(
@@ -214,14 +101,11 @@ def build_cypress_command(
     if spec:
         cmd.extend(["--spec", spec])
     cmd.extend(["--browser", browser])
-
-    config_parts = [f"video={str(video).lower()}"]
-    cmd.extend(["--config", ",".join(config_parts)])
-
+    cmd.extend(["--config", f"video={str(video).lower()}"])
     return cmd
 
 
-def parse_cypress_results(raw: dict) -> list[dict]:
+def parse_cypress_json(raw: dict) -> list[dict]:
     results = []
     for run in raw.get("runs", []):
         spec_file = run.get("spec", {}).get("relative", "unknown")
@@ -229,7 +113,6 @@ def parse_cypress_results(raw: dict) -> list[dict]:
         video = run.get("video")
         screenshots = [s.get("path") for s in run.get("screenshots", [])]
 
-        # Determine status from tests
         tests = run.get("tests", [])
         all_passed = all(t.get("state") == "passed" for t in tests)
         failed_tests = [t for t in tests if t.get("state") == "failed"]
@@ -256,7 +139,6 @@ async def run_cypress(
     video: bool = True,
 ) -> dict:
     cmd = build_cypress_command(project_path, spec=spec, video=video)
-
     proc = await asyncio.create_subprocess_exec(
         *cmd,
         cwd=project_path,
@@ -267,12 +149,11 @@ async def run_cypress(
 
     try:
         raw = json.loads(stdout.decode())
-        results = parse_cypress_results(raw)
+        results = parse_cypress_json(raw)
     except (json.JSONDecodeError, KeyError):
         results = []
 
     overall_passed = all(r["status"] == "passed" for r in results) if results else False
-
     return {
         "success": proc.returncode == 0,
         "overall_status": "passed" if overall_passed else "failed",
@@ -281,12 +162,7 @@ async def run_cypress(
     }
 ```
 
-**Step 4: Run test**
-
-Run: `cd apps/backend && uv run pytest tests/test_cypress_runner.py -v`
-Expected: PASS
-
-**Step 5: Commit**
+**Step 3: Run test, commit**
 
 ```bash
 git add apps/backend/app/services/cypress_runner.py apps/backend/tests/test_cypress_runner.py
@@ -295,174 +171,19 @@ git commit -m "feat(backend): add Cypress runner service with JSON parsing"
 
 ---
 
-### Task 3: Cypress worker task
+### Task 2: Test schemas and REST router
 
 **Files:**
-- Create: `apps/backend/app/services/cypress_task.py`
-- Modify: `apps/backend/app/worker.py`
-- Test: `apps/backend/tests/test_cypress_task.py`
+- Create: `apps/backend/app/schemas/testing.py`
+- Create: `apps/backend/app/routers/testing.py`
+- Modify: `apps/backend/app/main.py`
+- Test: `apps/backend/tests/test_testing_router.py`
 
-**Step 1: Write the failing test**
-
-Create `apps/backend/tests/test_cypress_task.py`:
-
-```python
-from app.services.cypress_task import build_test_fix_prompt
-
-
-def test_build_test_fix_prompt():
-    prompt = build_test_fix_prompt(
-        spec_file="cypress/e2e/login.cy.ts",
-        error_message="Expected 200, got 500",
-    )
-    assert "login.cy.ts" in prompt
-    assert "Expected 200, got 500" in prompt
-    assert "fix" in prompt.lower()
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_cypress_task.py -v`
-Expected: FAIL
-
-**Step 3: Write the implementation**
-
-Create `apps/backend/app/services/cypress_task.py`:
-
-```python
-import json
-import uuid
-
-from app.redis import redis_manager
-from app.services.cypress_runner import run_cypress
-
-
-def build_test_fix_prompt(spec_file: str, error_message: str) -> str:
-    return (
-        f"The following Cypress test is failing:\n"
-        f"- Spec file: {spec_file}\n"
-        f"- Error: {error_message}\n\n"
-        f"Please read the test file, understand the failure, and fix it. "
-        f"Run the test again after fixing to verify it passes."
-    )
-
-
-async def run_cypress_task(
-    ctx: dict,
-    session_id: str,
-    project_path: str,
-    spec: str | None = None,
-    video: bool = True,
-):
-    channel = f"session:{session_id}"
-
-    await redis_manager.publish(channel, json.dumps({
-        "type": "status",
-        "status": "running",
-    }))
-
-    try:
-        result = await run_cypress(
-            project_path=project_path,
-            spec=spec,
-            video=video,
-        )
-
-        await redis_manager.publish(channel, json.dumps({
-            "type": "test_results",
-            "overall_status": result["overall_status"],
-            "results": result["results"],
-        }))
-
-        await redis_manager.publish(channel, json.dumps({
-            "type": "complete",
-            "success": result["success"],
-        }))
-
-    except Exception as e:
-        await redis_manager.publish(channel, json.dumps({
-            "type": "error",
-            "error": str(e),
-        }))
-```
-
-Add to `apps/backend/app/worker.py`:
-
-```python
-from app.services.cypress_task import run_cypress_task
-
-class WorkerSettings:
-    functions = [run_session_task, run_figma_task, run_cypress_task]
-    # ...
-```
-
-**Step 4: Run test**
-
-Run: `cd apps/backend && uv run pytest tests/test_cypress_task.py -v`
-Expected: PASS
-
-**Step 5: Commit**
-
-```bash
-git add apps/backend/app/services/cypress_task.py apps/backend/app/worker.py apps/backend/tests/test_cypress_task.py
-git commit -m "feat(backend): add Cypress worker task with Redis streaming"
-```
-
----
-
-### Task 4: Test Pydantic schemas
-
-**Files:**
-- Create: `apps/backend/app/schemas/test_run.py`
-- Test: `apps/backend/tests/test_schemas_test_run.py`
-
-**Step 1: Write the failing test**
-
-Create `apps/backend/tests/test_schemas_test_run.py`:
+**Step 1: Write schemas**
 
 ```python
 import uuid
-
-from app.schemas.test_run import TestRunCreate, TestRunResponse
-
-
-def test_test_run_create():
-    data = TestRunCreate(spec="cypress/e2e/login.cy.ts", video=True)
-    assert data.video is True
-
-
-def test_test_run_create_all():
-    data = TestRunCreate()
-    assert data.spec is None
-    assert data.video is True
-
-
-def test_test_run_response():
-    resp = TestRunResponse(
-        id=uuid.uuid4(),
-        project_id=uuid.uuid4(),
-        status="pending",
-        results=[],
-    )
-    assert resp.video_path is None
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_schemas_test_run.py -v`
-Expected: FAIL
-
-**Step 3: Write the schemas**
-
-Create `apps/backend/app/schemas/test_run.py`:
-
-```python
-import uuid
-from datetime import datetime
-
 from pydantic import BaseModel
-
-from app.models.test_run import TestResultStatus, TestRunStatus
 
 
 class TestRunCreate(BaseModel):
@@ -472,23 +193,24 @@ class TestRunCreate(BaseModel):
 
 class TestResultResponse(BaseModel):
     id: uuid.UUID
-    spec_file: str
-    status: TestResultStatus
-    screenshot_path: str | None = None
-    error_message: str | None = None
+    test_name: str
+    status: str
     duration_ms: int | None = None
+    error_message: str | None = None
 
     model_config = {"from_attributes": True}
 
 
 class TestRunResponse(BaseModel):
     id: uuid.UUID
-    project_id: uuid.UUID
     session_id: uuid.UUID | None = None
-    status: TestRunStatus
-    video_path: str | None = None
+    command: str | None = None
+    status: str
+    total_tests: int | None = None
+    passed: int | None = None
+    failed: int | None = None
+    duration_ms: int | None = None
     results: list[TestResultResponse] = []
-    created_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -498,260 +220,309 @@ class TestFixRequest(BaseModel):
     error_message: str
 ```
 
-**Step 4: Run test**
+**Step 2: Write test router**
 
-Run: `cd apps/backend && uv run pytest tests/test_schemas_test_run.py -v`
-Expected: PASS
+Router endpoints:
+- `GET /projects/{id}/tests` — list test runs for project
+- `POST /projects/{id}/tests` — trigger test run (enqueue ARQ job)
+- `GET /projects/{id}/tests/{run_id}` — get test run detail with results
+- `POST /projects/{id}/tests/{run_id}/fix` — spawn Claude session to fix failing test
 
-**Step 5: Commit**
+**Step 3: Write failing test, register router, run tests, commit**
 
 ```bash
-git add apps/backend/app/schemas/test_run.py apps/backend/tests/test_schemas_test_run.py
-git commit -m "feat(backend): add TestRun Pydantic schemas"
+git add apps/backend/app/schemas/testing.py apps/backend/app/routers/testing.py apps/backend/app/main.py apps/backend/tests/test_testing_router.py
+git commit -m "feat(backend): add testing REST router with Cypress integration"
 ```
 
 ---
 
-### Task 5: Test runner REST API router
+### Task 3: Cypress ARQ worker task
 
 **Files:**
-- Create: `apps/backend/app/routers/tests.py`
-- Modify: `apps/backend/app/main.py`
-- Test: `apps/backend/tests/test_router_tests.py`
+- Create: `apps/backend/app/services/cypress_task.py`
+- Modify: `apps/backend/app/worker.py`
 
-**Step 1: Write the failing test**
+**Step 1: Write the worker task**
 
-Create `apps/backend/tests/test_router_tests.py`:
+The task should:
+1. Run `run_cypress()` with the provided spec and options
+2. Create TestResult records from parsed output
+3. Update TestRun status
+4. Publish results to Redis PubSub for WebSocket streaming
 
-```python
-from httpx import ASGITransport, AsyncClient
+**Step 2: Register in worker.py**
 
-from app.main import app
+Add to WorkerSettings.functions.
 
-
-async def test_list_test_runs():
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
-        response = await client.get(
-            "/api/projects/00000000-0000-0000-0000-000000000001/tests"
-        )
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `cd apps/backend && uv run pytest tests/test_router_tests.py -v`
-Expected: FAIL
-
-**Step 3: Write the router**
-
-Create `apps/backend/app/routers/tests.py`:
-
-```python
-import uuid
-
-from arq import ArqRedis
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
-
-from app.database import get_db
-from app.models.project import Project
-from app.models.session import Session, SessionStatus, SessionType
-from app.models.test_run import TestRun, TestRunStatus
-from app.routers.sessions import get_arq_pool
-from app.schemas.test_run import TestFixRequest, TestRunCreate, TestRunResponse
-
-router = APIRouter(prefix="/api/projects/{project_id}/tests", tags=["tests"])
-
-
-@router.get("", response_model=list[TestRunResponse])
-async def list_test_runs(
-    project_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await db.execute(
-        select(TestRun)
-        .options(selectinload(TestRun.results))
-        .where(TestRun.project_id == project_id)
-        .order_by(TestRun.created_at.desc())
-    )
-    return result.scalars().all()
-
-
-@router.post("", status_code=201, response_model=TestRunResponse)
-async def create_test_run(
-    project_id: uuid.UUID,
-    body: TestRunCreate,
-    db: AsyncSession = Depends(get_db),
-    pool: ArqRedis = Depends(get_arq_pool),
-):
-    proj_result = await db.execute(select(Project).where(Project.id == project_id))
-    project = proj_result.scalar_one_or_none()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    # Create session for tracking
-    session = Session(
-        id=uuid.uuid4(),
-        project_id=project_id,
-        type=SessionType.TEST_RUN,
-        status=SessionStatus.PENDING,
-    )
-    db.add(session)
-
-    run = TestRun(
-        id=uuid.uuid4(),
-        project_id=project_id,
-        session_id=session.id,
-        status=TestRunStatus.PENDING,
-    )
-    db.add(run)
-    await db.commit()
-    await db.refresh(run, ["results"])
-
-    await pool.enqueue_job(
-        "run_cypress_task",
-        str(session.id),
-        project.path,
-        body.spec,
-        body.video,
-    )
-
-    return run
-
-
-@router.get("/{run_id}", response_model=TestRunResponse)
-async def get_test_run(
-    project_id: uuid.UUID,
-    run_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await db.execute(
-        select(TestRun)
-        .options(selectinload(TestRun.results))
-        .where(TestRun.id == run_id, TestRun.project_id == project_id)
-    )
-    run = result.scalar_one_or_none()
-    if not run:
-        raise HTTPException(status_code=404, detail="Test run not found")
-    return run
-
-
-@router.post("/{run_id}/fix", status_code=202)
-async def fix_failing_test(
-    project_id: uuid.UUID,
-    run_id: uuid.UUID,
-    body: TestFixRequest,
-    db: AsyncSession = Depends(get_db),
-    pool: ArqRedis = Depends(get_arq_pool),
-):
-    proj_result = await db.execute(select(Project).where(Project.id == project_id))
-    project = proj_result.scalar_one_or_none()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    from app.services.cypress_task import build_test_fix_prompt
-
-    prompt = build_test_fix_prompt(body.spec_file, body.error_message)
-
-    session = Session(
-        id=uuid.uuid4(),
-        project_id=project_id,
-        type=SessionType.TEST_RUN,
-        status=SessionStatus.PENDING,
-    )
-    db.add(session)
-    await db.commit()
-
-    await pool.enqueue_job(
-        "run_session_task",
-        str(session.id),
-        project.path,
-        "chat",
-        prompt,
-    )
-
-    return {"session_id": str(session.id), "message": "Fix session started"}
-```
-
-**Step 4: Register router in main.py**
-
-Add to `apps/backend/app/main.py`:
-
-```python
-from app.routers.tests import router as tests_router
-
-app.include_router(tests_router)
-```
-
-**Step 5: Run tests**
-
-Run: `cd apps/backend && uv run pytest tests/ -v`
-Expected: ALL PASS
-
-**Step 6: Commit**
+**Step 3: Commit**
 
 ```bash
-git add apps/backend/app/routers/tests.py apps/backend/app/main.py apps/backend/tests/test_router_tests.py
-git commit -m "feat(backend): add Test runner REST API with fix endpoint"
+git add apps/backend/app/services/cypress_task.py apps/backend/app/worker.py
+git commit -m "feat(backend): add Cypress ARQ worker task"
 ```
 
 ---
 
-### Task 6: Static file serving for videos/screenshots
+### Task 4: Tests screen in frontend
 
 **Files:**
-- Modify: `apps/backend/app/main.py`
-- Modify: `apps/backend/app/config.py`
+- Create: `apps/desktop/src/renderer/hooks/use-tests.ts`
+- Modify: `apps/desktop/src/renderer/screens/tests.tsx`
 
-**Step 1: Add storage config**
+**UI imports from `@agent-coding/ui`:** `SegmentedControl`, `DataTable`, `StatusBadge`, `SplitPane`, `SplitPanePanel`, `SplitPaneHandle`, `Panel`, `Button`, `KVRow`, `EmptyState`, `Spinner`, `Progress`, `Badge`, `Card`, `CardContent`, `CardHeader`, `CardTitle`, `ScrollArea`, `Separator`, `Alert`, `AlertDescription`, `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider`, `type Column`
 
-Add to `apps/backend/app/config.py`:
+**Step 1: Create useTests hook**
 
-```python
-storage_path: str = "./storage"
-```
+Manages test runs list, individual run results, run trigger, and fix trigger.
 
-**Step 2: Mount static files in main.py**
+**Step 2: Build tests screen**
 
-Add to `apps/backend/app/main.py`:
+Per `docs/design/pages/cypress-testing.md`:
 
-```python
-import os
-from fastapi.staticfiles import StaticFiles
-from app.config import settings
+```tsx
+import { useState } from 'react'
+import { Play, TestTube2, Wrench } from 'lucide-react'
+import {
+  SegmentedControl,
+  DataTable,
+  StatusBadge,
+  SplitPane,
+  SplitPanePanel,
+  SplitPaneHandle,
+  Panel,
+  Button,
+  KVRow,
+  EmptyState,
+  Spinner,
+  Progress,
+  Badge,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  ScrollArea,
+  Separator,
+  type Column,
+} from '@agent-coding/ui'
 
-# After app creation, before routes:
-os.makedirs(settings.storage_path, exist_ok=True)
-app.mount("/storage", StaticFiles(directory=settings.storage_path), name="storage")
+import { useTests } from '../hooks/use-tests'
+
+type ViewTab = 'runs' | 'specs' | 'videos'
+
+interface TestRun {
+  id: string
+  status: string
+  total_tests: number | null
+  passed: number | null
+  failed: number | null
+  duration_ms: number | null
+}
+
+interface TestResult {
+  id: string
+  test_name: string
+  status: string
+  duration_ms: number | null
+  error_message: string | null
+}
+
+export function TestsScreen() {
+  const { runs, results, loading, selectedRunId, selectRun, triggerRun, triggerFix } = useTests()
+  const [view, setView] = useState<ViewTab>('runs')
+
+  const selectedRun = runs.find((r) => r.id === selectedRunId)
+
+  const runColumns: Column<TestRun>[] = [
+    {
+      key: 'status',
+      header: 'Status',
+      width: '100px',
+      render: (r) => (
+        <StatusBadge status={r.status as any} showDot>
+          {r.status}
+        </StatusBadge>
+      ),
+    },
+    { key: 'total_tests', header: 'Tests', width: '60px', render: (r) => String(r.total_tests ?? 0) },
+    {
+      key: 'passed',
+      header: 'Passed',
+      width: '60px',
+      render: (r) => <Badge variant="secondary" className="text-[var(--success)]">{r.passed ?? 0}</Badge>,
+    },
+    {
+      key: 'failed',
+      header: 'Failed',
+      width: '60px',
+      render: (r) => r.failed ? <Badge variant="destructive">{r.failed}</Badge> : <span className="text-muted-foreground">0</span>,
+    },
+    {
+      key: 'duration_ms',
+      header: 'Duration',
+      width: '80px',
+      render: (r) => r.duration_ms ? `${(r.duration_ms / 1000).toFixed(1)}s` : '-',
+    },
+  ]
+
+  const resultColumns: Column<TestResult>[] = [
+    { key: 'test_name', header: 'Test', render: (r) => <span className="font-mono text-[12px]">{r.test_name}</span> },
+    {
+      key: 'status',
+      header: 'Status',
+      width: '80px',
+      render: (r) => <StatusBadge status={r.status as any}>{r.status}</StatusBadge>,
+    },
+    {
+      key: 'duration_ms',
+      header: 'Duration',
+      width: '80px',
+      render: (r) => r.duration_ms ? `${r.duration_ms}ms` : '-',
+    },
+    {
+      key: 'actions',
+      header: '',
+      width: '80px',
+      render: (r) => r.status === 'failed' ? (
+        <Button variant="outline" size="xs" onClick={() => triggerFix(r.test_name, r.error_message ?? '')}>
+          <Wrench size={12} /> Fix
+        </Button>
+      ) : null,
+    },
+  ]
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Spinner label="Loading tests..." />
+      </div>
+    )
+  }
+
+  return (
+    <SplitPane direction="horizontal">
+      {/* Runs list */}
+      <SplitPanePanel defaultSize={40} minSize={25}>
+        <Panel>
+          <Panel.Header>
+            <Panel.Title>Test Runs</Panel.Title>
+            <Panel.Actions>
+              <Button size="xs" onClick={triggerRun}>
+                <Play size={14} /> Run Tests
+              </Button>
+            </Panel.Actions>
+          </Panel.Header>
+          <div className="border-b border-border px-3 py-2">
+            <SegmentedControl
+              value={view}
+              onValueChange={(v) => setView(v as ViewTab)}
+              items={[
+                { value: 'runs', label: 'All Runs' },
+                { value: 'specs', label: 'Specs' },
+                { value: 'videos', label: 'Videos' },
+              ]}
+              size="sm"
+            />
+          </div>
+          <Panel.Content>
+            <DataTable
+              columns={runColumns}
+              data={runs}
+              rowKey={(r) => r.id}
+              selectedKey={selectedRunId ?? undefined}
+              onRowClick={(r) => selectRun(r.id)}
+              emptyState={
+                <EmptyState
+                  icon={TestTube2}
+                  title="No test runs"
+                  description="Run your Cypress test suite to see results"
+                  action={<Button size="sm" onClick={triggerRun}><Play size={14} /> Run Tests</Button>}
+                />
+              }
+            />
+          </Panel.Content>
+        </Panel>
+      </SplitPanePanel>
+
+      <SplitPaneHandle />
+
+      {/* Run detail */}
+      <SplitPanePanel defaultSize={60}>
+        <Panel>
+          {selectedRun ? (
+            <>
+              <Panel.Header>
+                <Panel.Title>
+                  <StatusBadge status={selectedRun.status as any}>{selectedRun.status}</StatusBadge>
+                </Panel.Title>
+              </Panel.Header>
+              <Panel.Content>
+                <ScrollArea className="h-full">
+                  <div className="space-y-4 p-4">
+                    {/* Summary */}
+                    <Card>
+                      <CardContent className="pt-4">
+                        <div className="space-y-1">
+                          <KVRow label="Total Tests" value={String(selectedRun.total_tests ?? 0)} />
+                          <Separator />
+                          <KVRow label="Passed" value={<Badge variant="secondary" className="text-[var(--success)]">{selectedRun.passed ?? 0}</Badge>} />
+                          <Separator />
+                          <KVRow label="Failed" value={selectedRun.failed ? <Badge variant="destructive">{selectedRun.failed}</Badge> : '0'} />
+                          <Separator />
+                          <KVRow label="Duration" value={selectedRun.duration_ms ? `${(selectedRun.duration_ms / 1000).toFixed(1)}s` : '-'} />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Results table */}
+                    <h3 className="text-[13px] font-semibold text-foreground">Test Results</h3>
+                    <DataTable
+                      columns={resultColumns}
+                      data={results}
+                      rowKey={(r) => r.id}
+                      emptyState={
+                        <EmptyState title="No results" description="Test results will appear here when the run completes" />
+                      }
+                    />
+
+                    {/* Video player (if available) */}
+                    {view === 'videos' && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Test Video</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <video
+                            controls
+                            className="w-full rounded-md border border-border"
+                            src={`/api/test-videos/${selectedRun.id}`}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </ScrollArea>
+              </Panel.Content>
+            </>
+          ) : (
+            <Panel.Content>
+              <EmptyState
+                icon={TestTube2}
+                title="No run selected"
+                description="Select a test run from the list to view details"
+              />
+            </Panel.Content>
+          )}
+        </Panel>
+      </SplitPanePanel>
+    </SplitPane>
+  )
+}
 ```
 
 **Step 3: Commit**
 
 ```bash
-git add apps/backend/app/main.py apps/backend/app/config.py
-git commit -m "feat(backend): add static file serving for test artifacts"
-```
-
----
-
-### Task 7: Alembic migration for test tables
-
-**Step 1: Generate migration**
-
-Run: `cd apps/backend && uv run alembic revision --autogenerate -m "add test_runs and test_results tables"`
-
-**Step 2: Run migration**
-
-Run: `cd apps/backend && uv run alembic upgrade head`
-
-**Step 3: Commit**
-
-```bash
-git add apps/backend/alembic/versions/
-git commit -m "feat(backend): add migration for test run tables"
+git add apps/desktop/src/renderer/hooks/use-tests.ts apps/desktop/src/renderer/screens/tests.tsx
+git commit -m "feat(desktop): build Cypress testing screen with @agent-coding/ui"
 ```
