@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/*"],
+      "~/*": ["./*"]
+    }
+  },
+  "include": [
+    "./src",
+    "electron.vite.config.*",
+    "electron-builder.ts",
+    "index.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}
