@@ -45,3 +45,41 @@ class SessionStatus(str, enum.Enum):
     completed = "completed"
     failed = "failed"
     cancelled = "cancelled"
+
+
+class WsAction(str, enum.Enum):
+    subscribe = "subscribe"
+    unsubscribe = "unsubscribe"
+    ping = "ping"
+
+
+class WsChannel(str, enum.Enum):
+    project_tickets = "project:tickets"
+    ticket_progress = "ticket:progress"
+    session_stream = "session:stream"
+
+
+class WsEvent(str, enum.Enum):
+    # System
+    subscribed = "subscribed"
+    unsubscribed = "unsubscribed"
+    error = "error"
+    pong = "pong"
+
+    # project:tickets
+    ticket_created = "ticket_created"
+    ticket_updated = "ticket_updated"
+    step_status_changed = "step_status_changed"
+
+    # ticket:progress
+    step_started = "step_started"
+    step_completed = "step_completed"
+    step_failed = "step_failed"
+    workflow_completed = "workflow_completed"
+
+    # session:stream
+    message = "message"
+    tool_use = "tool_use"
+    cost_update = "cost_update"
+    completed = "completed"
+    failed = "failed"

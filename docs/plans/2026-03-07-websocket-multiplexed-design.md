@@ -39,6 +39,14 @@ Use a single multiplexed WebSocket endpoint (`/ws`) instead of multiple per-reso
 | `ticket:progress` | `ticket_id` | `ticket:{id}` | `step_started`, `step_completed`, `step_failed`, `workflow_completed` |
 | `session:stream` | `session_id` | `session:{id}` | `message`, `tool_use`, `cost_update`, `completed`, `failed` |
 
+## Enum Definitions
+
+Enums are defined in both backend and frontend to keep the protocol typed:
+
+- **Backend (Python):** `apps/backend/app/models/enums.py` — `WsAction`, `WsChannel`, `WsEvent`
+- **Frontend (TypeScript):** `packages/shared/src/types/websocket.ts` — `WsAction`, `WsChannel`, `WsEvent`
+- **Schemas:** `apps/backend/app/schemas/websocket.py` — `WsClientMessage`, `WsServerMessage`
+
 ## Server Architecture
 
 ### ConnectionManager

@@ -54,7 +54,7 @@ async def run_claude_agent(ctx: dict, session_id: str):
             if redis:
                 await redis.publish(
                     f"session:{session_id}",
-                    json.dumps({"type": "error", "message": str(e)}),
+                    json.dumps({"event": "failed", "data": {"message": str(e)}}),
                 )
 
 
