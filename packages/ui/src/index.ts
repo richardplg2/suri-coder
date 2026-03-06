@@ -127,3 +127,5 @@ export { SplitPane, SplitPanePanel, SplitPaneHandle, type SplitPaneProps, type S
 export { Panel, PanelHeader, PanelTitle, PanelActions, PanelContent, type PanelProps, type PanelHeaderProps } from './components/panel'
 export { TabBar, type TabBarProps, type Tab } from './components/tab-bar'
 export { DataTable, type DataTableProps, type Column } from './components/data-table'
+export { SourceList, type SourceListProps, type SourceListItem } from './components/source-list'
+export { FileTree, type FileTreeProps, type FileTreeNode, type FileStatus } from './components/file-tree'
