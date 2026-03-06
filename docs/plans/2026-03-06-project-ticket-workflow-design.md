@@ -428,10 +428,11 @@ PATCH  /reviews/:id/files/:file_id
 ```
 
 ### WebSocket
+
+Single multiplexed endpoint. See [WebSocket Multiplexed Design](2026-03-07-websocket-multiplexed-design.md).
+
 ```
-WS     /ws/app                         # app-level events (notifications)
-WS     /ws/sessions/:id               # per-session streaming
-WS     /ws/tickets/:id                # ticket workflow progress
+WS     /ws                            # single connection, subscribe/unsubscribe to channels
 ```
 
 ## UI Screens

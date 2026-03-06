@@ -1,8 +1,15 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 Workflow manager for Claude Code sessions — Electron desktop app + FastAPI backend monorepo.
+
+## Prerequisites
+
+PostgreSQL and Redis are required. Start via Docker:
+```bash
+pnpm docker:up       # Start PostgreSQL + Redis containers
+pnpm docker:down     # Stop containers
+pnpm docker:reset    # Stop + delete volumes
+```
 
 ## Commands
 
@@ -36,7 +43,10 @@ uv run ruff check --fix .                   # Auto-fix lint
 
 ## Guidelines
 
-- [Architecture](.claude/architecture.md) — monorepo structure, electron-vite targets, backend layout, shadcn/ui
+- [Architecture](.claude/architecture.md) — monorepo overview, links to per-app guides
+- [Desktop](.claude/desktop.md) — Electron targets, Zustand stores, TanStack Query hooks, routing
+- [Backend](.claude/backend.md) — FastAPI models, enums, services, workflow engine, migrations
+- [shadcn/ui](.claude/shadcn-ui.md) — component library, adding components, imports
 - [Code Style](.claude/code-style.md) — Biome (TS) and Ruff (Python) conventions
 - [UI Design Spec](docs/design/) — macOS-style design, components, screen layouts
 - [Design System](docs/design/design-system.md) — colors, typography, spacing tokens

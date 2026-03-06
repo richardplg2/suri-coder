@@ -6,7 +6,10 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "docker:up": "docker compose -f docker-compose.dev.yml up -d",
+    "docker:down": "docker compose -f docker-compose.dev.yml down",
+    "docker:reset": "docker compose -f docker-compose.dev.yml down -v"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
