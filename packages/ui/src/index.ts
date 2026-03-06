@@ -114,3 +114,6 @@ export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants } from './co
 export { Textarea } from './components/textarea'
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './components/tooltip'
 export { Toaster } from './components/sonner'
+
+// Custom primitives
+export { SegmentedControl, segmentedControlVariants, type SegmentedControlProps } from './components/segmented-control'
