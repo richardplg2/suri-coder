@@ -64,11 +64,14 @@
   },
   "files": {
     "includes": [
-      ".",
-      "src/**/*",
-      "!src/lib/electron-app/extensions/**/*",
-      "!node_modules/**/*",
-      "!dist/**/*"
+      "apps/**/*",
+      "packages/**/*"
+    ],
+    "ignore": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.turbo/**",
+      "apps/backend/**"
     ]
   }
 }

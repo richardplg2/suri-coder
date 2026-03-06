@@ -1,14 +1,24 @@
 # dependencies
-/node_modules
-/.pnp
+node_modules
+.pnp
 .pnp.js
 
 # testing
-/coverage
+coverage
 
 # production
-/build
-/dist
+build
+dist
+
+# turbo
+.turbo
+
+# python
+__pycache__
+*.py[cod]
+*$py.class
+.venv
+*.egg-info
 
 # misc
 .DS_Store
