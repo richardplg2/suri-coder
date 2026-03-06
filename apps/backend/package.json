@@ -1,0 +1,13 @@
+{
+  "name": "@agent-coding/backend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "uv run fastapi dev app/main.py --port 8000",
+    "build": "echo 'no build step for python'",
+    "lint": "uv run ruff check .",
+    "lint:fix": "uv run ruff check --fix .",
+    "typecheck": "echo 'use pyright separately'",
+    "test": "uv run pytest tests/ -v"
+  }
+}
