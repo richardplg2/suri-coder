@@ -20,6 +20,9 @@ __pycache__
 .venv
 *.egg-info
 
+# worktrees
+.worktrees
+
 # misc
 .DS_Store
 .env
