@@ -66,9 +66,34 @@ The CLI writes components to `packages/ui/src/components/` and imports `cn` from
 - `packages/ui/tsup.config.ts` has esbuild alias `@` → `./src` so builds resolve correctly
 - shadcn generates imports like `from "@/lib/utils"` — this is resolved by both TypeScript and tsup
 
+### Importing Components
+
+All components are exported from the barrel `packages/ui/src/index.ts`. In app code:
+
+```tsx
+// Single import path for everything
+import { Button, StatusBadge, DataTable, Panel, SplitPane } from '@agent-coding/ui'
+
+// Types are co-exported
+import type { DataTableProps, Column, FileTreeNode } from '@agent-coding/ui'
+
+// CSS must be imported separately (in your app's root)
+import '@agent-coding/ui/globals.css'
+```
+
+**Available components:**
+
+| Layer | Components |
+|-------|-----------|
+| **Base (shadcn)** | Alert, Badge, Breadcrumb, Button, Card, Command, Dialog, DropdownMenu, Input, Label, Popover, Progress, ScrollArea, Select, Separator, Sheet, Switch, Table, Tabs, Textarea, Toaster, Tooltip |
+| **Design system** | CostBadge, EmptyState, KVRow, SearchField, SegmentedControl, Spinner, SplitPane, StatusBadge |
+| **Layout** | Panel (+ Header, Title, Actions, Content), TabBar, DataTable, SourceList, FileTree |
+| **Session/Agent** | ChatBubble, StreamingText, ToolCallCard, SessionStatusBar |
+| **Code review** | CodeBlock, DiffViewer, InlineComment |
+
 ### Rules
 
-- Always import shadcn components from `@agent-coding/ui`, never from relative paths in app code
+- Always import from `@agent-coding/ui`, never from relative paths in app code
 - CSS variables (light/dark) live in `packages/ui/src/globals.css`, theme-to-Tailwind mapping in `apps/desktop/src/renderer/globals.css`
 - Components use CVA (`class-variance-authority`) for variants and `cn()` for class merging
 - `rsc: false` in config — no React Server Components (Electron renderer)
