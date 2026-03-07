@@ -29,6 +29,7 @@
     "clean:dev": "rimraf ./node_modules/.dev",
     "lint": "biome check --no-errors-on-unmatched",
     "typecheck": "tsc --noEmit",
+    "pretest:e2e": "electron-vite build",
     "test:e2e": "playwright test --config=e2e/playwright.config.ts",
     "test:e2e:mock": "playwright test --config=e2e/playwright.config.ts --project=mock",
     "test:e2e:integration": "playwright test --config=e2e/playwright.config.ts --project=integration"
