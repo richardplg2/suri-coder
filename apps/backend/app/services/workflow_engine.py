@@ -4,9 +4,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.models.agent_config import AgentConfig
 from app.models.enums import StepStatus, TicketStatus
 from app.models.ticket import Ticket
 from app.models.workflow_step import WorkflowStep
+from app.models.workflow_template import WorkflowTemplate
 
 
 class WorkflowEngine:
@@ -14,7 +16,11 @@ class WorkflowEngine:
         self.db = db
 
     async def tick(self, ticket_id: uuid.UUID) -> list[WorkflowStep]:
-        """Advance the DAG. Returns list of steps that became ready."""
+        """Advance the DAG. Returns list of steps that became ready or awaiting_approval."""
+        ticket = await self.db.get(Ticket, ticket_id)
+        if not ticket:
+            return []
+
         result = await self.db.execute(
             select(WorkflowStep)
             .where(WorkflowStep.ticket_id == ticket_id)
@@ -41,7 +47,10 @@ class WorkflowEngine:
                     break
 
             if all_deps_done:
-                step.status = StepStatus.ready
+                if await self.needs_approval(step, ticket):
+                    step.status = StepStatus.awaiting_approval
+                else:
+                    step.status = StepStatus.ready
                 newly_ready.append(step)
 
         # Auto-complete ticket if all steps done
@@ -49,12 +58,40 @@ class WorkflowEngine:
             s.status in (StepStatus.completed, StepStatus.skipped) for s in steps
         )
         if all_done and steps:
-            ticket = await self.db.get(Ticket, ticket_id)
-            if ticket and ticket.status != TicketStatus.done:
+            if ticket.status != TicketStatus.done:
                 ticket.status = TicketStatus.done
 
         await self.db.flush()
         return newly_ready
+
+    async def needs_approval(self, step: WorkflowStep, ticket: Ticket) -> bool:
+        """Three-tier approval resolution: step > template > agent config."""
+        # Tier 0: auto_execute=False forces all steps to need approval
+        if not ticket.auto_execute:
+            return True
+
+        # Tier 1: step-level override
+        if step.requires_approval is not None:
+            return step.requires_approval
+
+        # Tier 2: template step config
+        if ticket.template_id:
+            template = await self.db.get(WorkflowTemplate, ticket.template_id)
+            if template and template.steps_config:
+                for tmpl_step in template.steps_config.get("steps", []):
+                    if tmpl_step["id"] == step.template_step_id:
+                        tmpl_approval = tmpl_step.get("requires_approval")
+                        if tmpl_approval is not None:
+                            return tmpl_approval
+                        break
+
+        # Tier 3: agent config default
+        if step.agent_config_id:
+            agent_config = await self.db.get(AgentConfig, step.agent_config_id)
+            if agent_config:
+                return agent_config.default_requires_approval
+
+        return False
 
     async def start_step(self, step: WorkflowStep):
         """Mark step as running and update ticket status."""
@@ -83,3 +120,8 @@ class WorkflowEngine:
         step.status = StepStatus.skipped
         await self.db.flush()
         return await self.tick(step.ticket_id)
+
+    async def approve_step(self, step: WorkflowStep):
+        """Approve an awaiting_approval step -> ready."""
+        step.status = StepStatus.ready
+        await self.db.flush()
