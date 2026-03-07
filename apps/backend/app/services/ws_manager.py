@@ -16,6 +16,7 @@ CHANNEL_TO_REDIS_KEY: dict[WsChannel, Callable[[dict[str, str]], str]] = {
     WsChannel.project_tickets: lambda p: f"project:{p['project_id']}:tickets",
     WsChannel.ticket_progress: lambda p: f"ticket:{p['ticket_id']}",
     WsChannel.session_stream: lambda p: f"session:{p['session_id']}",
+    WsChannel.notifications: lambda p: f"notifications:{p['user_id']}",
 }
 
 

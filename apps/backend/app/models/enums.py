@@ -66,6 +66,7 @@ class WsChannel(str, enum.Enum):
     project_tickets = "project:tickets"
     ticket_progress = "ticket:progress"
     session_stream = "session:stream"
+    notifications = "notifications"
 
 
 class WsEvent(str, enum.Enum):
@@ -89,6 +90,10 @@ class WsEvent(str, enum.Enum):
     step_changes_requested = "step_changes_requested"
     brainstorm_output = "brainstorm_output"
     workflow_completed = "workflow_completed"
+
+    # notifications
+    new_notification = "new_notification"
+    unread_count_changed = "unread_count_changed"
 
     # session:stream
     message = "message"
