@@ -87,10 +87,12 @@ export function ReviewDiffView({ diff, filePath, comments, onAddComment }: Revie
           lines={lines}
           renderLineAnnotation={renderLineAnnotation}
         />
-        {/* Add comment buttons overlay via CSS hover on rows */}
         <style>{`
-          [data-slot="diff-viewer"] tr:hover .review-add-comment {
-            opacity: 1;
+          [data-slot="diff-viewer"] tr:has(+ tr [data-slot="inline-comment"]) {
+            background: color-mix(in srgb, var(--warning) 8%, transparent);
+          }
+          [data-slot="diff-viewer"] tr:has(+ tr [data-slot="inline-comment"]) td:first-child {
+            border-left: 2px solid var(--warning);
           }
         `}</style>
       </div>
