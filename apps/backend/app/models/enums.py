@@ -34,10 +34,19 @@ class TicketPriority(str, enum.Enum):
 class StepStatus(str, enum.Enum):
     pending = "pending"
     ready = "ready"
+    awaiting_approval = "awaiting_approval"
     running = "running"
+    review = "review"
+    changes_requested = "changes_requested"
     completed = "completed"
     failed = "failed"
     skipped = "skipped"
+
+
+class ReviewStatus(str, enum.Enum):
+    pending = "pending"
+    approved = "approved"
+    changes_requested = "changes_requested"
 
 
 class SessionStatus(str, enum.Enum):
