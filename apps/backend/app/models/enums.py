@@ -96,3 +96,36 @@ class WsEvent(str, enum.Enum):
     cost_update = "cost_update"
     completed = "completed"
     failed = "failed"
+
+
+class SpecType(str, enum.Enum):
+    feature = "feature"
+    design = "design"
+    plan = "plan"
+    test = "test"
+
+
+class SpecRefType(str, enum.Enum):
+    derives_from = "derives_from"
+    implements = "implements"
+    verifies = "verifies"
+    relates_to = "relates_to"
+
+
+class BrainstormMessageType(str, enum.Enum):
+    text = "text"
+    quiz = "quiz"
+    summary = "summary"
+    figma_context = "figma_context"
+
+
+class BrainstormRole(str, enum.Enum):
+    user = "user"
+    assistant = "assistant"
+    system = "system"
+
+
+class TicketSource(str, enum.Enum):
+    ai_brainstorm = "ai_brainstorm"
+    figma = "figma"
+    manual = "manual"
