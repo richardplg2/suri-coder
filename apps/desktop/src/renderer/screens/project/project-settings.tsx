@@ -16,6 +16,8 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
   const [path, setPath] = useState(project.path)
   const [repoUrl, setRepoUrl] = useState(project.repo_url ?? '')
   const [description, setDescription] = useState(project.description ?? '')
+  const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     setName(project.name)
@@ -31,12 +33,19 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
     description !== (project.description ?? '')
 
   async function handleSave() {
-    await updateProject.mutateAsync({
-      name: name.trim(),
-      path: path.trim(),
-      repo_url: repoUrl.trim() || undefined,
-      description: description.trim() || undefined,
-    })
+    setError(null)
+    setSaved(false)
+    try {
+      await updateProject.mutateAsync({
+        name: name.trim(),
+        path: path.trim(),
+        repo_url: repoUrl.trim() || undefined,
+        description: description.trim() || undefined,
+      })
+      setSaved(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save changes')
+    }
   }
 
   return (
@@ -66,6 +75,8 @@ export function ProjectSettings({ project }: ProjectSettingsProps) {
           <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
         </div>
 
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        {saved && <p className="text-sm text-[var(--success)]">Changes saved.</p>}
         <Button onClick={handleSave} disabled={!isDirty || updateProject.isPending}>
           Save Changes
         </Button>

@@ -3,12 +3,14 @@ import { Button, EmptyState, Spinner } from '@agent-coding/ui'
 import { useProjects } from 'renderer/hooks/queries/use-projects'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import { useModalStore } from 'renderer/stores/use-modal-store'
+import { useSidebarStore } from 'renderer/stores/use-sidebar-store'
 import { ProjectCard } from 'renderer/components/project-card'
 
 export function HomeScreen() {
   const { data: projects, isLoading } = useProjects()
   const { openProjectTab } = useTabStore()
   const { open } = useModalStore()
+  const { setActiveNav } = useSidebarStore()
 
   if (isLoading) {
     return (
@@ -48,6 +50,7 @@ export function HomeScreen() {
               onClick={() => openProjectTab(project.id, project.name)}
               onSettings={() => {
                 openProjectTab(project.id, project.name)
+                setActiveNav('settings')
               }}
               onDelete={() => open('delete-project', { projectId: project.id, projectName: project.name })}
             />

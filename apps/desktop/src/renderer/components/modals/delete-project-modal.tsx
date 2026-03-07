@@ -13,6 +13,7 @@ export function DeleteProjectModal() {
   const { closeTab } = useTabStore()
 
   const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const isOpen = activeModal === 'delete-project'
   const projectId = modalData?.projectId as string | undefined
@@ -20,10 +21,15 @@ export function DeleteProjectModal() {
 
   async function handleDelete() {
     if (!projectId || confirm !== projectName) return
-    await deleteProject.mutateAsync(projectId)
-    closeTab(`project-${projectId}`)
-    close()
-    setConfirm('')
+    setError(null)
+    try {
+      await deleteProject.mutateAsync(projectId)
+      closeTab(`project-${projectId}`)
+      close()
+      setConfirm('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete project')
+    }
   }
 
   return (
@@ -45,6 +51,9 @@ export function DeleteProjectModal() {
             autoFocus
           />
         </div>
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={() => { close(); setConfirm('') }}>
             Cancel

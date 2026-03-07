@@ -26,6 +26,7 @@ export function CreateProjectModal() {
   const [repoUrl, setRepoUrl] = useState('')
   const [description, setDescription] = useState('')
   const [slugManual, setSlugManual] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const isOpen = activeModal === 'create-project'
 
@@ -36,6 +37,7 @@ export function CreateProjectModal() {
     setRepoUrl('')
     setDescription('')
     setSlugManual(false)
+    setError(null)
   }
 
   function handleNameChange(value: string) {
@@ -46,17 +48,22 @@ export function CreateProjectModal() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!name.trim() || !slug.trim() || !path.trim()) return
+    setError(null)
 
-    const project = await createProject.mutateAsync({
-      name: name.trim(),
-      slug: slug.trim(),
-      path: path.trim(),
-      repo_url: repoUrl.trim() || undefined,
-      description: description.trim() || undefined,
-    })
-    close()
-    reset()
-    openProjectTab(project.id, project.name)
+    try {
+      const project = await createProject.mutateAsync({
+        name: name.trim(),
+        slug: slug.trim(),
+        path: path.trim(),
+        repo_url: repoUrl.trim() || undefined,
+        description: description.trim() || undefined,
+      })
+      close()
+      reset()
+      openProjectTab(project.id, project.name)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create project')
+    }
   }
 
   return (
@@ -112,6 +119,9 @@ export function CreateProjectModal() {
               rows={2}
             />
           </div>
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => { close(); reset() }}>
               Cancel
