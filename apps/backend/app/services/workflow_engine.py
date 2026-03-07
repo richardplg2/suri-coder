@@ -104,8 +104,34 @@ class WorkflowEngine:
 
         await self.db.flush()
 
+    async def needs_post_approval(self, step: WorkflowStep, ticket: Ticket) -> bool:
+        """Determine if a step needs human review after agent completion.
+
+        Two-tier auto_approval resolution:
+        - Tier 0: ticket.auto_approval ON → skip review (unless step overrides)
+        - Tier 1: step.auto_approval overrides ticket-level
+        - Default: needs review
+        """
+        # Tier 1: step-level override takes priority
+        if step.auto_approval is not None:
+            return not step.auto_approval
+
+        # Tier 0: ticket-level
+        if ticket.auto_approval:
+            return False
+
+        # Default: require review
+        return True
+
     async def complete_step(self, step: WorkflowStep):
-        """Mark step as completed and tick the DAG."""
+        """Mark step as completed (or review if post-approval needed)."""
+        ticket = await self.db.get(Ticket, step.ticket_id)
+
+        if ticket and await self.needs_post_approval(step, ticket):
+            step.status = StepStatus.review
+            await self.db.flush()
+            return []
+
         step.status = StepStatus.completed
         await self.db.flush()
         return await self.tick(step.ticket_id)
