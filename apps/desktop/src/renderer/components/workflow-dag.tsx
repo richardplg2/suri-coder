@@ -1,19 +1,41 @@
-import { cn, StatusBadge } from '@agent-coding/ui'
+import { cn } from '@agent-coding/ui'
+import { CheckCircle, Loader2, Circle, XCircle, Eye } from 'lucide-react'
 import type { WorkflowStep, StepStatus } from 'renderer/types/api'
 
-function stepStatusToStatus(status: StepStatus) {
-  const map: Record<StepStatus, 'passed' | 'running' | 'failed' | 'pending' | 'idle'> = {
-    completed: 'passed',
-    running: 'running',
-    failed: 'failed',
-    ready: 'pending',
-    awaiting_approval: 'pending',
-    review: 'pending',
-    changes_requested: 'failed',
-    pending: 'idle',
-    skipped: 'idle',
-  }
-  return map[status]
+const STATUS_COLORS: Record<StepStatus, string> = {
+  completed: 'border-green-500 bg-green-500/10',
+  running: 'border-blue-500 bg-blue-500/10',
+  ready: 'border-gray-400 bg-gray-400/10',
+  awaiting_approval: 'border-yellow-500 bg-yellow-500/10',
+  review: 'border-yellow-500 bg-yellow-500/10',
+  changes_requested: 'border-red-500 bg-red-500/10',
+  failed: 'border-red-500 bg-red-500/10',
+  pending: 'border-zinc-600 bg-zinc-600/10',
+  skipped: 'border-zinc-600 bg-zinc-600/10',
+}
+
+const STATUS_ICONS: Record<StepStatus, typeof Circle> = {
+  completed: CheckCircle,
+  running: Loader2,
+  failed: XCircle,
+  review: Eye,
+  ready: Circle,
+  awaiting_approval: Circle,
+  changes_requested: XCircle,
+  pending: Circle,
+  skipped: Circle,
+}
+
+const LINE_COLORS: Record<StepStatus, string> = {
+  completed: 'bg-green-500',
+  running: 'bg-blue-500',
+  failed: 'bg-red-500',
+  review: 'bg-yellow-500',
+  ready: 'bg-zinc-600',
+  awaiting_approval: 'bg-zinc-600',
+  changes_requested: 'bg-red-500',
+  pending: 'bg-zinc-700',
+  skipped: 'bg-zinc-700',
 }
 
 interface WorkflowDAGProps {
@@ -26,23 +48,32 @@ export function WorkflowDAG({ steps, selectedStepId, onSelectStep }: WorkflowDAG
   const sorted = [...steps].sort((a, b) => a.order - b.order)
 
   return (
-    <div className="flex flex-wrap gap-3 p-4">
-      {sorted.map((step) => (
-        <button
-          key={step.id}
-          type="button"
-          onClick={() => onSelectStep(step.id)}
-          className={cn(
-            'flex items-center gap-2 rounded-[var(--radius-button)] border px-3 py-2 text-[13px] transition-all duration-150 cursor-pointer',
-            selectedStepId === step.id
-              ? 'border-primary bg-[var(--selection)] text-primary'
-              : 'border-border bg-card hover:bg-secondary/50'
-          )}
-        >
-          <StatusBadge status={stepStatusToStatus(step.status)} className="text-[10px] px-1.5 py-0" />
-          <span>{step.name}</span>
-        </button>
-      ))}
+    <div className="flex flex-col items-center gap-0 py-4">
+      {sorted.map((step, i) => {
+        const Icon = STATUS_ICONS[step.status]
+        const isLast = i === sorted.length - 1
+
+        return (
+          <div key={step.id} className="flex flex-col items-center">
+            <button
+              type="button"
+              onClick={() => onSelectStep(step.id)}
+              className={cn(
+                'flex w-56 cursor-pointer items-center gap-2 rounded-lg border-2 px-4 py-2 text-[13px] transition-all',
+                STATUS_COLORS[step.status],
+                selectedStepId === step.id && 'ring-2 ring-primary ring-offset-1 ring-offset-background'
+              )}
+            >
+              <Icon className={cn('size-4', step.status === 'running' && 'animate-spin')} />
+              <span className="truncate">{step.name}</span>
+            </button>
+
+            {!isLast && (
+              <div className={cn('h-6 w-0.5', LINE_COLORS[step.status])} />
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
