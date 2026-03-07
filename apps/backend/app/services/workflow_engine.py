@@ -125,3 +125,19 @@ class WorkflowEngine:
         """Approve an awaiting_approval step -> ready."""
         step.status = StepStatus.ready
         await self.db.flush()
+
+    async def review_step(self, step: WorkflowStep):
+        """Transition running step to review status."""
+        step.status = StepStatus.review
+        await self.db.flush()
+
+    async def request_changes_step(self, step: WorkflowStep):
+        """Transition review step to changes_requested."""
+        step.status = StepStatus.changes_requested
+        await self.db.flush()
+
+    async def approve_review_step(self, step: WorkflowStep):
+        """Approve review -> complete step -> tick DAG."""
+        step.status = StepStatus.completed
+        await self.db.flush()
+        return await self.tick(step.ticket_id)

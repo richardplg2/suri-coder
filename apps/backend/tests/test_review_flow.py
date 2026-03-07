@@ -157,3 +157,54 @@ async def test_get_reviews_for_step(db_session: AsyncSession):
     assert len(reviews) == 2
     assert reviews[0].revision == 1
     assert reviews[1].revision == 2
+
+
+# --- WorkflowEngine review methods ---
+
+from app.services.workflow_engine import WorkflowEngine
+
+
+@pytest.mark.asyncio
+async def test_review_step_transitions_to_review(
+    db_session: AsyncSession,
+):
+    """review_step() should set status to review."""
+    data = await _setup_review_data(db_session)
+    step = data["step"]
+    step.status = StepStatus.running
+    await db_session.flush()
+    await db_session.commit()
+
+    engine = WorkflowEngine(db_session)
+    await engine.review_step(step)
+
+    await db_session.refresh(step)
+    assert step.status == StepStatus.review
+
+
+@pytest.mark.asyncio
+async def test_request_changes_transitions(db_session: AsyncSession):
+    """request_changes_step() sets status to changes_requested."""
+    data = await _setup_review_data(db_session)
+    step = data["step"]
+
+    engine = WorkflowEngine(db_session)
+    await engine.request_changes_step(step)
+
+    await db_session.refresh(step)
+    assert step.status == StepStatus.changes_requested
+
+
+@pytest.mark.asyncio
+async def test_approve_review_completes_step_and_ticks(
+    db_session: AsyncSession,
+):
+    """approve_review_step() should complete step and tick DAG."""
+    data = await _setup_review_data(db_session)
+    step = data["step"]
+
+    engine = WorkflowEngine(db_session)
+    newly_ready = await engine.approve_review_step(step)
+
+    await db_session.refresh(step)
+    assert step.status == StepStatus.completed
