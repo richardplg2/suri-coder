@@ -35,3 +35,28 @@ def test_agent_config_default_requires_approval_accepts_no_value():
     )
     # Column default=False is applied on INSERT, not construction
     assert hasattr(config, "default_requires_approval")
+
+
+from app.models.ticket import Ticket
+
+
+def test_ticket_has_auto_execute():
+    ticket = Ticket(
+        project_id="00000000-0000-0000-0000-000000000001",
+        key="TEST-1",
+        title="Test",
+        created_by="00000000-0000-0000-0000-000000000001",
+        auto_execute=False,
+    )
+    assert ticket.auto_execute is False
+
+
+def test_ticket_auto_execute_accepts_no_value():
+    ticket = Ticket(
+        project_id="00000000-0000-0000-0000-000000000001",
+        key="TEST-2",
+        title="Test",
+        created_by="00000000-0000-0000-0000-000000000001",
+    )
+    # Column default=True is applied on INSERT, not construction
+    assert hasattr(ticket, "auto_execute")
