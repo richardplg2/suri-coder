@@ -3,7 +3,14 @@ import uuid
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.enums import StepStatus, TicketPriority, TicketStatus, TicketType, UserRole
+from app.models.enums import (
+    StepStatus,
+    TicketPriority,
+    TicketStatus,
+    TicketType,
+    UserRole,
+    WsEvent,
+)
 from app.models.project import Project
 from app.models.ticket import Ticket
 from app.models.user import User
@@ -67,7 +74,9 @@ async def _setup_prompt_data(db: AsyncSession) -> dict:
         description="Implement the login feature",
         status=StepStatus.ready,
         order=1,
-        step_breakdown={"instructions": "Create LoginForm at src/components/LoginForm.tsx"},
+        step_breakdown={
+            "instructions": "Create LoginForm at src/components/LoginForm.tsx"
+        },
     )
     db.add(code_step)
     await db.flush()
@@ -128,9 +137,6 @@ async def test_build_step_prompt_no_override(db_session: AsyncSession):
     builder = PromptBuilder(db_session)
     prompt = await builder.build_step_prompt(data["code_step"])
     assert "Additional instructions" not in prompt
-
-
-from app.models.enums import WsEvent
 
 
 def test_ws_event_has_review_events():

@@ -6,7 +6,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models.agent_config import AgentConfig
 from app.models.enums import StepStatus
 from app.models.session import Session
 from app.models.ticket import Ticket
@@ -14,9 +13,7 @@ from app.models.user import User
 from app.models.workflow_step import WorkflowStep
 from app.schemas.session import SessionResponse
 from app.schemas.step_review import RegenerateRequest, RequestChangesRequest, StepReviewResponse
-from app.services.agent_runner import AgentRunner
 from app.services.auth import get_current_user
-from app.services.prompt_builder import PromptBuilder
 from app.services.step_review import StepReviewService
 from app.services.workflow_engine import WorkflowEngine
 
@@ -116,13 +113,10 @@ async def run_step(
     db.add(session)
     await engine.start_step(step)
 
-    # Build agent options (actual SDK execution is async via worker)
-    if step.agent_config_id:
-        agent_config = await db.get(AgentConfig, step.agent_config_id)
-        if agent_config:
-            runner = AgentRunner(db)
-            prompt_builder = PromptBuilder(db)
-            await prompt_builder.build_step_prompt(step)
+    # TODO: Use AgentRunner + PromptBuilder to build prompt and enqueue
+    # SDK execution via ARQ worker. Services are available at:
+    #   from app.services.agent_runner import AgentRunner
+    #   from app.services.prompt_builder import PromptBuilder
 
     await db.commit()
     await db.refresh(session)

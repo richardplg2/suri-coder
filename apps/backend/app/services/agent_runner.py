@@ -7,11 +7,14 @@ from app.models.agent_config import AgentConfig
 from app.models.ticket import Ticket
 from app.models.workflow_step import WorkflowStep
 
+# Process-local session registry. Tracks active SDK clients for follow-up
+# queries within a single worker process. Will need Redis-backed registry
+# for multi-worker deployments.
+_active_sessions: dict[uuid.UUID, Any] = {}
+
 
 class AgentRunner:
     """Manages Claude SDK agent execution and active session tracking."""
-
-    _active_sessions: dict[uuid.UUID, Any] = {}
 
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -51,12 +54,12 @@ class AgentRunner:
 
     def register_session(self, step_id: uuid.UUID, client: Any) -> None:
         """Register an active SDK client for follow-up queries."""
-        self._active_sessions[step_id] = client
+        _active_sessions[step_id] = client
 
     def get_session(self, step_id: uuid.UUID) -> Any | None:
         """Get active SDK client for a step."""
-        return self._active_sessions.get(step_id)
+        return _active_sessions.get(step_id)
 
     def remove_session(self, step_id: uuid.UUID) -> None:
         """Remove active SDK client when step completes."""
-        self._active_sessions.pop(step_id, None)
+        _active_sessions.pop(step_id, None)

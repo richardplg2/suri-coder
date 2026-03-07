@@ -5,7 +5,13 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.agent_config import AgentConfig
-from app.models.enums import StepStatus, TicketPriority, TicketStatus, TicketType, UserRole
+from app.models.enums import (
+    StepStatus,
+    TicketPriority,
+    TicketStatus,
+    TicketType,
+    UserRole,
+)
 from app.models.project import Project
 from app.models.ticket import Ticket
 from app.models.user import User

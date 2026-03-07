@@ -3,6 +3,7 @@ import json
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.enums import StepStatus
 from app.models.workflow_step import WorkflowStep, WorkflowStepDependency
 
 
@@ -67,12 +68,16 @@ class PromptBuilder:
         lines = []
         for dep in deps:
             dep_step = all_steps.get(dep.depends_on_id)
-            if not dep_step:
+            if not dep_step or dep_step.status not in (
+                StepStatus.completed,
+                StepStatus.skipped,
+            ):
                 continue
-            lines.append(f"### {dep_step.name} (completed)")
+            lines.append(f"### {dep_step.name} ({dep_step.status.value})")
             if dep_step.brainstorm_output:
+                output = json.dumps(dep_step.brainstorm_output, indent=2)
                 lines.append(
-                    f"Brainstorm output:\n```json\n{json.dumps(dep_step.brainstorm_output, indent=2)}\n```"
+                    f"Brainstorm output:\n```json\n{output}\n```"
                 )
             elif dep_step.description:
                 lines.append(dep_step.description)
