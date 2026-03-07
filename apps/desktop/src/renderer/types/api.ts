@@ -75,6 +75,9 @@ export interface Ticket {
   assignee_id: string | null
   budget_usd: number | null
   auto_execute: boolean
+  auto_approval: boolean
+  source: TicketSource
+  figma_data: Record<string, unknown> | null
   created_by: string
   created_at: string
   steps: WorkflowStep[]
@@ -101,6 +104,8 @@ export interface TicketCreate {
   assignee_id?: string | null
   budget_usd?: number | null
   auto_execute?: boolean
+  source?: TicketSource
+  figma_data?: Record<string, unknown> | null
 }
 
 export interface TicketUpdate {
@@ -112,6 +117,7 @@ export interface TicketUpdate {
   assignee_id?: string | null
   budget_usd?: number | null
   auto_execute?: boolean | null
+  auto_approval?: boolean | null
 }
 
 export interface WorkflowTemplate {
@@ -204,3 +210,77 @@ export interface ProjectRepository {
   connected_at: string
   connected_by: string
 }
+
+// Specs
+export type SpecType = 'feature' | 'design' | 'plan' | 'test'
+export type SpecRefType = 'derives_from' | 'implements' | 'verifies' | 'relates_to'
+
+export interface TicketSpec {
+  id: string
+  ticket_id: string
+  type: SpecType
+  title: string
+  content: string
+  revision: number
+  created_by: string
+  agent_step_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface SpecReference {
+  id: string
+  source_spec_id: string
+  target_spec_id: string
+  ref_type: SpecRefType
+  section: string | null
+}
+
+export interface TicketSpecDetail extends TicketSpec {
+  source_references: SpecReference[]
+  target_references: SpecReference[]
+}
+
+// Notifications
+export interface Notification {
+  id: string
+  user_id: string
+  type: string
+  title: string
+  body: string | null
+  resource_type: string | null
+  resource_id: string | null
+  read: boolean
+  created_at: string
+}
+
+// Brainstorm
+export interface QuizOption {
+  id: string
+  label: string
+  description: string
+  recommended: boolean
+  recommendation_reason: string | null
+}
+
+export interface QuizData {
+  question: string
+  context: string
+  options: QuizOption[]
+  allow_multiple: boolean
+  allow_custom: boolean
+}
+
+export type BrainstormMessageType = 'text' | 'quiz' | 'summary' | 'figma_context'
+
+export interface BrainstormMessage {
+  id: string
+  session_id: string
+  role: 'user' | 'assistant' | 'system'
+  content: string | null
+  message_type: BrainstormMessageType
+  structured_data: QuizData | Record<string, unknown> | null
+  created_at: string
+}
+
+export type TicketSource = 'ai_brainstorm' | 'figma' | 'manual'
