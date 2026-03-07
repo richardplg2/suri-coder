@@ -65,7 +65,12 @@ export function useFigmaConnection(): UseFigmaConnectionReturn {
     }
 
     ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data)
+      let msg: { message?: { id?: string; result?: unknown } }
+      try {
+        msg = JSON.parse(event.data)
+      } catch {
+        return
+      }
       if (msg.message?.id && pendingRequests.current.has(msg.message.id)) {
         const req = pendingRequests.current.get(msg.message.id)!
         pendingRequests.current.delete(msg.message.id)

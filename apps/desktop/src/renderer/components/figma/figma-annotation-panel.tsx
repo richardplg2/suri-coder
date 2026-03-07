@@ -20,11 +20,13 @@ export function FigmaAnnotationPanel({
 }: FigmaAnnotationPanelProps) {
   const [noteText, setNoteText] = useState('')
 
+  // Only reset note text when the selected node changes, not on every annotation mutation
   useEffect(() => {
     if (selectedNode) {
       setNoteText(annotations[selectedNode.id]?.text ?? '')
     }
-  }, [selectedNode?.id, annotations])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNode?.id])
 
   const handleSave = () => {
     if (!selectedNode) return

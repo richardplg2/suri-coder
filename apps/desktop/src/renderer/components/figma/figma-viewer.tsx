@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { SplitPane, SplitPanePanel, SplitPaneHandle, Button, Input, Badge, Spinner } from '@agent-coding/ui'
 import { Plug, Unplug, Download, Loader2 } from 'lucide-react'
 import { useFigmaConnection } from 'renderer/hooks/use-figma-connection'
@@ -18,10 +18,29 @@ interface FigmaViewerProps {
   onAnnotationsReady?: (annotations: Record<string, Annotation>, nodeTree: FigmaNode, imageDataUrl: string) => void
 }
 
+function flattenNodes(node: FigmaNode, depth: number, result: FlatNode[]) {
+  if (!node.absoluteBoundingBox) return
+  result.push({
+    id: node.id,
+    name: node.name,
+    type: node.type,
+    depth,
+    absoluteBoundingBox: node.absoluteBoundingBox,
+    characters: node.characters,
+    fills: node.fills,
+  })
+  if (node.children) {
+    for (const child of node.children) {
+      flattenNodes(child, depth + 1, result)
+    }
+  }
+}
+
 export function FigmaViewer({ onAnnotationsReady }: FigmaViewerProps) {
   const figma = useFigmaConnection()
   const [channelId, setChannelId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // Design state
   const [nodeTree, setNodeTree] = useState<FigmaNode | null>(null)
@@ -34,26 +53,9 @@ export function FigmaViewer({ onAnnotationsReady }: FigmaViewerProps) {
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null)
   const [annotations, setAnnotations] = useState<Record<string, Annotation>>({})
 
-  const flattenNodes = useCallback((node: FigmaNode, depth: number, result: FlatNode[]) => {
-    if (!node.absoluteBoundingBox) return
-    result.push({
-      id: node.id,
-      name: node.name,
-      type: node.type,
-      depth,
-      absoluteBoundingBox: node.absoluteBoundingBox,
-      characters: node.characters,
-      fills: node.fills,
-    })
-    if (node.children) {
-      for (const child of node.children) {
-        flattenNodes(child, depth + 1, result)
-      }
-    }
-  }, [])
-
   const handleLoadDesign = async () => {
     setIsLoading(true)
+    setLoadError(null)
     try {
       const selection = await figma.sendCommand<{ selection: Array<{ id: string; name: string; type: string }> }>(
         'get_selection',
@@ -82,7 +84,12 @@ export function FigmaViewer({ onAnnotationsReady }: FigmaViewerProps) {
       const flat: FlatNode[] = []
       flattenNodes(nodeInfo, 0, flat)
       setFlatNodes(flat)
+
+      // Notify parent that design is loaded (even with no annotations yet)
+      onAnnotationsReady?.(annotations, nodeInfo, imgData)
     } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to load design'
+      setLoadError(message)
       console.error('Failed to load design:', e)
     } finally {
       setIsLoading(false)
@@ -166,7 +173,9 @@ export function FigmaViewer({ onAnnotationsReady }: FigmaViewerProps) {
           </Button>
         )}
 
-        {figma.state.error && <span className="text-[11px] text-red-400">{figma.state.error}</span>}
+        {(figma.state.error || loadError) && (
+          <span className="text-[11px] text-red-400">{figma.state.error || loadError}</span>
+        )}
 
         <span className="flex-1" />
         <span className="text-[11px] text-muted-foreground">
