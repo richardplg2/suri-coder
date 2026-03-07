@@ -231,17 +231,7 @@ async def test_approve_step_endpoint(client, db_session):
     assert proj_resp.status_code == 201
     project_id = proj_resp.json()["id"]
 
-    # Create agent referenced by template
-    agent_resp = await client.post(
-        f"/projects/{project_id}/agents/",
-        json={
-            "name": "designer",
-            "system_prompt": "You design.",
-            "claude_model": "sonnet",
-        },
-        headers=headers,
-    )
-    assert agent_resp.status_code == 201
+    # Agents are seeded automatically on project creation
 
     # Create template
     tmpl_resp = await client.post(
@@ -304,15 +294,7 @@ async def test_approve_step_wrong_status_returns_409(client, db_session):
     )
     project_id = proj_resp.json()["id"]
 
-    await client.post(
-        f"/projects/{project_id}/agents/",
-        json={
-            "name": "designer",
-            "system_prompt": "You design.",
-            "claude_model": "sonnet",
-        },
-        headers=headers,
-    )
+    # Agents are seeded automatically on project creation
 
     tmpl_resp = await client.post(
         f"/projects/{project_id}/templates",
@@ -358,16 +340,7 @@ async def test_update_step_prompt(client):
     )
     project_id = proj_resp.json()["id"]
 
-    agent_resp = await client.post(
-        f"/projects/{project_id}/agents/",
-        json={
-            "name": "coder",
-            "system_prompt": "You code.",
-            "claude_model": "sonnet",
-        },
-        headers=headers,
-    )
-    assert agent_resp.status_code == 201
+    # Agents are seeded automatically on project creation
 
     tmpl_resp = await client.post(
         f"/projects/{project_id}/templates",
@@ -414,16 +387,7 @@ async def test_create_ticket_with_auto_execute_false(client):
     assert proj_resp.status_code == 201
     project_id = proj_resp.json()["id"]
 
-    agent_resp = await client.post(
-        f"/projects/{project_id}/agents/",
-        json={
-            "name": "coder",
-            "system_prompt": "You code.",
-            "claude_model": "sonnet",
-        },
-        headers=headers,
-    )
-    assert agent_resp.status_code == 201
+    # Agents are seeded automatically on project creation
 
     tmpl_resp = await client.post(
         f"/projects/{project_id}/templates",

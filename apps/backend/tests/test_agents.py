@@ -33,12 +33,12 @@ async def test_create_agent(client):
 
     resp = await client.post(
         f"/projects/{project_id}/agents/",
-        json=_agent_payload("designer"),
+        json=_agent_payload("custom-agent"),
         headers=headers,
     )
     assert resp.status_code == 201
     data = resp.json()
-    assert data["name"] == "designer"
+    assert data["name"] == "custom-agent"
     assert data["project_id"] == project_id
     assert data["claude_model"] == "claude-sonnet-4-20250514"
     assert "id" in data

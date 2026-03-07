@@ -4,7 +4,7 @@ from tests.conftest import auth_headers
 
 
 async def _setup_project_and_agent(client, headers, email_prefix="tmpl"):
-    """Create a project and an agent, return (project_id, agent_name)."""
+    """Create a project (agents are seeded automatically), return project_id."""
     resp = await client.post(
         "/projects/",
         json={
@@ -15,31 +15,7 @@ async def _setup_project_and_agent(client, headers, email_prefix="tmpl"):
         headers=headers,
     )
     assert resp.status_code == 201
-    project_id = resp.json()["id"]
-
-    agent_resp = await client.post(
-        f"/projects/{project_id}/agents/",
-        json={
-            "name": "designer",
-            "system_prompt": "You design things.",
-            "claude_model": "claude-sonnet-4-20250514",
-        },
-        headers=headers,
-    )
-    assert agent_resp.status_code == 201
-
-    agent_resp2 = await client.post(
-        f"/projects/{project_id}/agents/",
-        json={
-            "name": "developer",
-            "system_prompt": "You develop things.",
-            "claude_model": "claude-sonnet-4-20250514",
-        },
-        headers=headers,
-    )
-    assert agent_resp2.status_code == 201
-
-    return project_id
+    return resp.json()["id"]
 
 
 def _valid_steps_config():
@@ -53,7 +29,7 @@ def _valid_steps_config():
             },
             {
                 "id": "develop",
-                "agent": "developer",
+                "agent": "coder",
                 "depends_on": ["design"],
                 "description": "Implement the feature",
             },
@@ -123,7 +99,7 @@ async def test_cycle_detection(client):
             },
             {
                 "id": "step_b",
-                "agent": "developer",
+                "agent": "coder",
                 "depends_on": ["step_a"],
                 "description": "Step B",
             },
