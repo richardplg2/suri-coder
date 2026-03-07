@@ -35,9 +35,10 @@ class NotificationService:
         )
         db.add(notification)
         await db.flush()
+        await db.commit()
         await db.refresh(notification)
 
-        # Publish to Redis for real-time delivery
+        # Publish to Redis for real-time delivery (after commit to avoid phantom notifications)
         redis = await get_redis()
         try:
             payload = json.dumps(
@@ -63,7 +64,6 @@ class NotificationService:
         finally:
             await redis.aclose()
 
-        await db.commit()
         return notification
 
     @staticmethod
@@ -88,6 +88,7 @@ class NotificationService:
         db: AsyncSession,
         notification_id: uuid.UUID,
         user_id: uuid.UUID,
+        read: bool = True,
     ) -> Notification | None:
         stmt = select(Notification).where(
             Notification.id == notification_id,
@@ -98,7 +99,7 @@ class NotificationService:
         if notification is None:
             return None
 
-        notification.read = True
+        notification.read = read
         await db.commit()
         await db.refresh(notification)
         return notification

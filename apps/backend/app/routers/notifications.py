@@ -46,7 +46,7 @@ async def mark_notification_read(
     db: AsyncSession = Depends(get_db),
 ) -> NotificationResponse:
     notification = await NotificationService.mark_read(
-        db=db, notification_id=notification_id, user_id=user.id
+        db=db, notification_id=notification_id, user_id=user.id, read=data.read
     )
     if notification is None:
         raise HTTPException(
