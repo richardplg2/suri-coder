@@ -33,6 +33,13 @@ class WorkflowStep(UUIDMixin, TimestampMixin, Base):
     user_prompt_override: Mapped[str | None] = mapped_column(Text, nullable=True)
     brainstorm_output: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     step_breakdown: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    auto_approval: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    retry_count: Mapped[int] = mapped_column(Integer, default=0)
+    max_retries: Mapped[int] = mapped_column(Integer, default=2)
+    parent_step_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("workflow_steps.id"), nullable=True
+    )
+    repo_ids: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     ticket: Mapped["Ticket"] = relationship(back_populates="steps")
     dependencies: Mapped[list["WorkflowStepDependency"]] = relationship(
