@@ -12,11 +12,12 @@ from app.models.enums import (
     UserRole,
 )
 from app.models.project import Project
-from app.models.step_review import StepReview
 from app.models.ticket import Ticket
 from app.models.user import User
 from app.models.workflow_step import WorkflowStep
 from app.services.step_review import StepReviewService
+from app.services.workflow_engine import WorkflowEngine
+from tests.conftest import auth_headers
 
 
 async def _setup_review_data(db: AsyncSession) -> dict:
@@ -161,8 +162,6 @@ async def test_get_reviews_for_step(db_session: AsyncSession):
 
 # --- WorkflowEngine review methods ---
 
-from app.services.workflow_engine import WorkflowEngine
-
 
 @pytest.mark.asyncio
 async def test_review_step_transitions_to_review(
@@ -204,15 +203,13 @@ async def test_approve_review_completes_step_and_ticks(
     step = data["step"]
 
     engine = WorkflowEngine(db_session)
-    newly_ready = await engine.approve_review_step(step)
+    await engine.approve_review_step(step)
 
     await db_session.refresh(step)
     assert step.status == StepStatus.completed
 
 
 # --- Endpoint tests ---
-
-from tests.conftest import auth_headers
 
 
 @pytest.mark.asyncio
@@ -301,3 +298,65 @@ async def test_request_changes_endpoint_404(client):
         headers=headers,
     )
     assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_step_reviews_endpoint(client):
+    """GET reviews returns empty list for step with no reviews."""
+    headers = await auth_headers(client, email="reviews@test.com")
+
+    proj_resp = await client.post(
+        "/projects/",
+        json={
+            "name": "ReviewList",
+            "slug": "rl",
+            "path": "/tmp/rl",
+        },
+        headers=headers,
+    )
+    project_id = proj_resp.json()["id"]
+
+    await client.post(
+        f"/projects/{project_id}/agents/",
+        json={
+            "name": "coder",
+            "system_prompt": "You code.",
+            "claude_model": "sonnet",
+        },
+        headers=headers,
+    )
+
+    tmpl_resp = await client.post(
+        f"/projects/{project_id}/templates",
+        json={
+            "name": "flow",
+            "steps_config": {
+                "steps": [
+                    {
+                        "id": "code",
+                        "agent": "coder",
+                        "depends_on": [],
+                    }
+                ],
+            },
+        },
+        headers=headers,
+    )
+
+    ticket_resp = await client.post(
+        f"/projects/{project_id}/tickets",
+        json={
+            "title": "Test",
+            "template_id": tmpl_resp.json()["id"],
+        },
+        headers=headers,
+    )
+    ticket = ticket_resp.json()
+    step_id = ticket["steps"][0]["id"]
+
+    resp = await client.get(
+        f"/tickets/{ticket['id']}/steps/{step_id}/reviews",
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json() == []

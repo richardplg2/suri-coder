@@ -283,3 +283,21 @@ async def request_changes(
     await engine.request_changes_step(step)
     await db.commit()
     return {"detail": "Changes requested", "step_id": str(step.id)}
+
+
+@router.get(
+    "/tickets/{ticket_id}/steps/{step_id}/reviews",
+    response_model=list[StepReviewResponse],
+)
+async def get_step_reviews(
+    ticket_id: uuid.UUID,
+    step_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[StepReviewResponse]:
+    await _get_ticket_or_404(db, ticket_id)
+    await _get_step_or_404(db, step_id, ticket_id)
+
+    review_service = StepReviewService(db)
+    reviews = await review_service.get_reviews(step_id)
+    return [StepReviewResponse.model_validate(r) for r in reviews]
