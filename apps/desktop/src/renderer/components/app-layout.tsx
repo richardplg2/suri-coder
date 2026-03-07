@@ -18,6 +18,10 @@ function tabToBarTab(tab: AppTab): Tab {
       return { id: tab.id, label: '', icon: <Folder className="size-4" />, closable: true }
     case 'ticket':
       return { id: tab.id, label: tab.label, closable: true }
+    case 'brainstorm':
+      return { id: tab.id, label: tab.label, closable: true }
+    case 'figma-import':
+      return { id: tab.id, label: tab.label, closable: true }
   }
 }
 
