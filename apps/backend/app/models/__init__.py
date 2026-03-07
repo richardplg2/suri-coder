@@ -9,6 +9,7 @@ from app.models.session import Session, SessionMessage
 from app.models.figma import FigmaTask, FigmaNode
 from app.models.testing import TestRun, TestResult
 from app.models.review import ReviewSession, FileReview
+from app.models.step_review import StepReview
 
 __all__ = [
     "User",
@@ -29,4 +30,5 @@ __all__ = [
     "TestResult",
     "ReviewSession",
     "FileReview",
+    "StepReview",
 ]

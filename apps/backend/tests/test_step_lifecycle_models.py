@@ -91,3 +91,31 @@ def test_workflow_step_new_fields_nullable():
     assert step.user_prompt_override is None
     assert step.brainstorm_output is None
     assert step.step_breakdown is None
+
+
+from app.models.step_review import StepReview
+from app.models.enums import ReviewStatus
+
+
+def test_step_review_model():
+    review = StepReview(
+        step_id="00000000-0000-0000-0000-000000000001",
+        revision=1,
+        diff_content="diff --git a/file.py",
+        status=ReviewStatus.pending,
+    )
+    assert review.revision == 1
+    assert review.status == ReviewStatus.pending
+    assert review.comments is None
+
+
+def test_step_review_with_comments():
+    review = StepReview(
+        step_id="00000000-0000-0000-0000-000000000001",
+        revision=2,
+        diff_content="diff --git a/file.py",
+        comments=[{"file": "file.py", "line": 10, "comment": "Fix this"}],
+        status=ReviewStatus.changes_requested,
+    )
+    assert len(review.comments) == 1
+    assert review.comments[0]["line"] == 10
