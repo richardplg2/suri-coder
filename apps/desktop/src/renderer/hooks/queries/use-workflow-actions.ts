@@ -127,6 +127,33 @@ export function useStepReviews(projectId: string, ticketId: string, stepId: stri
   })
 }
 
+export function useUpdateStep(projectId: string, ticketId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ stepId, payload }: { stepId: string; payload: { name?: string; description?: string; requires_approval?: boolean } }) =>
+      apiClient(`/tickets/${ticketId}/steps/${stepId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['projects', projectId, 'tickets', ticketId] })
+    },
+  })
+}
+
+export function useStopStep(projectId: string, ticketId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (stepId: string) =>
+      apiClient(`/tickets/${ticketId}/steps/${stepId}/stop`, {
+        method: 'POST',
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['projects', projectId, 'tickets', ticketId] })
+    },
+  })
+}
+
 export function useRunTicketWorkflow(projectId: string, ticketId: string) {
   const qc = useQueryClient()
   return useMutation({
