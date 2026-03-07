@@ -119,3 +119,43 @@ def test_step_review_with_comments():
     )
     assert len(review.comments) == 1
     assert review.comments[0]["line"] == 10
+
+
+from app.schemas.ticket import TicketUpdate, WorkflowStepResponse
+from app.schemas.step_review import StepReviewResponse
+
+
+def test_ticket_update_has_auto_execute():
+    data = TicketUpdate(auto_execute=False)
+    assert data.auto_execute is False
+
+
+def test_workflow_step_response_has_new_fields():
+    step = WorkflowStepResponse(
+        id="00000000-0000-0000-0000-000000000001",
+        template_step_id="brainstorm",
+        name="brainstorm",
+        description=None,
+        agent_config_id=None,
+        status="awaiting_approval",
+        order=0,
+        requires_approval=True,
+        user_prompt_override="Custom",
+        brainstorm_output={"summary": "test"},
+        step_breakdown={"instructions": "do this"},
+    )
+    assert step.requires_approval is True
+    assert step.status == "awaiting_approval"
+
+
+def test_step_review_response():
+    review = StepReviewResponse(
+        id="00000000-0000-0000-0000-000000000001",
+        step_id="00000000-0000-0000-0000-000000000002",
+        revision=1,
+        diff_content="diff content",
+        comments=None,
+        status="pending",
+        created_at="2026-03-07T00:00:00Z",
+    )
+    assert review.revision == 1
