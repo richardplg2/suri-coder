@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
-import { Button, SegmentedControl, EmptyState, Spinner, DataTable } from '@agent-coding/ui'
+import { Button, SegmentedControl, EmptyState, Spinner, DataTable, Badge, ScrollArea } from '@agent-coding/ui'
 import type { Column } from '@agent-coding/ui'
 import { useTickets } from 'renderer/hooks/queries/use-tickets'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import type { Project, TicketListItem, TicketType, TicketPriority } from 'renderer/types/api'
 
 type ViewMode = 'kanban' | 'list'
+
+const TYPE_VARIANT: Record<TicketType, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  feature: 'default',
+  bug: 'destructive',
+  improvement: 'secondary',
+  chore: 'outline',
+  spike: 'secondary',
+}
 
 const TYPE_COLORS: Record<TicketType, string> = {
   feature: 'bg-blue-500/15 text-blue-400',
@@ -17,11 +25,11 @@ const TYPE_COLORS: Record<TicketType, string> = {
 }
 
 const PRIORITY_COLORS: Record<TicketPriority, string> = {
-  urgent: 'text-red-400',
+  urgent: 'text-[var(--destructive)]',
   high: 'text-orange-400',
-  medium: 'text-yellow-400',
-  low: 'text-blue-400',
-  none: 'text-zinc-400',
+  medium: 'text-[var(--warning)]',
+  low: 'text-primary',
+  none: 'text-muted-foreground',
 }
 
 interface TicketsBoardProps {
@@ -45,7 +53,7 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
     <div className="flex h-full flex-col">
       {/* Toolbar */}
       <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
-        <div className="text-sm font-medium">Tickets</div>
+        <div className="window-title">Tickets</div>
         <div className="flex items-center gap-2">
           <SegmentedControl
             value={viewMode}
@@ -57,7 +65,7 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
             size="sm"
           />
           <Button size="sm">
-            <Plus className="mr-1.5 size-4" />
+            <Plus className="mr-1.5 size-3.5" />
             New Ticket
           </Button>
         </div>
@@ -110,16 +118,18 @@ function KanbanView({
         return (
           <div key={col.status} className="flex w-64 shrink-0 flex-col">
             <div className="mb-2 flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+              <span className="section-header">
                 {col.label}
               </span>
-              <span className="text-xs text-muted-foreground">{colTickets.length}</span>
+              <span className="text-caption text-muted-foreground">{colTickets.length}</span>
             </div>
-            <div className="flex-1 space-y-2 overflow-auto">
-              {colTickets.map((ticket) => (
-                <TicketCard key={ticket.id} ticket={ticket} onClick={() => onTicketClick(ticket)} />
-              ))}
-            </div>
+            <ScrollArea className="flex-1">
+              <div className="space-y-2 pr-2">
+                {colTickets.map((ticket) => (
+                  <TicketCard key={ticket.id} ticket={ticket} onClick={() => onTicketClick(ticket)} />
+                ))}
+              </div>
+            </ScrollArea>
           </div>
         )
       })}
@@ -134,17 +144,17 @@ function TicketCard({ ticket, onClick }: { ticket: TicketListItem; onClick: () =
     <button
       type="button"
       onClick={onClick}
-      className="w-full cursor-pointer rounded-lg border border-border bg-card p-3 text-left transition-colors hover:bg-secondary/50"
+      className="w-full cursor-pointer rounded-[var(--radius-card)] border border-border bg-card p-3 text-left transition-all duration-150 hover:bg-secondary/50 hover:shadow-[var(--shadow-sm)]"
     >
-      <div className="mb-1 flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">{ticket.key}</span>
-        <span className={`text-[10px] font-medium uppercase ${TYPE_COLORS[ticket.type]} rounded px-1.5 py-0.5`}>
+      <div className="mb-1.5 flex items-center justify-between">
+        <span className="text-caption text-muted-foreground">{ticket.key}</span>
+        <Badge variant={TYPE_VARIANT[ticket.type]} className="text-[10px] px-1.5 py-0 font-medium uppercase">
           {ticket.type}
-        </span>
+        </Badge>
       </div>
-      <div className="mb-2 text-sm leading-snug line-clamp-2">{ticket.title}</div>
+      <div className="mb-2 text-[13px] leading-snug line-clamp-2">{ticket.title}</div>
       <div className="flex items-center justify-between">
-        <span className={`text-xs ${PRIORITY_COLORS[ticket.priority]}`}>
+        <span className={`text-caption font-medium ${PRIORITY_COLORS[ticket.priority]}`}>
           {ticket.priority !== 'none' ? ticket.priority : ''}
         </span>
       </div>
@@ -169,9 +179,9 @@ function ListView({
       header: 'Type',
       width: '100px',
       render: (t) => (
-        <span className={`text-[10px] font-medium uppercase ${TYPE_COLORS[t.type]} rounded px-1.5 py-0.5`}>
+        <Badge variant={TYPE_VARIANT[t.type]} className="text-[10px] px-1.5 py-0 font-medium uppercase">
           {t.type}
-        </span>
+        </Badge>
       ),
     },
     { key: 'status', header: 'Status', width: '120px', render: (t) => t.status.replace('_', ' ') },
@@ -180,7 +190,7 @@ function ListView({
       header: 'Priority',
       width: '100px',
       render: (t) => (
-        <span className={PRIORITY_COLORS[t.priority]}>{t.priority !== 'none' ? t.priority : '-'}</span>
+        <span className={`font-medium ${PRIORITY_COLORS[t.priority]}`}>{t.priority !== 'none' ? t.priority : '-'}</span>
       ),
     },
   ]

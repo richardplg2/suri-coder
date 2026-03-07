@@ -1,6 +1,13 @@
 @import "tailwindcss";
 @import "@agent-coding/ui/globals.css";
 
+/* Explicitly tell Tailwind where to scan for class names.
+   Needed because electron-vite's module graph may not be fully
+   available when @tailwindcss/vite processes CSS in dev mode. */
+@source "../../../../packages/ui/src/**/*.tsx";
+@source "./**/*.tsx";
+@source "./**/*.ts";
+
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
@@ -53,6 +60,9 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    letter-spacing: -0.008em;
   }
 
   html,
@@ -61,5 +71,46 @@
     scroll-behavior: smooth;
     -webkit-app-region: no-drag;
     -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .app-drag {
+    -webkit-app-region: drag;
+  }
+  .app-no-drag {
+    -webkit-app-region: no-drag;
+  }
+
+  /* Section header style from design system */
+  .section-header {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  /* Window title style */
+  .window-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  /* Label style */
+  .text-label {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  /* Caption style */
+  .text-caption {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.3;
   }
 }

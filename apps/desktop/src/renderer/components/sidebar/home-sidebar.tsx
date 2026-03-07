@@ -30,7 +30,7 @@ export function HomeSidebar() {
           onClear={() => setSearch('')}
         />
       </div>
-      <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="section-header px-3 py-1.5">
         All Projects
       </div>
       <ScrollArea className="flex-1">

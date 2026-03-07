@@ -21,16 +21,16 @@ export function ProjectScreen({ projectId }: ProjectScreenProps) {
   }
 
   if (!project) {
-    return <div className="p-6 text-muted-foreground">Project not found</div>
+    return <div className="p-6 text-[13px] text-muted-foreground">Project not found</div>
   }
 
   switch (activeNav) {
     case 'settings':
       return <ProjectSettings project={project} />
     case 'agents':
-      return <div className="p-6 text-muted-foreground">Agents config — coming soon</div>
+      return <div className="p-6 text-[13px] text-muted-foreground">Agents config — coming soon</div>
     case 'templates':
-      return <div className="p-6 text-muted-foreground">Templates editor — coming soon</div>
+      return <div className="p-6 text-[13px] text-muted-foreground">Templates editor — coming soon</div>
     default:
       return <TicketsBoard project={project} />
   }

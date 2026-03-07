@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { SplitPane, SplitPanePanel, SplitPaneHandle, Spinner } from '@agent-coding/ui'
+import { SplitPane, SplitPanePanel, SplitPaneHandle, Spinner, Badge, ScrollArea } from '@agent-coding/ui'
 import { useTicket } from 'renderer/hooks/queries/use-tickets'
 import { WorkflowDAG } from 'renderer/components/workflow-dag'
 import { StepInspector } from 'renderer/components/step-inspector'
@@ -40,30 +40,30 @@ export function TicketScreen({ ticketId, projectId }: TicketScreenProps) {
   return (
     <SplitPane orientation="horizontal" className="h-full">
       <SplitPanePanel defaultSize={65} minSize={40}>
-        <div className="h-full overflow-auto">
+        <ScrollArea className="h-full">
           {/* Ticket header */}
           <div className="border-b border-border p-4">
-            <div className="mb-1 flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{ticket.key}</span>
-              <span className={`text-[10px] font-medium uppercase ${TYPE_COLORS[ticket.type]} rounded px-1.5 py-0.5`}>
+            <div className="mb-1.5 flex items-center gap-2">
+              <span className="text-caption text-muted-foreground">{ticket.key}</span>
+              <Badge className={`text-[10px] px-1.5 py-0 font-medium uppercase ${TYPE_COLORS[ticket.type]}`}>
                 {ticket.type}
-              </span>
-              <span className="text-xs text-muted-foreground">
+              </Badge>
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                 {ticket.status.replace('_', ' ')}
-              </span>
+              </Badge>
             </div>
             <h2 className="text-base font-semibold">{ticket.title}</h2>
             {ticket.description && (
-              <p className="mt-2 text-sm text-muted-foreground">{ticket.description}</p>
+              <p className="mt-2 text-[13px] text-muted-foreground">{ticket.description}</p>
             )}
-            <div className="mt-3 text-xs text-muted-foreground">
+            <div className="mt-3 text-caption text-muted-foreground">
               Workflow: {completedCount}/{ticket.steps.length} steps completed
             </div>
           </div>
 
           {/* DAG */}
           <div className="border-b border-border">
-            <div className="px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="section-header px-4 py-2">
               Workflow
             </div>
             <WorkflowDAG
@@ -72,7 +72,7 @@ export function TicketScreen({ ticketId, projectId }: TicketScreenProps) {
               onSelectStep={setSelectedStepId}
             />
           </div>
-        </div>
+        </ScrollArea>
       </SplitPanePanel>
 
       <SplitPaneHandle />
@@ -81,7 +81,7 @@ export function TicketScreen({ ticketId, projectId }: TicketScreenProps) {
         {selectedStep ? (
           <StepInspector step={selectedStep} />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+          <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
             Select a step to inspect
           </div>
         )}

@@ -1,5 +1,4 @@
-import { cn } from '@agent-coding/ui'
-import { StatusBadge } from '@agent-coding/ui'
+import { cn, StatusBadge } from '@agent-coding/ui'
 import type { WorkflowStep, StepStatus } from 'renderer/types/api'
 
 function stepStatusToStatus(status: StepStatus) {
@@ -31,11 +30,10 @@ export function WorkflowDAG({ steps, selectedStepId, onSelectStep }: WorkflowDAG
           type="button"
           onClick={() => onSelectStep(step.id)}
           className={cn(
-            'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors',
+            'flex items-center gap-2 rounded-[var(--radius-button)] border px-3 py-2 text-[13px] transition-all duration-150 cursor-pointer',
             selectedStepId === step.id
-              ? 'border-primary bg-primary/10'
-              : 'border-border bg-card hover:bg-secondary/50',
-            'cursor-pointer'
+              ? 'border-primary bg-[var(--selection)] text-primary'
+              : 'border-border bg-card hover:bg-secondary/50'
           )}
         >
           <StatusBadge status={stepStatusToStatus(step.status)} className="text-[10px] px-1.5 py-0" />

@@ -20,9 +20,9 @@ export function ProjectSidebar({ projectName }: ProjectSidebarProps) {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border px-3 py-2">
-        <div className="text-sm font-semibold truncate">{projectName}</div>
+        <div className="window-title truncate">{projectName}</div>
       </div>
-      <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="section-header px-3 py-1.5">
         Manage
       </div>
       <SourceList

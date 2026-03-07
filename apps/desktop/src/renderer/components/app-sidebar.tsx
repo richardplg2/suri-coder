@@ -13,7 +13,7 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        'shrink-0 border-r border-border transition-[width] duration-200',
+        'shrink-0 border-r border-border transition-[width] duration-200 ease-out',
         isOpen ? 'w-60' : 'w-0 overflow-hidden'
       )}
       style={{
@@ -22,13 +22,15 @@ export function AppSidebar() {
         WebkitBackdropFilter: 'blur(20px)',
       }}
     >
-      {activeTab?.type === 'home' && <HomeSidebar />}
-      {activeTab?.type === 'project' && (
-        <ProjectSidebar projectName={activeTab.label} />
-      )}
-      {activeTab?.type === 'ticket' && (
-        <TicketSidebar ticketId={activeTab.ticketId} projectId={activeTab.projectId} />
-      )}
+      <div className="flex h-full flex-col">
+        {activeTab?.type === 'home' && <HomeSidebar />}
+        {activeTab?.type === 'project' && (
+          <ProjectSidebar projectName={activeTab.label} />
+        )}
+        {activeTab?.type === 'ticket' && (
+          <TicketSidebar ticketId={activeTab.ticketId} projectId={activeTab.projectId} />
+        )}
+      </div>
     </aside>
   )
 }

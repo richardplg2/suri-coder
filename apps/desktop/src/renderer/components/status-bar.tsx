@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { StatusBadge } from '@agent-coding/ui'
 import { apiClient } from 'renderer/lib/api-client'
 
 export function StatusBar() {
@@ -25,12 +26,15 @@ export function StatusBar() {
   }, [])
 
   return (
-    <div className="flex h-7 shrink-0 items-center justify-between border-t border-border bg-card/50 px-3 text-[11px] text-muted-foreground">
+    <div className="flex h-7 shrink-0 items-center justify-between border-t border-border bg-card/50 px-3 text-caption text-muted-foreground">
       <div className="flex items-center gap-1.5">
-        <span
-          className={`inline-block size-2 rounded-full ${connected ? 'bg-[var(--success)]' : 'bg-[var(--destructive)]'}`}
-        />
-        <span>{connected ? 'Connected' : 'Disconnected'}</span>
+        <StatusBadge
+          status={connected ? 'connected' : 'disconnected'}
+          showDot
+          className="text-[11px] px-1.5 py-0"
+        >
+          {connected ? 'Connected' : 'Disconnected'}
+        </StatusBadge>
       </div>
       <div className="flex items-center gap-3">
         <span>No active session</span>
