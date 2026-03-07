@@ -4,6 +4,7 @@ import type { Tab } from '@agent-coding/ui'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import type { AppTab } from 'renderer/types/tabs'
 import { AppSidebar } from './app-sidebar'
+import { useKeyboardShortcuts } from 'renderer/hooks/use-keyboard-shortcuts'
 
 function tabToBarTab(tab: AppTab): Tab {
   switch (tab.type) {
@@ -17,6 +18,7 @@ function tabToBarTab(tab: AppTab): Tab {
 }
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  useKeyboardShortcuts()
   const { tabs, activeTabId, setActiveTab, closeTab } = useTabStore()
 
   const barTabs = tabs.map(tabToBarTab)
