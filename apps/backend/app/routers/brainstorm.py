@@ -67,11 +67,13 @@ async def send_brainstorm_message(
     db: AsyncSession = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ) -> BrainstormMessageResponse:
+    project, _ = project_member
     service = BrainstormService(db, redis)
     return await service.send_message(
         session_id=session_id,
         content=data.content,
         quiz_response=data.quiz_response,
+        project_id=project.id,
     )
 
 
@@ -87,8 +89,11 @@ async def complete_brainstorm(
     db: AsyncSession = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ) -> dict:
+    project, _ = project_member
     service = BrainstormService(db, redis)
-    return await service.complete_session(session_id)
+    return await service.complete_session(
+        session_id, project_id=project.id
+    )
 
 
 @router.post(
@@ -105,10 +110,12 @@ async def batch_update_brainstorm(
     db: AsyncSession = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ) -> dict:
+    project, _ = project_member
     service = BrainstormService(db, redis)
     return await service.batch_update(
         session_id=session_id,
         comments=data.comments,
+        project_id=project.id,
     )
 
 

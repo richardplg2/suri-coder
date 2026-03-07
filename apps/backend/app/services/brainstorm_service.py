@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 # Process-local session registry. For multi-worker deployments,
 # would need Redis-backed session registry.
-_active_brainstorm_sessions: dict[str, Any] = {}
+_active_brainstorm_sessions: dict[str, dict[str, Any]] = {}
 
 
 def _create_brainstorm_client() -> Any:
@@ -46,6 +46,28 @@ def _create_brainstorm_client() -> Any:
             max_turns=1,
         )
     )
+
+
+def _get_session_client(
+    session_id: str,
+    project_id: uuid.UUID | None = None,
+) -> Any:
+    """Retrieve client from active sessions, validating project."""
+    session = _active_brainstorm_sessions.get(session_id)
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Brainstorm session not found",
+        )
+    if (
+        project_id is not None
+        and session["project_id"] != project_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Brainstorm session not found",
+        )
+    return session["client"]
 
 
 class BrainstormService:
@@ -103,16 +125,19 @@ class BrainstormService:
         self.db.add(assistant_msg)
         await self.db.flush()
 
-        _active_brainstorm_sessions[session_id] = client
+        _active_brainstorm_sessions[session_id] = {
+            "client": client,
+            "project_id": project_id,
+        }
 
         response = BrainstormMessageResponse.model_validate(
             assistant_msg
         )
+        await self.db.commit()
+
         await self._publish_brainstorm_event(
             session_id, f"brainstorm_{msg_type}", response.model_dump()
         )
-
-        await self.db.commit()
 
         return {
             "session_id": session_id,
@@ -124,19 +149,17 @@ class BrainstormService:
         session_id: str,
         content: str | None,
         quiz_response: dict | None,
+        project_id: uuid.UUID | None = None,
     ) -> BrainstormMessageResponse:
-        client = _active_brainstorm_sessions.get(session_id)
-        if client is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Brainstorm session not found",
-            )
+        client = _get_session_client(session_id, project_id)
 
         # Format user message
         if quiz_response:
-            selected = quiz_response.get("option_ids", [])
+            labels = quiz_response.get("option_labels", [])
+            if not labels:
+                labels = quiz_response.get("option_ids", [])
             custom = quiz_response.get("custom_text", "")
-            formatted = f"Selected: {', '.join(selected)}"
+            formatted = f"Selected: {', '.join(labels)}"
             if custom:
                 formatted += f". {custom}"
         else:
@@ -172,20 +195,20 @@ class BrainstormService:
         response = BrainstormMessageResponse.model_validate(
             assistant_msg
         )
+        await self.db.commit()
+
         await self._publish_brainstorm_event(
             session_id, f"brainstorm_{msg_type}", response.model_dump()
         )
 
-        await self.db.commit()
         return response
 
-    async def complete_session(self, session_id: str) -> dict:
-        client = _active_brainstorm_sessions.get(session_id)
-        if client is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Brainstorm session not found",
-            )
+    async def complete_session(
+        self,
+        session_id: str,
+        project_id: uuid.UUID | None = None,
+    ) -> dict:
+        client = _get_session_client(session_id, project_id)
 
         result = await client.query(
             "Please generate the final summary now. "
@@ -208,26 +231,24 @@ class BrainstormService:
         response = BrainstormMessageResponse.model_validate(
             assistant_msg
         )
+        await self.db.commit()
+
+        _active_brainstorm_sessions.pop(session_id, None)
         await self._publish_brainstorm_event(
             session_id,
             "brainstorm_summary",
             response.model_dump(),
         )
 
-        _active_brainstorm_sessions.pop(session_id, None)
-        await self.db.commit()
-
         return {"summary": content}
 
     async def batch_update(
-        self, session_id: str, comments: list[dict]
+        self,
+        session_id: str,
+        comments: list[dict],
+        project_id: uuid.UUID | None = None,
     ) -> dict:
-        client = _active_brainstorm_sessions.get(session_id)
-        if client is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Brainstorm session not found",
-            )
+        client = _get_session_client(session_id, project_id)
 
         formatted_comments = "\n".join(
             f"- [{c.get('section_id', 'general')}]: {c.get('text', '')}"
@@ -264,13 +285,14 @@ class BrainstormService:
         response = BrainstormMessageResponse.model_validate(
             assistant_msg
         )
+        await self.db.commit()
+
         await self._publish_brainstorm_event(
             session_id,
             "brainstorm_summary",
             response.model_dump(),
         )
 
-        await self.db.commit()
         return {"summary": content}
 
     async def create_ticket_from_brainstorm(

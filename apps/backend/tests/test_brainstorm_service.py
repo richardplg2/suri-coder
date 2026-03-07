@@ -327,7 +327,10 @@ async def test_send_message_text(db_session, mock_redis):
     mock_client.query = AsyncMock(return_value=mock_result)
 
     session_id = str(uuid.uuid4())
-    _active_brainstorm_sessions[session_id] = mock_client
+    _active_brainstorm_sessions[session_id] = {
+        "client": mock_client,
+        "project_id": uuid.uuid4(),
+    }
 
     try:
         service = BrainstormService(db_session, mock_redis)
@@ -356,7 +359,10 @@ async def test_send_message_quiz_response(
     mock_client.query = AsyncMock(return_value=mock_result)
 
     session_id = str(uuid.uuid4())
-    _active_brainstorm_sessions[session_id] = mock_client
+    _active_brainstorm_sessions[session_id] = {
+        "client": mock_client,
+        "project_id": uuid.uuid4(),
+    }
 
     try:
         service = BrainstormService(db_session, mock_redis)
@@ -365,13 +371,14 @@ async def test_send_message_quiz_response(
             content=None,
             quiz_response={
                 "option_ids": ["b"],
+                "option_labels": ["UX"],
                 "custom_text": "Especially the nav",
             },
         )
 
         assert response is not None
         call_arg = mock_client.query.call_args[0][0]
-        assert "b" in call_arg
+        assert "UX" in call_arg
         assert "Especially the nav" in call_arg
     finally:
         _active_brainstorm_sessions.pop(session_id, None)
@@ -405,7 +412,10 @@ async def test_complete_session_returns_summary(
     mock_client.query = AsyncMock(return_value=mock_result)
 
     session_id = str(uuid.uuid4())
-    _active_brainstorm_sessions[session_id] = mock_client
+    _active_brainstorm_sessions[session_id] = {
+        "client": mock_client,
+        "project_id": uuid.uuid4(),
+    }
 
     service = BrainstormService(db_session, mock_redis)
     result = await service.complete_session(session_id)
@@ -425,7 +435,10 @@ async def test_complete_session_removes_client(
     mock_client.query = AsyncMock(return_value=mock_result)
 
     session_id = str(uuid.uuid4())
-    _active_brainstorm_sessions[session_id] = mock_client
+    _active_brainstorm_sessions[session_id] = {
+        "client": mock_client,
+        "project_id": uuid.uuid4(),
+    }
 
     service = BrainstormService(db_session, mock_redis)
     await service.complete_session(session_id)
@@ -459,7 +472,10 @@ async def test_batch_update(db_session, mock_redis):
     mock_client.query = AsyncMock(return_value=mock_result)
 
     session_id = str(uuid.uuid4())
-    _active_brainstorm_sessions[session_id] = mock_client
+    _active_brainstorm_sessions[session_id] = {
+        "client": mock_client,
+        "project_id": uuid.uuid4(),
+    }
 
     try:
         service = BrainstormService(db_session, mock_redis)
