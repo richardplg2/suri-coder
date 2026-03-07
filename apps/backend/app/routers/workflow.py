@@ -12,7 +12,9 @@ from app.models.ticket import Ticket
 from app.models.user import User
 from app.models.workflow_step import WorkflowStep
 from app.schemas.session import SessionResponse
+from app.schemas.step_review import RequestChangesRequest, StepReviewResponse
 from app.services.auth import get_current_user
+from app.services.step_review import StepReviewService
 from app.services.workflow_engine import WorkflowEngine
 
 router = APIRouter(tags=["workflow"])
@@ -213,3 +215,71 @@ async def update_step_prompt(
         "step_id": str(step.id),
         "user_prompt_override": step.user_prompt_override,
     }
+
+
+@router.post(
+    "/tickets/{ticket_id}/steps/{step_id}/approve-review",
+    status_code=status.HTTP_200_OK,
+)
+async def approve_review(
+    ticket_id: uuid.UUID,
+    step_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    await _get_ticket_or_404(db, ticket_id)
+    step = await _get_step_or_404(db, step_id, ticket_id)
+
+    if step.status != StepStatus.review:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Step is not in review"
+                f" (status: {step.status.value})"
+            ),
+        )
+
+    engine = WorkflowEngine(db)
+    newly_ready = await engine.approve_review_step(step)
+    await db.commit()
+    return {
+        "detail": "Review approved",
+        "step_id": str(step.id),
+        "newly_ready_steps": [str(s.id) for s in newly_ready],
+    }
+
+
+@router.post(
+    "/tickets/{ticket_id}/steps/{step_id}/request-changes",
+    status_code=status.HTTP_200_OK,
+)
+async def request_changes(
+    ticket_id: uuid.UUID,
+    step_id: uuid.UUID,
+    data: RequestChangesRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    await _get_ticket_or_404(db, ticket_id)
+    step = await _get_step_or_404(db, step_id, ticket_id)
+
+    if step.status != StepStatus.review:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Step is not in review"
+                f" (status: {step.status.value})"
+            ),
+        )
+
+    review_service = StepReviewService(db)
+    review = await review_service.get_latest_review(step.id)
+    if review:
+        await review_service.request_changes(
+            review.id, data.comments
+        )
+
+    engine = WorkflowEngine(db)
+    await engine.request_changes_step(step)
+    await db.commit()
+    return {"detail": "Changes requested", "step_id": str(step.id)}

@@ -208,3 +208,96 @@ async def test_approve_review_completes_step_and_ticks(
 
     await db_session.refresh(step)
     assert step.status == StepStatus.completed
+
+
+# --- Endpoint tests ---
+
+from tests.conftest import auth_headers
+
+
+@pytest.mark.asyncio
+async def test_approve_review_endpoint(client, db_session):
+    """POST approve-review returns 409 when step not in review."""
+    headers = await auth_headers(client)
+
+    proj_resp = await client.post(
+        "/projects/",
+        json={
+            "name": "ReviewTest",
+            "slug": "rt",
+            "path": "/tmp/rt",
+        },
+        headers=headers,
+    )
+    project_id = proj_resp.json()["id"]
+
+    await client.post(
+        f"/projects/{project_id}/agents/",
+        json={
+            "name": "coder",
+            "system_prompt": "You code.",
+            "claude_model": "sonnet",
+        },
+        headers=headers,
+    )
+
+    tmpl_resp = await client.post(
+        f"/projects/{project_id}/templates",
+        json={
+            "name": "flow",
+            "steps_config": {
+                "steps": [
+                    {
+                        "id": "code",
+                        "agent": "coder",
+                        "depends_on": [],
+                    }
+                ],
+            },
+        },
+        headers=headers,
+    )
+    assert tmpl_resp.status_code == 201
+
+    ticket_resp = await client.post(
+        f"/projects/{project_id}/tickets",
+        json={
+            "title": "Test",
+            "template_id": tmpl_resp.json()["id"],
+        },
+        headers=headers,
+    )
+    ticket = ticket_resp.json()
+    step_id = ticket["steps"][0]["id"]
+
+    # Run the step so it becomes running
+    await client.post(
+        f"/tickets/{ticket['id']}/steps/{step_id}/run",
+        headers=headers,
+    )
+
+    # Step is running, not review — expect 409
+    resp = await client.post(
+        f"/tickets/{ticket['id']}/steps/{step_id}/approve-review",
+        headers=headers,
+    )
+    assert resp.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_request_changes_endpoint_404(client):
+    """POST request-changes returns 404 for missing ticket."""
+    headers = await auth_headers(client, email="changes@test.com")
+    fake = "00000000-0000-0000-0000-000000000001"
+    fake2 = "00000000-0000-0000-0000-000000000002"
+
+    resp = await client.post(
+        f"/tickets/{fake}/steps/{fake2}/request-changes",
+        json={
+            "comments": [
+                {"file": "f.py", "line": 10, "comment": "Fix"}
+            ]
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 404
