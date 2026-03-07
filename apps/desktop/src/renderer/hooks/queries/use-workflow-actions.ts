@@ -118,12 +118,12 @@ export function useUpdateStepPrompt(projectId: string, ticketId: string) {
   })
 }
 
-export function useStepReviews(ticketId: string, stepId: string) {
+export function useStepReviews(projectId: string, ticketId: string, stepId: string) {
   return useQuery({
-    queryKey: ['tickets', ticketId, 'steps', stepId, 'reviews'],
+    queryKey: ['projects', projectId, 'tickets', ticketId, 'steps', stepId, 'reviews'],
     queryFn: () =>
       apiClient<StepReview[]>(`/tickets/${ticketId}/steps/${stepId}/reviews`),
-    enabled: !!ticketId && !!stepId,
+    enabled: !!projectId && !!ticketId && !!stepId,
   })
 }
 
