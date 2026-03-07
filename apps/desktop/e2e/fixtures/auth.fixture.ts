@@ -6,9 +6,10 @@ type AuthFixtures = {
 
 export const test = mockApiTest.extend<AuthFixtures>({
   authedPage: async ({ appPage, electronApp, mockApi }, use) => {
-    // Inject auth state into Zustand persist store via localStorage
+    // Clear all persisted state, then inject auth state
     await appPage.evaluate(
       ({ token, user }) => {
+        localStorage.clear()
         const state = {
           state: { token, user },
           version: 0,

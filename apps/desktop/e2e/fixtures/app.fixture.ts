@@ -24,6 +24,8 @@ export const test = base.extend<AppFixtures>({
   appPage: async ({ electronApp }, use) => {
     const page = await electronApp.firstWindow()
     await page.waitForLoadState('domcontentloaded')
+    // Clear persisted state from previous test runs
+    await page.evaluate(() => localStorage.clear())
     await use(page)
   },
 })
