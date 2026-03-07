@@ -84,6 +84,10 @@ class WsEvent(str, enum.Enum):
     step_started = "step_started"
     step_completed = "step_completed"
     step_failed = "step_failed"
+    step_awaiting_approval = "step_awaiting_approval"
+    step_review = "step_review"
+    step_changes_requested = "step_changes_requested"
+    brainstorm_output = "brainstorm_output"
     workflow_completed = "workflow_completed"
 
     # session:stream

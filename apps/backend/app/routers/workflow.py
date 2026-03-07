@@ -112,6 +112,12 @@ async def run_step(
     session = _create_session(step, ticket)
     db.add(session)
     await engine.start_step(step)
+
+    # TODO: Use AgentRunner + PromptBuilder to build prompt and enqueue
+    # SDK execution via ARQ worker. Services are available at:
+    #   from app.services.agent_runner import AgentRunner
+    #   from app.services.prompt_builder import PromptBuilder
+
     await db.commit()
     await db.refresh(session)
     return SessionResponse.model_validate(session)
