@@ -9,6 +9,8 @@ export const WsChannel = {
   ProjectTickets: 'project:tickets',
   TicketProgress: 'ticket:progress',
   SessionStream: 'session:stream',
+  BrainstormSession: 'brainstorm:session',
+  Notifications: 'notifications',
 } as const
 export type WsChannel = (typeof WsChannel)[keyof typeof WsChannel]
 
@@ -36,6 +38,22 @@ export const WsEvent = {
   CostUpdate: 'cost_update',
   Completed: 'completed',
   Failed: 'failed',
+
+  // Brainstorm
+  BrainstormMessage: 'brainstorm_message',
+  BrainstormQuiz: 'brainstorm_quiz',
+  BrainstormSummary: 'brainstorm_summary',
+
+  // Notifications
+  NewNotification: 'new_notification',
+  UnreadCountChanged: 'unread_count_changed',
+
+  // Specs
+  SpecCreated: 'spec_created',
+  SpecUpdated: 'spec_updated',
+
+  // Escalation
+  EscalationTriggered: 'escalation_triggered',
 } as const
 export type WsEvent = (typeof WsEvent)[keyof typeof WsEvent]
 
