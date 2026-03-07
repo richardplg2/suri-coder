@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Button, ScrollArea, Spinner } from '@agent-coding/ui'
 import {
   useAgents,
   useResetAgentDefaults,
   useDuplicateAgent,
 } from 'renderer/hooks/queries/use-agents'
+import { ApiError } from 'renderer/lib/api-client'
 import type { Project } from 'renderer/types/api'
 
 interface ProjectAgentsProps {
@@ -14,6 +16,7 @@ export function ProjectAgents({ project }: ProjectAgentsProps) {
   const { data: agents = [], isLoading } = useAgents(project.id)
   const resetMutation = useResetAgentDefaults(project.id)
   const duplicateMutation = useDuplicateAgent(project.id)
+  const [error, setError] = useState<string | null>(null)
 
   const handleReset = () => {
     if (
@@ -37,7 +40,12 @@ export function ProjectAgents({ project }: ProjectAgentsProps) {
     <ScrollArea className="h-full">
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">Agent Configurations</h2>
+          <div>
+            <h2 className="text-base font-semibold">Agent Configurations</h2>
+            {error && (
+              <p className="text-[13px] text-destructive mt-1">{error}</p>
+            )}
+          </div>
           <Button
             variant="destructive"
             size="sm"
@@ -79,7 +87,18 @@ export function ProjectAgents({ project }: ProjectAgentsProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => duplicateMutation.mutate(agent)}
+                  onClick={() => {
+                    setError(null)
+                    duplicateMutation.mutate(agent, {
+                      onError: err => {
+                        const msg =
+                          err instanceof ApiError
+                            ? err.message
+                            : 'Failed to duplicate agent'
+                        setError(msg)
+                      },
+                    })
+                  }}
                   disabled={duplicateMutation.isPending}
                 >
                   Duplicate
