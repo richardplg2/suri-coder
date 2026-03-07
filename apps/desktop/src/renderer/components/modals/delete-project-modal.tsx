@@ -1,0 +1,63 @@
+import { useState } from 'react'
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Button, Input, Label,
+} from '@agent-coding/ui'
+import { useModalStore } from 'renderer/stores/use-modal-store'
+import { useDeleteProject } from 'renderer/hooks/queries/use-projects'
+import { useTabStore } from 'renderer/stores/use-tab-store'
+
+export function DeleteProjectModal() {
+  const { activeModal, modalData, close } = useModalStore()
+  const deleteProject = useDeleteProject()
+  const { closeTab } = useTabStore()
+
+  const [confirm, setConfirm] = useState('')
+
+  const isOpen = activeModal === 'delete-project'
+  const projectId = modalData?.projectId as string | undefined
+  const projectName = modalData?.projectName as string | undefined
+
+  async function handleDelete() {
+    if (!projectId || confirm !== projectName) return
+    await deleteProject.mutateAsync(projectId)
+    closeTab(`project-${projectId}`)
+    close()
+    setConfirm('')
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { close(); setConfirm('') } }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Delete Project</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. Type <span className="font-semibold">{projectName}</span> to confirm.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          <Label htmlFor="confirm-name">Project name</Label>
+          <Input
+            id="confirm-name"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder={projectName}
+            autoFocus
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => { close(); setConfirm('') }}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            disabled={confirm !== projectName || deleteProject.isPending}
+            onClick={handleDelete}
+          >
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
