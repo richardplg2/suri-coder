@@ -1,10 +1,14 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { SplitPane, SplitPanePanel, SplitPaneHandle, Spinner } from '@agent-coding/ui'
+import { useQueryClient } from '@tanstack/react-query'
 import { ReviewFileTree } from 'renderer/components/review/review-file-tree'
 import { ReviewDiffView } from 'renderer/components/review/review-diff-view'
 import { ReviewCommentList } from 'renderer/components/review/review-comment-list'
 import { ReviewActionBar } from 'renderer/components/review/review-action-bar'
 import { useStepReviews } from 'renderer/hooks/queries/use-workflow-actions'
+import { useWsChannel } from 'renderer/hooks/use-ws-channel'
+import { WsChannel, WsEvent } from '@agent-coding/shared'
+import type { StepStatus } from 'renderer/types/api'
 
 export interface ReviewFile {
   path: string
@@ -31,6 +35,20 @@ export function ReviewPanel({ stepId, ticketId, projectId }: ReviewPanelProps) {
   const { data: reviews, isLoading } = useStepReviews(projectId, ticketId, stepId)
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [comments, setComments] = useState<ReviewComment[]>([])
+  const [submittedChanges, setSubmittedChanges] = useState(false)
+  const qc = useQueryClient()
+
+  const handleWsEvent = useCallback((event: WsEvent, data: unknown) => {
+    const payload = data as { step_id?: string; status?: StepStatus }
+    if (payload.step_id === stepId && payload.status === 'review') {
+      qc.invalidateQueries({
+        queryKey: ['projects', projectId, 'tickets', ticketId, 'steps', stepId, 'reviews'],
+      })
+      setSubmittedChanges(false)
+    }
+  }, [qc, projectId, ticketId, stepId])
+
+  useWsChannel(WsChannel.TicketProgress, { ticket_id: ticketId }, handleWsEvent)
 
   const latestReview = reviews?.[reviews.length - 1]
   const diffContent = latestReview?.diff_content ?? ''
@@ -96,7 +114,8 @@ export function ReviewPanel({ stepId, ticketId, projectId }: ReviewPanelProps) {
         ticketId={ticketId}
         projectId={projectId}
         comments={comments}
-        onCommentsCleared={() => setComments([])}
+        submittedChanges={submittedChanges}
+        onCommentsCleared={() => { setComments([]); setSubmittedChanges(true) }}
       />
     </div>
   )

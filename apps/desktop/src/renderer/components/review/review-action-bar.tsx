@@ -1,5 +1,5 @@
 import { Button } from '@agent-coding/ui'
-import { Check, MessageSquareWarning } from 'lucide-react'
+import { Check, MessageSquareWarning, Loader2 } from 'lucide-react'
 import { useApproveReview, useRequestChanges } from 'renderer/hooks/queries/use-workflow-actions'
 import type { ReviewComment } from 'renderer/components/review/review-panel'
 
@@ -8,10 +8,11 @@ interface ReviewActionBarProps {
   ticketId: string
   projectId: string
   comments: ReviewComment[]
+  submittedChanges: boolean
   onCommentsCleared: () => void
 }
 
-export function ReviewActionBar({ stepId, ticketId, projectId, comments, onCommentsCleared }: ReviewActionBarProps) {
+export function ReviewActionBar({ stepId, ticketId, projectId, comments, submittedChanges, onCommentsCleared }: ReviewActionBarProps) {
   const approveReview = useApproveReview(projectId, ticketId)
   const requestChanges = useRequestChanges(projectId, ticketId)
 
@@ -38,7 +39,12 @@ export function ReviewActionBar({ stepId, ticketId, projectId, comments, onComme
   return (
     <div className="flex items-center justify-between border-t border-border bg-card px-4 py-3">
       <div className="text-caption text-muted-foreground">
-        {comments.length > 0
+        {submittedChanges ? (
+          <span className="flex items-center gap-1.5 text-yellow-400">
+            <Loader2 className="size-3 animate-spin" />
+            Agent is processing changes...
+          </span>
+        ) : comments.length > 0
           ? `${comments.length} comment${comments.length > 1 ? 's' : ''} pending`
           : 'No comments'}
       </div>
