@@ -27,6 +27,13 @@ pnpm --filter my-electron-app dev       # Electron dev with hot reload
 pnpm --filter my-electron-app build     # Build distributable
 ```
 
+#### E2E Tests
+```bash
+pnpm --filter my-electron-app test:e2e           # All e2e tests (builds first)
+pnpm --filter my-electron-app test:e2e:mock       # Mock tests only (no backend)
+pnpm --filter my-electron-app test:e2e:integration # Integration (needs docker:up + backend)
+```
+
 ### Backend (`apps/backend`)
 ```bash
 cd apps/backend
