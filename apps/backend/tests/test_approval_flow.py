@@ -205,3 +205,76 @@ async def test_agent_default_requires_approval(db_session: AsyncSession):
     assert len(newly_ready) == 1
     await db_session.refresh(step)
     assert step.status == StepStatus.awaiting_approval
+
+
+@pytest.mark.asyncio
+async def test_approve_step_endpoint(client, db_session):
+    """POST /tickets/:id/steps/:step_id/approve transitions awaiting_approval -> ready."""
+    from tests.conftest import auth_headers
+
+    headers = await auth_headers(client)
+
+    # Create project
+    proj_resp = await client.post(
+        "/projects/",
+        json={"name": "Test", "slug": "test-approve", "path": "/tmp/test"},
+        headers=headers,
+    )
+    assert proj_resp.status_code == 201
+    project_id = proj_resp.json()["id"]
+
+    # Create agent referenced by template
+    agent_resp = await client.post(
+        f"/projects/{project_id}/agents/",
+        json={
+            "name": "designer",
+            "system_prompt": "You design.",
+            "claude_model": "sonnet",
+        },
+        headers=headers,
+    )
+    assert agent_resp.status_code == 201
+
+    # Create template
+    tmpl_resp = await client.post(
+        f"/projects/{project_id}/templates",
+        json={
+            "name": "flow",
+            "steps_config": {
+                "steps": [
+                    {"id": "design", "agent": "designer", "depends_on": []},
+                ]
+            },
+        },
+        headers=headers,
+    )
+    assert tmpl_resp.status_code == 201
+    template_id = tmpl_resp.json()["id"]
+
+    # Create ticket (steps start as ready by default)
+    ticket_resp = await client.post(
+        f"/projects/{project_id}/tickets",
+        json={"title": "Test", "template_id": template_id},
+        headers=headers,
+    )
+    assert ticket_resp.status_code == 201
+    ticket = ticket_resp.json()
+    step = ticket["steps"][0]
+
+    # Manually set step to awaiting_approval via DB
+    from sqlalchemy import select
+
+    from app.models.workflow_step import WorkflowStep as WS
+
+    result = await db_session.execute(select(WS).where(WS.id == uuid.UUID(step["id"])))
+    db_step = result.scalar_one()
+    db_step.status = StepStatus.awaiting_approval
+    await db_session.commit()
+
+    # Approve
+    resp = await client.post(
+        f"/tickets/{ticket['id']}/steps/{step['id']}/approve",
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["step_id"] == step["id"]

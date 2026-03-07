@@ -162,3 +162,28 @@ async def skip_step(
         "detail": "Step skipped",
         "newly_ready_steps": [str(s.id) for s in newly_ready],
     }
+
+
+@router.post(
+    "/tickets/{ticket_id}/steps/{step_id}/approve",
+    status_code=status.HTTP_200_OK,
+)
+async def approve_step(
+    ticket_id: uuid.UUID,
+    step_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    await _get_ticket_or_404(db, ticket_id)
+    step = await _get_step_or_404(db, step_id, ticket_id)
+
+    if step.status != StepStatus.awaiting_approval:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Step is not awaiting approval (current status: {step.status.value})",
+        )
+
+    engine = WorkflowEngine(db)
+    await engine.approve_step(step)
+    await db.commit()
+    return {"detail": "Step approved", "step_id": str(step.id)}
