@@ -13,9 +13,14 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        'shrink-0 border-r border-border bg-card/50 transition-[width] duration-200',
+        'shrink-0 border-r border-border transition-[width] duration-200',
         isOpen ? 'w-60' : 'w-0 overflow-hidden'
       )}
+      style={{
+        background: 'var(--sidebar-bg)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+      }}
     >
       {activeTab?.type === 'home' && <HomeSidebar />}
       {activeTab?.type === 'project' && (
