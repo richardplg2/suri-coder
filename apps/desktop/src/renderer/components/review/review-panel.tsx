@@ -5,7 +5,8 @@ import { ReviewFileTree } from 'renderer/components/review/review-file-tree'
 import { ReviewDiffView } from 'renderer/components/review/review-diff-view'
 import { ReviewCommentList } from 'renderer/components/review/review-comment-list'
 import { ReviewActionBar } from 'renderer/components/review/review-action-bar'
-import { useStepReviews } from 'renderer/hooks/queries/use-workflow-actions'
+import { TestResultsPanel } from 'renderer/components/review/test-results-panel'
+import { useStepReviews, useStepTestResults } from 'renderer/hooks/queries/use-workflow-actions'
 import { useWsChannel } from 'renderer/hooks/use-ws-channel'
 import { WsChannel, WsEvent } from '@agent-coding/shared'
 import type { StepStatus } from 'renderer/types/api'
@@ -33,6 +34,7 @@ interface ReviewPanelProps {
 
 export function ReviewPanel({ stepId, ticketId, projectId }: ReviewPanelProps) {
   const { data: reviews, isLoading } = useStepReviews(projectId, ticketId, stepId)
+  const { data: testResults } = useStepTestResults(projectId, ticketId, stepId)
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [comments, setComments] = useState<ReviewComment[]>([])
   const [submittedChanges, setSubmittedChanges] = useState(false)
@@ -87,6 +89,9 @@ export function ReviewPanel({ stepId, ticketId, projectId }: ReviewPanelProps) {
 
         <SplitPanePanel defaultSize={75} minSize={40}>
           <div className="flex h-full flex-col">
+            {testResults && testResults.length > 0 && (
+              <TestResultsPanel results={testResults} />
+            )}
             {selectedDiff ? (
               <ReviewDiffView
                 diff={selectedDiff}

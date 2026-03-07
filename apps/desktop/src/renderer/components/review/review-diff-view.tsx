@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { ScrollArea, DiffViewer, InlineComment, Button, Textarea } from '@agent-coding/ui'
 import type { DiffLine } from '@agent-coding/ui'
-import { MessageSquare } from 'lucide-react'
+import { MessageSquare, Plus } from 'lucide-react'
 import type { ReviewComment } from 'renderer/components/review/review-panel'
 
 interface ReviewDiffViewProps {
@@ -24,6 +24,21 @@ export function ReviewDiffView({ diff, filePath, comments, onAddComment }: Revie
     }
   }
 
+  const handleLineClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const row = (e.target as HTMLElement).closest('tr')
+    if (!row) return
+    const tbody = row.closest('tbody')
+    if (!tbody) return
+    const rowIndex = Array.from(tbody.children).indexOf(row)
+    // Account for annotation rows interleaved — find the actual diff line index
+    const line = lines[rowIndex]
+    if (!line || line.lineNumber === undefined) return
+    const lineNum = line.lineNumber?.new ?? line.lineNumber?.old ?? 0
+    if (lineNum > 0) {
+      setCommentingLine(lineNum)
+    }
+  }, [lines])
+
   const renderLineAnnotation = (lineIndex: number) => {
     const line = lines[lineIndex]
     if (!line) return null
@@ -35,6 +50,9 @@ export function ReviewDiffView({ diff, filePath, comments, onAddComment }: Revie
 
     const hasComment = lineComments.length > 0
     const isCommenting = commentingLine === lineNum
+
+    // Don't render annotations for hunk header lines
+    if (line.isHunkHeader) return null
 
     return (
       <>
@@ -82,7 +100,7 @@ export function ReviewDiffView({ diff, filePath, comments, onAddComment }: Revie
       <div className="sticky top-0 z-10 border-b border-border bg-card px-4 py-2 text-[13px] font-medium font-mono">
         {filePath}
       </div>
-      <div className="relative">
+      <div className="relative" onClick={handleLineClick}>
         <DiffViewer
           lines={lines}
           renderLineAnnotation={renderLineAnnotation}
@@ -94,15 +112,32 @@ export function ReviewDiffView({ diff, filePath, comments, onAddComment }: Revie
           [data-slot="diff-viewer"] tr:has(+ tr [data-slot="inline-comment"]) td:first-child {
             border-left: 2px solid var(--warning);
           }
+          [data-slot="diff-viewer"] tr[data-hunk-header] {
+            background: color-mix(in srgb, var(--info, #3b82f6) 10%, transparent);
+          }
+          [data-slot="diff-viewer"] tr[data-hunk-header] td {
+            color: var(--info, #3b82f6);
+            font-style: italic;
+          }
+          [data-slot="diff-viewer"] tbody tr:not([data-hunk-header]) {
+            cursor: pointer;
+          }
+          [data-slot="diff-viewer"] tbody tr:not([data-hunk-header]):hover {
+            background: color-mix(in srgb, var(--primary) 5%, transparent);
+          }
         `}</style>
       </div>
     </ScrollArea>
   )
 }
 
-function parseDiffToLines(diff: string): DiffLine[] {
+interface ParsedDiffLine extends DiffLine {
+  isHunkHeader?: boolean
+}
+
+function parseDiffToLines(diff: string): ParsedDiffLine[] {
   const rawLines = diff.split('\n')
-  const result: DiffLine[] = []
+  const result: ParsedDiffLine[] = []
   let oldLine = 0
   let newLine = 0
 
@@ -113,7 +148,7 @@ function parseDiffToLines(diff: string): DiffLine[] {
         oldLine = parseInt(match[1], 10)
         newLine = parseInt(match[2], 10)
       }
-      result.push({ type: 'unchanged', content: raw, lineNumber: {} })
+      result.push({ type: 'unchanged', content: raw, lineNumber: {}, isHunkHeader: true })
     } else if (raw.startsWith('+') && !raw.startsWith('+++')) {
       result.push({
         type: 'added',

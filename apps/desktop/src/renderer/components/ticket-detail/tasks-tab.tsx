@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { ScrollArea, Button, StatusBadge, Separator } from '@agent-coding/ui'
-import { Play, Pencil, RotateCcw, Eye } from 'lucide-react'
+import { Play, Pencil, RotateCcw, Eye, X } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { WorkflowDAG } from 'renderer/components/workflow-dag'
 import { EditTaskModal } from 'renderer/components/ticket-detail/edit-task-modal'
@@ -125,11 +125,23 @@ export function TasksTab({ ticket, projectId }: TasksTabProps) {
 
       {reviewStepId && (
         <div className="border-t border-border" style={{ height: '60vh' }}>
-          <ReviewPanel
-            stepId={reviewStepId}
-            ticketId={ticket.id}
-            projectId={projectId}
-          />
+          <div className="flex items-center justify-between border-b border-border bg-card px-4 py-1.5">
+            <span className="text-[12px] font-medium text-muted-foreground">Code Review</span>
+            <button
+              type="button"
+              onClick={() => setReviewStepId(null)}
+              className="rounded-sm p-0.5 text-muted-foreground hover:text-foreground"
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
+          <div className="h-[calc(100%-33px)]">
+            <ReviewPanel
+              stepId={reviewStepId}
+              ticketId={ticket.id}
+              projectId={projectId}
+            />
+          </div>
         </div>
       )}
 
