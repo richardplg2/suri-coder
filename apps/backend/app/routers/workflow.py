@@ -12,7 +12,7 @@ from app.models.ticket import Ticket
 from app.models.user import User
 from app.models.workflow_step import WorkflowStep
 from app.schemas.session import SessionResponse
-from app.schemas.step_review import RequestChangesRequest, StepReviewResponse
+from app.schemas.step_review import RegenerateRequest, RequestChangesRequest, StepReviewResponse
 from app.services.auth import get_current_user
 from app.services.step_review import StepReviewService
 from app.services.workflow_engine import WorkflowEngine
@@ -306,3 +306,35 @@ async def get_step_reviews(
     review_service = StepReviewService(db)
     reviews = await review_service.get_reviews(step_id)
     return [StepReviewResponse.model_validate(r) for r in reviews]
+
+
+@router.post(
+    "/tickets/{ticket_id}/steps/{step_id}/regenerate",
+    status_code=status.HTTP_200_OK,
+)
+async def regenerate_brainstorm(
+    ticket_id: uuid.UUID,
+    step_id: uuid.UUID,
+    data: RegenerateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    await _get_ticket_or_404(db, ticket_id)
+    step = await _get_step_or_404(db, step_id, ticket_id)
+
+    if step.status != StepStatus.review:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Step is not in review (current status: {step.status.value})",
+        )
+
+    # Transition back to running for regeneration
+    step.status = StepStatus.running
+    await db.commit()
+
+    # Note: actual SDK follow-up happens in agent_runner (feature 05)
+    return {
+        "detail": "Regeneration started",
+        "step_id": str(step.id),
+        "section_comments": data.section_comments,
+    }

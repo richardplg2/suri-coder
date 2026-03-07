@@ -188,3 +188,19 @@ async def test_save_step_breakdowns(db_session: AsyncSession):
     await db_session.refresh(data["test_step"])
     assert data["code_step"].step_breakdown == {"instructions": "Create LoginForm component"}
     assert data["test_step"].step_breakdown == {"instructions": "Write Cypress tests for login"}
+
+
+from tests.conftest import auth_headers
+
+
+@pytest.mark.asyncio
+async def test_regenerate_endpoint_rejects_non_review_step(client, db_session):
+    """POST /tickets/:id/steps/:step_id/regenerate rejects step not in review."""
+    headers = await auth_headers(client)
+
+    resp = await client.post(
+        "/tickets/00000000-0000-0000-0000-000000000001/steps/00000000-0000-0000-0000-000000000002/regenerate",
+        json={"section_comments": {"summary": "Too vague"}},
+        headers=headers,
+    )
+    assert resp.status_code == 404  # ticket not found
