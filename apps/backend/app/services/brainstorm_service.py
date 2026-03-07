@@ -32,6 +32,22 @@ logger = logging.getLogger(__name__)
 _active_brainstorm_sessions: dict[str, Any] = {}
 
 
+def _create_brainstorm_client() -> Any:
+    """Create a Claude SDK client for brainstorm sessions."""
+    from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient
+
+    return ClaudeSDKClient(
+        ClaudeAgentOptions(
+            system_prompt=BRAINSTORM_SYSTEM_PROMPT,
+            output_format={
+                "type": "json_schema",
+                "schema": QUIZ_OUTPUT_SCHEMA,
+            },
+            max_turns=1,
+        )
+    )
+
+
 class BrainstormService:
     def __init__(self, db: AsyncSession, redis: aioredis.Redis):
         self.db = db
@@ -48,19 +64,7 @@ class BrainstormService:
         session_id = str(uuid.uuid4())
         prompt = build_initial_prompt(source, initial_message, figma_data)
 
-        # Create Claude SDK client with structured output
-        from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient
-
-        client = ClaudeSDKClient(
-            ClaudeAgentOptions(
-                system_prompt=BRAINSTORM_SYSTEM_PROMPT,
-                output_format={
-                    "type": "json_schema",
-                    "schema": QUIZ_OUTPUT_SCHEMA,
-                },
-                max_turns=1,
-            )
-        )
+        client = _create_brainstorm_client()
 
         result = await client.query(prompt)
         msg_type, content, structured_data = _parse_agent_response(
