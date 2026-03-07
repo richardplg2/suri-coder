@@ -10,7 +10,9 @@ from app.models.base import TimestampMixin, UUIDMixin
 class UserGitHubAccount(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "user_github_accounts"
 
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE")
+    )
     github_user_id: Mapped[int] = mapped_column(BigInteger)
     username: Mapped[str] = mapped_column(String(255))
     display_name: Mapped[str | None] = mapped_column(String(255), nullable=True)

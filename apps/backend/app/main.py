@@ -5,7 +5,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, projects, agents, templates, tickets, sessions, workflow, websocket, github
+from app.routers import (
+    agents,
+    auth,
+    github,
+    projects,
+    sessions,
+    templates,
+    tickets,
+    websocket,
+    workflow,
+)
 
 
 @asynccontextmanager
