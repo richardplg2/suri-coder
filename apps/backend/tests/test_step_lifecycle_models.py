@@ -60,3 +60,34 @@ def test_ticket_auto_execute_accepts_no_value():
     )
     # Column default=True is applied on INSERT, not construction
     assert hasattr(ticket, "auto_execute")
+
+
+from app.models.workflow_step import WorkflowStep
+
+
+def test_workflow_step_has_new_fields():
+    step = WorkflowStep(
+        ticket_id="00000000-0000-0000-0000-000000000001",
+        template_step_id="brainstorm",
+        name="brainstorm",
+        requires_approval=True,
+        user_prompt_override="Custom prompt",
+        brainstorm_output={"summary": "test"},
+        step_breakdown={"instructions": "do this"},
+    )
+    assert step.requires_approval is True
+    assert step.user_prompt_override == "Custom prompt"
+    assert step.brainstorm_output == {"summary": "test"}
+    assert step.step_breakdown == {"instructions": "do this"}
+
+
+def test_workflow_step_new_fields_nullable():
+    step = WorkflowStep(
+        ticket_id="00000000-0000-0000-0000-000000000001",
+        template_step_id="code",
+        name="code",
+    )
+    assert step.requires_approval is None
+    assert step.user_prompt_override is None
+    assert step.brainstorm_output is None
+    assert step.step_breakdown is None

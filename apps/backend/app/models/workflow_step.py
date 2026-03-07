@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import Boolean, ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -29,6 +29,10 @@ class WorkflowStep(UUIDMixin, TimestampMixin, Base):
     status: Mapped[StepStatus] = mapped_column(default=StepStatus.pending)
     config: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     order: Mapped[int] = mapped_column(Integer, default=0)
+    requires_approval: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    user_prompt_override: Mapped[str | None] = mapped_column(Text, nullable=True)
+    brainstorm_output: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    step_breakdown: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     ticket: Mapped["Ticket"] = relationship(back_populates="steps")
     dependencies: Mapped[list["WorkflowStepDependency"]] = relationship(
