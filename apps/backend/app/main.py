@@ -8,6 +8,7 @@ from app.config import settings
 from app.routers import (
     agents,
     auth,
+    brainstorm,
     github,
     notifications,
     projects,
@@ -41,6 +42,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(brainstorm.router)
 app.include_router(projects.router)
 app.include_router(agents.router)
 app.include_router(templates.router)
