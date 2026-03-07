@@ -1,4 +1,4 @@
-import { Home, Folder, Search, Bell, Sun, Moon } from 'lucide-react'
+import { Home, Folder, Search, Sun, Moon } from 'lucide-react'
 import { TabBar, Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, Toaster } from '@agent-coding/ui'
 import type { Tab } from '@agent-coding/ui'
 import { useTabStore } from 'renderer/stores/use-tab-store'
@@ -7,6 +7,7 @@ import type { AppTab } from 'renderer/types/tabs'
 import { AppSidebar } from './app-sidebar'
 import { StatusBar } from './status-bar'
 import { useKeyboardShortcuts } from 'renderer/hooks/use-keyboard-shortcuts'
+import { NotificationDropdown } from './notification-dropdown'
 
 function tabToBarTab(tab: AppTab): Tab {
   switch (tab.type) {
@@ -55,9 +56,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon-sm" className="size-7">
-                  <Bell className="size-3.5 text-muted-foreground" />
-                </Button>
+                <span>
+                  <NotificationDropdown />
+                </span>
               </TooltipTrigger>
               <TooltipContent side="bottom">Notifications</TooltipContent>
             </Tooltip>
