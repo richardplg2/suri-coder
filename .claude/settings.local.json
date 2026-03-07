@@ -1,6 +1,12 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(pnpm:*)",
+      "Bash(git:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "postgres"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
