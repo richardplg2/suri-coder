@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figma Design Viewer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; height: 100vh; display: flex; }
+
+  /* Left panel - controls */
+  .sidebar {
+    width: 280px; min-width: 280px; background: #16213e; border-right: 1px solid #2a2a4a;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sidebar h2 { padding: 16px; font-size: 14px; color: #8892b0; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #2a2a4a; }
+  .connection-bar { padding: 12px 16px; border-bottom: 1px solid #2a2a4a; display: flex; flex-direction: column; gap: 8px; }
+  .connection-bar label { font-size: 11px; color: #8892b0; text-transform: uppercase; }
+  .connection-bar input {
+    background: #0f1a30; border: 1px solid #2a2a4a; border-radius: 6px; padding: 8px 10px;
+    color: #e0e0e0; font-size: 13px; font-family: monospace;
+  }
+  .connection-bar input:focus { outline: none; border-color: #64ffda; }
+  .btn {
+    padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: #64ffda; color: #0a0a23; }
+  .btn-primary:hover { background: #45e6c0; }
+  .btn-primary:disabled { background: #2a4a4a; color: #5a6a6a; cursor: not-allowed; }
+  .btn-secondary { background: #2a2a4a; color: #e0e0e0; }
+  .btn-secondary:hover { background: #3a3a5a; }
+  .btn-danger { background: #ff6b6b33; color: #ff6b6b; }
+  .btn-danger:hover { background: #ff6b6b55; }
+  .status { font-size: 11px; display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .status-dot.connected { background: #64ffda; }
+  .status-dot.disconnected { background: #ff6b6b; }
+  .btn-row { display: flex; gap: 6px; }
+  .btn-row .btn { flex: 1; }
+
+  /* Node tree */
+  .node-tree { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .tree-node {
+    padding: 6px 12px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;
+    transition: background 0.1s; border-left: 3px solid transparent;
+  }
+  .tree-node:hover { background: #1a2a4e; }
+  .tree-node.selected { background: #1a3a5e; border-left-color: #64ffda; }
+  .tree-node.hovered { background: #1a2a4e; }
+  .node-type {
+    font-size: 9px; padding: 1px 4px; border-radius: 3px; font-weight: 600;
+    min-width: 40px; text-align: center;
+  }
+  .node-type.FRAME { background: #7c3aed33; color: #a78bfa; }
+  .node-type.TEXT { background: #06b6d433; color: #22d3ee; }
+  .node-type.GROUP { background: #f59e0b33; color: #fbbf24; }
+  .node-type.RECTANGLE { background: #10b98133; color: #34d399; }
+  .node-type.INSTANCE { background: #ec489933; color: #f472b6; }
+  .node-type.COMPONENT { background: #8b5cf633; color: #a78bfa; }
+  .node-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .tree-indent { display: inline-block; }
+
+  /* Main canvas area */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .toolbar {
+    padding: 8px 16px; background: #16213e; border-bottom: 1px solid #2a2a4a;
+    display: flex; align-items: center; gap: 12px; font-size: 12px;
+  }
+  .toolbar .info { color: #8892b0; }
+  .toolbar .info strong { color: #e0e0e0; }
+  .canvas-container {
+    flex: 1; overflow: auto; position: relative; display: flex; align-items: flex-start; justify-content: center;
+    padding: 24px; background: #0f0f23;
+  }
+  .canvas-wrapper { position: relative; display: inline-block; }
+  .canvas-wrapper img { display: block; max-width: 100%; height: auto; border-radius: 4px; }
+
+  /* Overlay boxes */
+  .node-overlay {
+    position: absolute; border: 2px solid transparent; cursor: pointer;
+    transition: border-color 0.1s, background 0.1s;
+  }
+  .node-overlay:hover, .node-overlay.hovered {
+    border-color: #64ffda88;
+    background: #64ffda11;
+  }
+  .node-overlay.selected {
+    border-color: #64ffda;
+    background: #64ffda22;
+  }
+  .node-overlay .overlay-label {
+    display: none; position: absolute; top: -20px; left: 0;
+    background: #64ffda; color: #0a0a23; font-size: 10px; padding: 1px 6px; border-radius: 3px;
+    white-space: nowrap; font-weight: 600; pointer-events: none;
+  }
+  .node-overlay:hover .overlay-label, .node-overlay.selected .overlay-label, .node-overlay.hovered .overlay-label {
+    display: block;
+  }
+  .node-overlay .note-badge {
+    position: absolute; top: -8px; right: -8px; width: 16px; height: 16px;
+    background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: #000; pointer-events: none;
+  }
+
+  /* Right panel - annotation */
+  .annotation-panel {
+    width: 320px; min-width: 320px; background: #16213e; border-left: 1px solid #2a2a4a;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .annotation-panel.hidden { display: none; }
+  .annotation-panel h3 { padding: 16px; font-size: 13px; border-bottom: 1px solid #2a2a4a; display: flex; justify-content: space-between; align-items: center; }
+  .annotation-panel h3 .close-btn { cursor: pointer; color: #8892b0; font-size: 18px; }
+  .annotation-panel h3 .close-btn:hover { color: #e0e0e0; }
+  .node-details { padding: 12px 16px; border-bottom: 1px solid #2a2a4a; }
+  .node-details .detail-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+  .node-details .detail-row .label { color: #8892b0; }
+  .node-details .detail-row .value { color: #e0e0e0; font-family: monospace; font-size: 11px; }
+  .annotation-form { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .annotation-form label { font-size: 11px; color: #8892b0; text-transform: uppercase; }
+  .annotation-form textarea {
+    flex: 1; background: #0f1a30; border: 1px solid #2a2a4a; border-radius: 6px;
+    padding: 10px; color: #e0e0e0; font-size: 13px; resize: none; min-height: 120px;
+    font-family: -apple-system, sans-serif;
+  }
+  .annotation-form textarea:focus { outline: none; border-color: #64ffda; }
+  .annotations-list { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+  .annotation-item {
+    background: #0f1a30; border-radius: 6px; padding: 10px; margin-bottom: 8px; font-size: 12px;
+    border-left: 3px solid #f59e0b;
+  }
+  .annotation-item .anno-node { font-weight: 600; color: #64ffda; margin-bottom: 4px; }
+  .annotation-item .anno-text { color: #c0c0d0; line-height: 1.5; }
+  .annotation-item .anno-actions { margin-top: 6px; display: flex; gap: 6px; }
+
+  /* Loading / empty state */
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #5a6a8a; gap: 12px;
+  }
+  .empty-state svg { opacity: 0.3; }
+
+  .log { padding: 8px 16px; font-size: 11px; color: #5a6a8a; max-height: 80px; overflow-y: auto; border-top: 1px solid #2a2a4a; font-family: monospace; }
+  .log div { padding: 1px 0; }
+  .log .error { color: #ff6b6b; }
+  .log .success { color: #64ffda; }
+  .toggle-label { font-size: 11px; color: #8892b0; display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none; }
+  .toggle-label input { accent-color: #64ffda; }
+  .anno-counter { font-size: 11px; color: #f59e0b; margin-left: 8px; }
+  .preview-overlay {
+    position: fixed; inset: 0; background: #000000cc; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .preview-overlay.hidden { display: none; }
+  .preview-modal {
+    background: #16213e; border-radius: 8px; width: 70vw; max-height: 85vh;
+    display: flex; flex-direction: column; border: 1px solid #2a2a4a;
+  }
+  .preview-header {
+    padding: 12px 16px; border-bottom: 1px solid #2a2a4a;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .preview-header h3 { font-size: 14px; }
+  .preview-body { flex: 1; overflow-y: auto; padding: 16px; }
+  .preview-body pre {
+    background: #0f1a30; padding: 16px; border-radius: 6px; font-size: 12px;
+    color: #c0d0e0; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .preview-footer { padding: 12px 16px; border-top: 1px solid #2a2a4a; display: flex; gap: 8px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+<!-- Left Sidebar: Connection + Node Tree -->
+<div class="sidebar">
+  <div class="connection-bar">
+    <div class="status">
+      <span class="status-dot disconnected" id="statusDot"></span>
+      <span id="statusText">Disconnected</span>
+    </div>
+    <label>Channel ID</label>
+    <input type="text" id="channelInput" value="3st131i5" placeholder="e.g. abc123">
+    <div class="btn-row">
+      <button class="btn btn-primary" id="connectBtn" onclick="connect()">Connect</button>
+      <button class="btn btn-secondary" id="loadBtn" onclick="loadDesign()" disabled>Load Design</button>
+    </div>
+  </div>
+  <h2>Node Tree</h2>
+  <div class="node-tree" id="nodeTree">
+    <div class="empty-state" style="padding: 24px; font-size: 12px;">Connect and load a design to see nodes</div>
+  </div>
+  <div class="log" id="log"></div>
+</div>
+
+<!-- Main Canvas -->
+<div class="main">
+  <div class="toolbar">
+    <span class="info" id="docInfo">No document loaded</span>
+    <span class="anno-counter" id="annoCounter"></span>
+    <span style="flex:1"></span>
+    <label class="toggle-label"><input type="checkbox" id="includeStylesToggle"> Include styles</label>
+    <button class="btn btn-secondary" onclick="toggleAnnotationPanel()" style="font-size: 11px;">Annotations (<span id="annoCount">0</span>)</button>
+    <button class="btn btn-primary" onclick="showPreview()" style="font-size: 11px;">Export Markdown</button>
+  </div>
+  <div class="canvas-container" id="canvasContainer">
+    <div class="empty-state" id="emptyState">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 6 6M15 9l-6 6"/></svg>
+      <div>Connect to Figma and load a design</div>
+    </div>
+    <div class="canvas-wrapper" id="canvasWrapper" style="display:none;">
+      <img id="designImage" alt="Figma design">
+      <div id="overlayContainer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Right Panel: Annotations -->
+<div class="annotation-panel hidden" id="annotationPanel">
+  <h3>
+    <span id="panelTitle">Annotations</span>
+    <span class="close-btn" onclick="toggleAnnotationPanel()">&times;</span>
+  </h3>
+  <div id="nodeDetailSection" style="display:none;">
+    <div class="node-details">
+      <div class="detail-row"><span class="label">Name</span><span class="value" id="detailName">—</span></div>
+      <div class="detail-row"><span class="label">Type</span><span class="value" id="detailType">—</span></div>
+      <div class="detail-row"><span class="label">ID</span><span class="value" id="detailId">—</span></div>
+      <div class="detail-row"><span class="label">Size</span><span class="value" id="detailSize">—</span></div>
+    </div>
+    <div class="annotation-form">
+      <label>Add Note for this node</label>
+      <textarea id="noteInput" placeholder="Type your annotation here..."></textarea>
+      <button class="btn btn-primary" onclick="saveAnnotation()">Save Note</button>
+    </div>
+  </div>
+  <h2 style="padding: 12px 16px; font-size: 12px; color: #8892b0;">All Annotations</h2>
+  <div class="annotations-list" id="annotationsList">
+    <div class="empty-state" style="padding: 16px; font-size: 12px;">No annotations yet. Select a node and add notes.</div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="preview-overlay hidden" id="previewOverlay" onclick="closePreview(event)">
+  <div class="preview-modal" onclick="event.stopPropagation()">
+    <div class="preview-header">
+      <h3>Markdown Preview</h3>
+      <span class="close-btn" onclick="closePreview()" style="cursor:pointer; color: #8892b0; font-size: 18px;">&times;</span>
+    </div>
+    <div class="preview-body"><pre id="previewContent"></pre></div>
+    <div class="preview-footer">
+      <button class="btn btn-secondary" onclick="copyMarkdown()">Copy to Clipboard</button>
+      <button class="btn btn-primary" onclick="exportMarkdown()">Download .md</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- State ----
+let ws = null;
+let channel = '';
+let nodeTree = null;      // full node tree from Figma
+let flatNodes = [];       // flattened nodes with bounding info
+let rootBBox = null;      // root node's bounding box
+let selectedNodeId = null;
+let annotations = {};     // nodeId -> { text, nodeName }
+let imageScale = 1;       // scale factor between image display size and Figma coords
+let pendingRequests = new Map();
+
+// ---- Logging ----
+function log(msg, type = '') {
+  const el = document.getElementById('log');
+  const div = document.createElement('div');
+  div.className = type;
+  div.textContent = `${new Date().toLocaleTimeString()} ${msg}`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ---- WebSocket ----
+function connect() {
+  channel = document.getElementById('channelInput').value.trim();
+  if (!channel) return;
+
+  if (ws) ws.close();
+  ws = new WebSocket('ws://localhost:3055');
+
+  ws.onopen = () => {
+    log('Connected to WebSocket', 'success');
+    ws.send(JSON.stringify({ type: 'join', channel }));
+    log(`Joined channel: ${channel}`, 'success');
+    document.getElementById('statusDot').className = 'status-dot connected';
+    document.getElementById('statusText').textContent = 'Connected';
+    document.getElementById('connectBtn').textContent = 'Reconnect';
+    document.getElementById('loadBtn').disabled = false;
+  };
+
+  ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    // Route responses to pending requests
+    if (msg.message?.id && pendingRequests.has(msg.message.id)) {
+      const { resolve } = pendingRequests.get(msg.message.id);
+      pendingRequests.delete(msg.message.id);
+      resolve(msg.message.result);
+    }
+  };
+
+  ws.onerror = () => {
+    log('WebSocket error - is the server running on port 3055?', 'error');
+  };
+
+  ws.onclose = () => {
+    document.getElementById('statusDot').className = 'status-dot disconnected';
+    document.getElementById('statusText').textContent = 'Disconnected';
+    log('Disconnected');
+  };
+}
+
+function sendCommand(command, params = {}) {
+  const id = crypto.randomUUID();
+  const request = {
+    id, type: 'message', channel,
+    message: { id, command, params: { ...params, commandId: id } }
+  };
+
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      pendingRequests.delete(id);
+      reject(new Error(`Timeout: ${command}`));
+    }, 15000);
+
+    pendingRequests.set(id, {
+      resolve: (result) => { clearTimeout(timeout); resolve(result); },
+      reject
+    });
+
+    ws.send(JSON.stringify(request));
+  });
+}
+
+// ---- Load Design ----
+async function loadDesign() {
+  if (!ws || ws.readyState !== 1) { log('Not connected', 'error'); return; }
+
+  document.getElementById('loadBtn').disabled = true;
+  document.getElementById('loadBtn').textContent = 'Loading...';
+
+  try {
+    // 1. Get selection
+    log('Getting selection...');
+    const selection = await sendCommand('get_selection');
+
+    if (!selection.selection || selection.selection.length === 0) {
+      log('No node selected in Figma! Please select a frame.', 'error');
+      return;
+    }
+
+    const selectedNode = selection.selection[0];
+    log(`Selected: ${selectedNode.name} (${selectedNode.type})`);
+
+    // 2. Get full node info with children
+    log('Loading node tree...');
+    const nodeInfo = await sendCommand('get_node_info', { nodeId: selectedNode.id });
+    nodeTree = nodeInfo;
+    rootBBox = nodeInfo.absoluteBoundingBox;
+
+    // 3. Export as image
+    log('Exporting image...');
+    const exported = await sendCommand('export_node_as_image', {
+      nodeId: selectedNode.id, format: 'PNG', scale: 2
+    });
+
+    // 4. Display image
+    if (exported?.imageData) {
+      const img = document.getElementById('designImage');
+      // Ensure proper data URI prefix
+      const imgData = exported.imageData.startsWith('data:')
+        ? exported.imageData
+        : `data:image/png;base64,${exported.imageData}`;
+      img.src = imgData;
+      document.getElementById('canvasWrapper').style.display = 'inline-block';
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('docInfo').innerHTML = `<strong>${nodeInfo.name}</strong> &nbsp;|&nbsp; ${nodeInfo.type} &nbsp;|&nbsp; ${Math.round(rootBBox.width)}×${Math.round(rootBBox.height)}`;
+
+      // Wait for image to load, then create overlays
+      img.onload = () => {
+        imageScale = img.clientWidth / rootBBox.width;
+        flatNodes = [];
+        flattenNodes(nodeTree, 0);
+        renderOverlays();
+        renderNodeTree();
+        log(`Loaded ${flatNodes.length} nodes`, 'success');
+      };
+    } else {
+      log('No image data returned', 'error');
+    }
+  } catch (e) {
+    log(`Error: ${e.message}`, 'error');
+  } finally {
+    document.getElementById('loadBtn').disabled = false;
+    document.getElementById('loadBtn').textContent = 'Load Design';
+  }
+}
+
+// ---- Flatten node tree ----
+function flattenNodes(node, depth) {
+  if (!node.absoluteBoundingBox) return;
+  flatNodes.push({ ...node, depth, children: undefined });
+  if (node.children) {
+    for (const child of node.children) {
+      flattenNodes(child, depth + 1);
+    }
+  }
+}
+
+// ---- Render overlays on image ----
+function renderOverlays() {
+  const container = document.getElementById('overlayContainer');
+  container.innerHTML = '';
+
+  // Skip root node (index 0), overlay its children
+  for (let i = 1; i < flatNodes.length; i++) {
+    const node = flatNodes[i];
+    const bbox = node.absoluteBoundingBox;
+    if (!bbox) continue;
+
+    const div = document.createElement('div');
+    div.className = 'node-overlay';
+    div.dataset.nodeId = node.id;
+    div.style.left = `${(bbox.x - rootBBox.x) * imageScale}px`;
+    div.style.top = `${(bbox.y - rootBBox.y) * imageScale}px`;
+    div.style.width = `${bbox.width * imageScale}px`;
+    div.style.height = `${bbox.height * imageScale}px`;
+
+    const label = document.createElement('div');
+    label.className = 'overlay-label';
+    label.textContent = node.name;
+    div.appendChild(label);
+
+    if (annotations[node.id]) {
+      const badge = document.createElement('div');
+      badge.className = 'note-badge';
+      badge.textContent = '!';
+      div.appendChild(badge);
+    }
+
+    div.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectNode(node.id);
+    });
+    div.addEventListener('mouseenter', () => highlightNode(node.id, true));
+    div.addEventListener('mouseleave', () => highlightNode(node.id, false));
+
+    container.appendChild(div);
+  }
+}
+
+// ---- Render node tree sidebar ----
+function renderNodeTree() {
+  const container = document.getElementById('nodeTree');
+  container.innerHTML = '';
+
+  for (const node of flatNodes) {
+    const div = document.createElement('div');
+    div.className = 'tree-node';
+    div.dataset.nodeId = node.id;
+    if (node.id === selectedNodeId) div.classList.add('selected');
+
+    const indent = document.createElement('span');
+    indent.className = 'tree-indent';
+    indent.style.width = `${node.depth * 12}px`;
+
+    const typeSpan = document.createElement('span');
+    typeSpan.className = `node-type ${node.type}`;
+    typeSpan.textContent = node.type.substring(0, 4);
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'node-name';
+    nameSpan.textContent = node.name;
+    nameSpan.title = node.name;
+
+    div.appendChild(indent);
+    div.appendChild(typeSpan);
+    div.appendChild(nameSpan);
+
+    if (annotations[node.id]) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'color: #f59e0b; font-size: 10px; margin-left: auto;';
+      badge.textContent = '●';
+      div.appendChild(badge);
+    }
+
+    div.addEventListener('click', () => selectNode(node.id));
+    div.addEventListener('mouseenter', () => highlightNode(node.id, true));
+    div.addEventListener('mouseleave', () => highlightNode(node.id, false));
+
+    container.appendChild(div);
+  }
+}
+
+// ---- Select node ----
+function selectNode(nodeId) {
+  selectedNodeId = nodeId;
+  const node = flatNodes.find(n => n.id === nodeId);
+  if (!node) return;
+
+  // Update tree selection
+  document.querySelectorAll('.tree-node').forEach(el => el.classList.toggle('selected', el.dataset.nodeId === nodeId));
+
+  // Update overlay selection
+  document.querySelectorAll('.node-overlay').forEach(el => el.classList.toggle('selected', el.dataset.nodeId === nodeId));
+
+  // Scroll tree node into view
+  const treeEl = document.querySelector(`.tree-node[data-node-id="${nodeId}"]`);
+  if (treeEl) treeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Show annotation panel
+  const panel = document.getElementById('annotationPanel');
+  panel.classList.remove('hidden');
+  document.getElementById('nodeDetailSection').style.display = 'block';
+  document.getElementById('panelTitle').textContent = node.name;
+  document.getElementById('detailName').textContent = node.name;
+  document.getElementById('detailType').textContent = node.type;
+  document.getElementById('detailId').textContent = node.id;
+  const bbox = node.absoluteBoundingBox;
+  document.getElementById('detailSize').textContent = bbox ? `${Math.round(bbox.width)}×${Math.round(bbox.height)}` : '—';
+
+  // Load existing annotation
+  document.getElementById('noteInput').value = annotations[nodeId]?.text || '';
+
+  // Sync selection to Figma
+  syncSelectionToFigma(nodeId);
+}
+
+// ---- Highlight node (hover) ----
+function highlightNode(nodeId, active) {
+  document.querySelectorAll(`.tree-node[data-node-id="${nodeId}"]`).forEach(el => el.classList.toggle('hovered', active));
+  document.querySelectorAll(`.node-overlay[data-node-id="${nodeId}"]`).forEach(el => el.classList.toggle('hovered', active));
+}
+
+// ---- Sync selection back to Figma ----
+async function syncSelectionToFigma(nodeId) {
+  if (!ws || ws.readyState !== 1) return;
+  try {
+    await sendCommand('set_selections', { nodeIds: [nodeId] });
+  } catch (e) {
+    // silent fail for sync
+  }
+}
+
+// ---- Annotations ----
+function saveAnnotation() {
+  if (!selectedNodeId) return;
+  const text = document.getElementById('noteInput').value.trim();
+  const node = flatNodes.find(n => n.id === selectedNodeId);
+  if (!node) return;
+
+  if (text) {
+    annotations[selectedNodeId] = { text, nodeName: node.name, nodeType: node.type };
+  } else {
+    delete annotations[selectedNodeId];
+  }
+
+  renderOverlays();
+  renderNodeTree();
+  renderAnnotationsList();
+  // Re-select to refresh UI
+  selectNode(selectedNodeId);
+  log(`Annotation ${text ? 'saved' : 'removed'} for ${node.name}`, 'success');
+}
+
+function renderAnnotationsList() {
+  const container = document.getElementById('annotationsList');
+  const entries = Object.entries(annotations);
+  document.getElementById('annoCount').textContent = entries.length;
+  const total = flatNodes.length;
+  document.getElementById('annoCounter').textContent = entries.length > 0 ? `${entries.length}/${total} annotated` : '';
+
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding: 16px; font-size: 12px;">No annotations yet. Select a node and add notes.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  for (const [nodeId, anno] of entries) {
+    const item = document.createElement('div');
+    item.className = 'annotation-item';
+    item.innerHTML = `
+      <div class="anno-node">${anno.nodeName} <span style="color: #8892b0; font-weight: 400; font-size: 10px;">${anno.nodeType}</span></div>
+      <div class="anno-text">${anno.text}</div>
+      <div class="anno-actions">
+        <button class="btn btn-secondary" style="font-size: 10px; padding: 3px 8px;" onclick="selectNode('${nodeId}')">Select</button>
+        <button class="btn btn-danger" style="font-size: 10px; padding: 3px 8px;" onclick="deleteAnnotation('${nodeId}')">Delete</button>
+      </div>
+    `;
+    container.appendChild(item);
+  }
+}
+
+function deleteAnnotation(nodeId) {
+  delete annotations[nodeId];
+  renderOverlays();
+  renderNodeTree();
+  renderAnnotationsList();
+  if (selectedNodeId === nodeId) {
+    document.getElementById('noteInput').value = '';
+  }
+  log('Annotation deleted', 'success');
+}
+
+function toggleAnnotationPanel() {
+  document.getElementById('annotationPanel').classList.toggle('hidden');
+}
+
+// ---- Generate Markdown ----
+function generateMarkdown() {
+  if (!nodeTree) return '';
+
+  const includeStyles = document.getElementById('includeStylesToggle')?.checked || false;
+  const lines = [];
+  const bbox = nodeTree.absoluteBoundingBox;
+
+  lines.push(`# Screen: ${nodeTree.name}`);
+  lines.push(`> Type: ${nodeTree.type} | Size: ${Math.round(bbox.width)}×${Math.round(bbox.height)}`);
+  lines.push('');
+  lines.push('## Structure');
+  lines.push('');
+
+  function hasImageFill(node) {
+    return node.fills?.some(f => f.type === 'IMAGE');
+  }
+
+  function formatStyle(node) {
+    if (!includeStyles) return '';
+    const parts = [];
+    if (node.style) {
+      const s = node.style;
+      if (s.fontFamily) parts.push(`${s.fontFamily} ${s.fontStyle || ''} ${s.fontSize ? Math.round(s.fontSize) + 'px' : ''}`.trim());
+      if (s.fontWeight) parts.push(`weight: ${s.fontWeight}`);
+      if (s.letterSpacing) parts.push(`spacing: ${s.letterSpacing}`);
+      if (s.lineHeightPx) parts.push(`line-height: ${Math.round(s.lineHeightPx)}px`);
+      if (s.textAlignHorizontal) parts.push(`align: ${s.textAlignHorizontal}`);
+    }
+    if (node.fills?.length) {
+      const solid = node.fills.find(f => f.type === 'SOLID' && f.color);
+      if (solid) parts.push(`color: ${solid.color}`);
+    }
+    if (node.cornerRadius) parts.push(`radius: ${Math.round(node.cornerRadius)}px`);
+    const nb = node.absoluteBoundingBox;
+    if (nb) parts.push(`${Math.round(nb.width)}×${Math.round(nb.height)}`);
+    return parts.length ? `\n  _Style: ${parts.join(' | ')}_` : '';
+  }
+
+  function walkNode(node, depth) {
+    const nb = node.absoluteBoundingBox;
+    const size = nb ? `${Math.round(nb.width)}×${Math.round(nb.height)}` : '';
+    const anno = annotations[node.id];
+
+    if (depth === 1) {
+      lines.push(`### ${node.name} (${node.type})`);
+      if (node.characters) lines.push(`> Text: "${node.characters}"`);
+      if (hasImageFill(node)) lines.push(`> [Image: ${node.name}, ${size}]`);
+      lines.push(formatStyle(node));
+      if (anno) lines.push(`\n**Note:** ${anno.text}`);
+      lines.push('');
+    } else if (depth >= 2) {
+      const indent = '  '.repeat(depth - 2);
+      let line = `${indent}- **${node.name}** (${node.type})`;
+      if (node.characters) line += `: "${node.characters}"`;
+      lines.push(line);
+      if (hasImageFill(node)) lines.push(`${indent}  > [Image: ${node.name}, ${size}]`);
+      if (includeStyles) {
+        const style = formatStyle(node);
+        if (style) lines.push(`${indent}  ${style.trim()}`);
+      }
+      if (anno) lines.push(`${indent}  > **Note:** ${anno.text}`);
+    }
+
+    if (node.children) {
+      for (const child of node.children) {
+        walkNode(child, depth + 1);
+      }
+    }
+  }
+
+  walkNode(nodeTree, 0);
+  return lines.join('\n');
+}
+
+function exportMarkdown() {
+  const md = generateMarkdown();
+  if (!md) { log('No design loaded', 'error'); return; }
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const filename = nodeTree ? `${nodeTree.name.replace(/[^a-zA-Z0-9-_ ]/g, '')}-design.md` : 'design.md';
+  a.href = url; a.download = filename;
+  a.click(); URL.revokeObjectURL(url);
+  log(`Exported: ${filename}`, 'success');
+}
+
+function showPreview() {
+  const md = generateMarkdown();
+  if (!md) { log('No design loaded', 'error'); return; }
+  document.getElementById('previewContent').textContent = md;
+  document.getElementById('previewOverlay').classList.remove('hidden');
+}
+
+function closePreview(event) {
+  if (!event || event.target === document.getElementById('previewOverlay')) {
+    document.getElementById('previewOverlay').classList.add('hidden');
+  }
+}
+
+function copyMarkdown() {
+  const md = generateMarkdown();
+  navigator.clipboard.writeText(md).then(() => log('Copied to clipboard', 'success'));
+}
+
+// ---- Handle image resize ----
+const resizeObserver = new ResizeObserver(() => {
+  const img = document.getElementById('designImage');
+  if (img.clientWidth && rootBBox) {
+    imageScale = img.clientWidth / rootBBox.width;
+    renderOverlays();
+    // Re-select if needed
+    if (selectedNodeId) {
+      document.querySelectorAll('.node-overlay').forEach(el =>
+        el.classList.toggle('selected', el.dataset.nodeId === selectedNodeId)
+      );
+    }
+  }
+});
+resizeObserver.observe(document.getElementById('canvasContainer'));
+</script>
+</body>
+</html>
