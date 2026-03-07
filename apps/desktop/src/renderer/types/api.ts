@@ -112,3 +112,23 @@ export interface WorkflowTemplate {
   steps_config: Record<string, unknown>
   created_at: string
 }
+
+export interface User {
+  id: string
+  email: string
+  name: string
+  avatar_url: string | null
+  role: string
+  created_at: string
+}
+
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export interface TokenResponse {
+  access_token: string
+  token_type: string
+  user: User
+}
