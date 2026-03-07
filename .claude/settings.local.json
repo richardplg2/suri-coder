@@ -5,7 +5,8 @@
       "Bash(git:*)",
       "Bash(uv run:*)",
       "WebFetch(domain:docs.claude.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(uv:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
