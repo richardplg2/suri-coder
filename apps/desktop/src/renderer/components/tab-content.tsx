@@ -1,6 +1,7 @@
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import { HomeScreen } from 'renderer/screens/home'
 import { ProjectScreen } from 'renderer/screens/project'
+import { TicketScreen } from 'renderer/screens/ticket'
 
 export function TabContent() {
   const { tabs, activeTabId } = useTabStore()
@@ -14,6 +15,6 @@ export function TabContent() {
     case 'project':
       return <ProjectScreen projectId={activeTab.projectId} />
     case 'ticket':
-      return <div className="p-6 text-muted-foreground">Ticket detail — Task 8</div>
+      return <TicketScreen ticketId={activeTab.ticketId} projectId={activeTab.projectId} />
   }
 }
