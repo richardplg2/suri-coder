@@ -110,7 +110,7 @@ function KanbanView({
         return (
           <div key={col.status} className="flex w-64 shrink-0 flex-col">
             <div className="mb-2 flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
                 {col.label}
               </span>
               <span className="text-xs text-muted-foreground">{colTickets.length}</span>

@@ -16,7 +16,7 @@ interface ProjectCardProps {
 export function ProjectCard({ project, onClick, onSettings, onDelete }: ProjectCardProps) {
   return (
     <Card
-      className="cursor-pointer transition-colors hover:bg-secondary/50"
+      className="cursor-pointer rounded-[8px] transition-colors hover:bg-secondary/50"
       onClick={onClick}
     >
       <CardHeader>
