@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.enums import StepStatus
@@ -181,7 +180,7 @@ async def approve_step(
     if step.status != StepStatus.awaiting_approval:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Step is not awaiting approval (current status: {step.status.value})",
+            detail=f"Step is not awaiting approval (status: {step.status.value})",
         )
 
     engine = WorkflowEngine(db)

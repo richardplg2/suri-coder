@@ -16,7 +16,7 @@ class WorkflowEngine:
         self.db = db
 
     async def tick(self, ticket_id: uuid.UUID) -> list[WorkflowStep]:
-        """Advance the DAG. Returns list of steps that became ready or awaiting_approval."""
+        """Advance the DAG. Returns steps that became ready/awaiting_approval."""
         ticket = await self.db.get(Ticket, ticket_id)
         if not ticket:
             return []

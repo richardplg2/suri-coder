@@ -4,11 +4,17 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.agent_config import AgentConfig
-from app.models.enums import StepStatus, TicketPriority, TicketStatus, TicketType, UserRole
-from app.models.project import Project, ProjectMember
+from app.models.enums import (
+    StepStatus,
+    TicketPriority,
+    TicketStatus,
+    TicketType,
+    UserRole,
+)
+from app.models.project import Project
 from app.models.ticket import Ticket
 from app.models.user import User
-from app.models.workflow_step import WorkflowStep, WorkflowStepDependency
+from app.models.workflow_step import WorkflowStep
 from app.models.workflow_template import WorkflowTemplate
 from app.services.workflow_engine import WorkflowEngine
 
@@ -63,7 +69,9 @@ async def _setup(db: AsyncSession, **overrides) -> dict:
         name="designer",
         system_prompt="You design.",
         claude_model="sonnet",
-        default_requires_approval=overrides.get("agent_default_requires_approval", False),
+        default_requires_approval=overrides.get(
+            "agent_default_requires_approval", False
+        ),
     )
     db.add(agent_config)
     await db.flush()
@@ -94,7 +102,7 @@ async def _setup(db: AsyncSession, **overrides) -> dict:
 
 @pytest.mark.asyncio
 async def test_auto_execute_no_approval_needed(db_session: AsyncSession):
-    """auto_execute=True, no approval flags -> step goes to ready, not awaiting_approval."""
+    """auto_execute=True, no approval flags -> step goes to ready."""
     data = await _setup(db_session, auto_execute=True)
     ticket = data["ticket"]
     agent_config = data["agent_config"]
@@ -209,7 +217,7 @@ async def test_agent_default_requires_approval(db_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_approve_step_endpoint(client, db_session):
-    """POST /tickets/:id/steps/:step_id/approve transitions awaiting_approval -> ready."""
+    """POST approve endpoint transitions awaiting_approval -> ready."""
     from tests.conftest import auth_headers
 
     headers = await auth_headers(client)
@@ -264,9 +272,11 @@ async def test_approve_step_endpoint(client, db_session):
     # Manually set step to awaiting_approval via DB
     from sqlalchemy import select
 
-    from app.models.workflow_step import WorkflowStep as WS
-
-    result = await db_session.execute(select(WS).where(WS.id == uuid.UUID(step["id"])))
+    result = await db_session.execute(
+        select(WorkflowStep).where(
+            WorkflowStep.id == uuid.UUID(step["id"])
+        )
+    )
     db_step = result.scalar_one()
     db_step.status = StepStatus.awaiting_approval
     await db_session.commit()
@@ -281,8 +291,62 @@ async def test_approve_step_endpoint(client, db_session):
 
 
 @pytest.mark.asyncio
+async def test_approve_step_wrong_status_returns_409(client, db_session):
+    """Approving a step not in awaiting_approval returns 409."""
+    from tests.conftest import auth_headers
+
+    headers = await auth_headers(client, email="conflict@test.com")
+
+    proj_resp = await client.post(
+        "/projects/",
+        json={"name": "Conflict", "slug": "cf", "path": "/tmp/cf"},
+        headers=headers,
+    )
+    project_id = proj_resp.json()["id"]
+
+    await client.post(
+        f"/projects/{project_id}/agents/",
+        json={
+            "name": "designer",
+            "system_prompt": "You design.",
+            "claude_model": "sonnet",
+        },
+        headers=headers,
+    )
+
+    tmpl_resp = await client.post(
+        f"/projects/{project_id}/templates",
+        json={
+            "name": "flow",
+            "steps_config": {
+                "steps": [
+                    {"id": "design", "agent": "designer", "depends_on": []},
+                ]
+            },
+        },
+        headers=headers,
+    )
+
+    ticket_resp = await client.post(
+        f"/projects/{project_id}/tickets",
+        json={"title": "Test", "template_id": tmpl_resp.json()["id"]},
+        headers=headers,
+    )
+    ticket = ticket_resp.json()
+    step = ticket["steps"][0]
+    # Step is in "ready" status, not awaiting_approval
+    assert step["status"] == "ready"
+
+    resp = await client.post(
+        f"/tickets/{ticket['id']}/steps/{step['id']}/approve",
+        headers=headers,
+    )
+    assert resp.status_code == 409
+
+
+@pytest.mark.asyncio
 async def test_update_step_prompt(client):
-    """PATCH /tickets/:id/steps/:step_id/prompt updates user_prompt_override."""
+    """PATCH prompt endpoint updates user_prompt_override."""
     from tests.conftest import auth_headers
 
     headers = await auth_headers(client, email="prompt@test.com")
@@ -337,7 +401,7 @@ async def test_update_step_prompt(client):
 
 @pytest.mark.asyncio
 async def test_create_ticket_with_auto_execute_false(client):
-    """Creating ticket with auto_execute=False should set initial steps to awaiting_approval."""
+    """auto_execute=False sets initial steps to awaiting_approval."""
     from tests.conftest import auth_headers
 
     headers = await auth_headers(client, email="autoexec@test.com")
