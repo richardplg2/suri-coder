@@ -1,12 +1,23 @@
 import json
+import uuid
+from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
 
 from claude_agent_sdk import create_sdk_mcp_server, tool
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.ticket import Ticket
 from app.services.spec import SpecService
 
+type DbSessionFactory = Callable[
+    [], asynccontextmanager[AsyncIterator[AsyncSession]]
+]
 
-def build_spec_tools(ticket_id, db_session_factory):
+
+def build_spec_tools(
+    ticket_id: uuid.UUID,
+    db_session_factory: DbSessionFactory,
+):
     """Build scoped MCP tools for the given ticket.
 
     All tools use ticket_id from the closure. The agent cannot

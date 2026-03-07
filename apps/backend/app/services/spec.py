@@ -126,6 +126,7 @@ class SpecService:
 
         stmt = (
             select(TicketSpec)
+            .where(TicketSpec.ticket_id == ticket_id)
             .join(
                 max_rev_sub,
                 (TicketSpec.ticket_id == max_rev_sub.c.ticket_id)
