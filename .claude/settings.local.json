@@ -6,7 +6,9 @@
       "Bash(uv run:*)",
       "WebFetch(domain:docs.claude.com)",
       "WebFetch(domain:github.com)",
-      "Bash(uv:*)"
+      "Bash(uv:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx biome:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
