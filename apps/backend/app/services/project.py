@@ -9,6 +9,7 @@ from app.database import get_db
 from app.models.project import Project, ProjectMember
 from app.schemas.project import ProjectCreate, ProjectUpdate
 from app.services.auth import get_current_user
+from app.services.project_seeder import seed_project_defaults
 
 
 async def create_project(
@@ -39,6 +40,10 @@ async def create_project(
         project_id=project.id, user_id=user_id, role="owner"
     )
     db.add(member)
+
+    # Seed default agent configs and workflow templates
+    await seed_project_defaults(db, project.id)
+
     await db.commit()
     await db.refresh(project, attribute_names=["members"])
     return project
