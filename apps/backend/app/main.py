@@ -9,6 +9,7 @@ from app.routers import (
     agents,
     auth,
     github,
+    notifications,
     projects,
     sessions,
     templates,
@@ -47,6 +48,7 @@ app.include_router(sessions.router)
 app.include_router(workflow.router)
 app.include_router(websocket.router)
 app.include_router(github.router)
+app.include_router(notifications.router)
 
 
 @app.get("/health")
