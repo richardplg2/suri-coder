@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GitBranch, Lock, Globe, Search, Check } from 'lucide-react'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -19,20 +19,26 @@ export function ConnectReposModal() {
   const projectId = (modalData?.projectId as string) ?? ''
 
   const [selectedAccountId, setSelectedAccountId] = useState<string>('')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [selectedRepos, setSelectedRepos] = useState<GitHubRepoItem[]>([])
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchInput), 400)
+    return () => clearTimeout(timer)
+  }, [searchInput])
 
   const { data: accounts, isLoading: accountsLoading } = useGitHubAccounts()
   const { data: repos, isLoading: reposLoading } = useGitHubRepos(selectedAccountId)
   const { data: searchResults, isLoading: searchLoading } = useSearchGitHubRepos(
     selectedAccountId,
-    searchQuery
+    debouncedQuery
   )
   const connectRepos = useConnectRepos(projectId)
 
-  const displayedRepos = searchQuery.length > 0 ? searchResults : repos
-  const isLoadingRepos = searchQuery.length > 0 ? searchLoading : reposLoading
+  const displayedRepos = debouncedQuery.length > 0 ? searchResults : repos
+  const isLoadingRepos = debouncedQuery.length > 0 ? searchLoading : reposLoading
 
   function toggleRepo(repo: GitHubRepoItem) {
     setSelectedRepos((prev) => {
@@ -63,7 +69,7 @@ export function ConnectReposModal() {
   function handleClose() {
     close()
     setSelectedAccountId('')
-    setSearchQuery('')
+    setSearchInput('')
     setSelectedRepos([])
     setError(null)
   }
@@ -92,7 +98,7 @@ export function ConnectReposModal() {
                 value={selectedAccountId}
                 onChange={(e) => {
                   setSelectedAccountId(e.target.value)
-                  setSearchQuery('')
+                  setSearchInput('')
                   setSelectedRepos([])
                 }}
               >
@@ -113,8 +119,8 @@ export function ConnectReposModal() {
                 <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
                 <Input
                   placeholder="Search repositories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   className="pl-9"
                 />
               </div>

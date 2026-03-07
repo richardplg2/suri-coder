@@ -1,5 +1,6 @@
 import uuid
 
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,7 +32,10 @@ async def connect_repos(
     )
     result = await db.execute(stmt)
     if result.scalar_one_or_none() is None:
-        return []
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="GitHub account not found or not owned by user",
+        )
 
     connected = []
     for repo in data.repos:

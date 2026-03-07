@@ -24,7 +24,7 @@ def get_authorize_url(state: str) -> str:
 
 
 async def exchange_code_for_token(code: str) -> dict:
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=15.0) as client:
         resp = await client.post(
             GITHUB_TOKEN_URL,
             json={
@@ -40,7 +40,7 @@ async def exchange_code_for_token(code: str) -> dict:
 
 
 async def get_github_user(access_token: str) -> dict:
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=15.0) as client:
         resp = await client.get(
             f"{GITHUB_API_URL}/user",
             headers={
@@ -114,7 +114,7 @@ async def delete_github_account(
 async def list_github_repos(
     access_token: str, page: int = 1, per_page: int = 30, sort: str = "updated"
 ) -> list[dict]:
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=15.0) as client:
         resp = await client.get(
             f"{GITHUB_API_URL}/user/repos",
             params={
@@ -134,7 +134,7 @@ async def list_github_repos(
 
 
 async def search_github_repos(access_token: str, query: str) -> list[dict]:
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=15.0) as client:
         resp = await client.get(
             f"{GITHUB_API_URL}/search/repositories",
             params={"q": f"{query} user:@me fork:true", "per_page": 30},
