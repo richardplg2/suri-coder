@@ -9,6 +9,9 @@ function stepStatusVariant(status: StepStatus) {
     running: 'running',
     failed: 'failed',
     ready: 'pending',
+    awaiting_approval: 'pending',
+    review: 'pending',
+    changes_requested: 'failed',
     pending: 'idle',
     skipped: 'idle',
   }

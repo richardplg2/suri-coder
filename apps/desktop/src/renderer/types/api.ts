@@ -40,7 +40,10 @@ export type TicketPriority = 'none' | 'low' | 'medium' | 'high' | 'urgent'
 export type StepStatus =
   | 'pending'
   | 'ready'
+  | 'awaiting_approval'
   | 'running'
+  | 'review'
+  | 'changes_requested'
   | 'completed'
   | 'failed'
   | 'skipped'
@@ -53,6 +56,10 @@ export interface WorkflowStep {
   agent_config_id: string | null
   status: StepStatus
   order: number
+  requires_approval: boolean | null
+  user_prompt_override: string | null
+  brainstorm_output: Record<string, unknown> | null
+  step_breakdown: Record<string, unknown> | null
 }
 
 export interface Ticket {
@@ -67,6 +74,7 @@ export interface Ticket {
   template_id: string | null
   assignee_id: string | null
   budget_usd: number | null
+  auto_execute: boolean
   created_by: string
   created_at: string
   steps: WorkflowStep[]
@@ -92,6 +100,7 @@ export interface TicketCreate {
   template_id?: string | null
   assignee_id?: string | null
   budget_usd?: number | null
+  auto_execute?: boolean
 }
 
 export interface TicketUpdate {
@@ -102,6 +111,7 @@ export interface TicketUpdate {
   priority?: TicketPriority | null
   assignee_id?: string | null
   budget_usd?: number | null
+  auto_execute?: boolean | null
 }
 
 export interface WorkflowTemplate {
@@ -131,4 +141,28 @@ export interface TokenResponse {
   access_token: string
   token_type: string
   user: User
+}
+
+export type ReviewStatus = 'pending' | 'approved' | 'changes_requested'
+
+export interface StepReview {
+  id: string
+  step_id: string
+  revision: number
+  diff_content: string | null
+  comments: Array<{ file: string; line: number; comment: string }> | null
+  status: ReviewStatus
+  created_at: string
+}
+
+export interface RequestChangesPayload {
+  comments: Array<{ file: string; line: number; comment: string }>
+}
+
+export interface RegeneratePayload {
+  section_comments: Record<string, string>
+}
+
+export interface PromptOverridePayload {
+  user_prompt_override: string | null
 }
