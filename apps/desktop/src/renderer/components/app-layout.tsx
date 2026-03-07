@@ -8,6 +8,7 @@ import { AppSidebar } from './app-sidebar'
 import { StatusBar } from './status-bar'
 import { useKeyboardShortcuts } from 'renderer/hooks/use-keyboard-shortcuts'
 import { NotificationDropdown } from './notification-dropdown'
+import { useNotificationsWs } from 'renderer/hooks/use-notifications-ws'
 
 function tabToBarTab(tab: AppTab): Tab {
   switch (tab.type) {
@@ -24,6 +25,7 @@ const isMac = window.App?.platform === 'darwin'
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   useKeyboardShortcuts()
+  useNotificationsWs()
   const { tabs, activeTabId, setActiveTab, closeTab } = useTabStore()
   const { theme, setTheme } = useThemeStore()
 
