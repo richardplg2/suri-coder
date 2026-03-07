@@ -7,6 +7,8 @@ interface TabStore {
   activeTabId: string
   openProjectTab: (projectId: string, label: string) => void
   openTicketTab: (ticketId: string, projectId: string, label: string) => void
+  openBrainstormTab: (projectId: string, label: string) => void
+  openFigmaImportTab: (projectId: string, label: string) => void
   closeTab: (id: string) => void
   setActiveTab: (id: string) => void
   updateTabLabel: (id: string, label: string) => void
@@ -46,6 +48,18 @@ export const useTabStore = create<TabStore>()(
         }
         const newTab: AppTab = { id: tabId, type: 'ticket', ticketId, projectId, label, pinned: false }
         set({ tabs: [...tabs, newTab], activeTabId: tabId })
+      },
+
+      openBrainstormTab: (projectId, label) => {
+        const tabId = `brainstorm-${Date.now()}`
+        const newTab: AppTab = { id: tabId, type: 'brainstorm', projectId, label, pinned: false }
+        set({ tabs: [...get().tabs, newTab], activeTabId: tabId })
+      },
+
+      openFigmaImportTab: (projectId, label) => {
+        const tabId = `figma-import-${Date.now()}`
+        const newTab: AppTab = { id: tabId, type: 'figma-import', projectId, label, pinned: false }
+        set({ tabs: [...get().tabs, newTab], activeTabId: tabId })
       },
 
       closeTab: (id) => {
