@@ -42,7 +42,7 @@ export const useThemeStore = create<ThemeStore>()(
 )
 ```
 
-Existing stores: `use-theme-store`, `use-sidebar-store`, `use-modal-store`.
+Existing stores: `use-auth-store`, `use-theme-store`, `use-sidebar-store`, `use-modal-store`, `use-tab-store`.
 
 ## Data Fetching (TanStack Query)
 
@@ -96,3 +96,24 @@ Uses `electron-router-dom` (wrapper around react-router-dom for Electron):
 ```tsx
 <Router main={<Route element={<MainScreen />} path="/" />} />
 ```
+
+## E2E Testing (Playwright)
+
+Tests live in `e2e/` with Playwright launching Electron via `_electron.launch()`.
+
+```
+e2e/
+├── playwright.config.ts     # Two projects: mock, integration
+├── fixtures/
+│   ├── app.fixture.ts       # Electron launch + cleanup (clears localStorage)
+│   ├── mock-api.fixture.ts  # Route interception for localhost:8000
+│   ├── auth.fixture.ts      # Pre-authenticated page via Zustand persist
+│   └── integration.fixture.ts # Real backend health check
+├── flows/                   # Mock tests: login, home, project creation
+├── ui/                      # Mock tests: sidebar, layout
+└── integration/             # Integration tests (needs running backend)
+```
+
+The single instance lock in `src/lib/electron-app/factories/app/instance.ts` is skipped when `NODE_ENV=test`.
+
+Fixtures chain: `app` → `mock-api` → `auth`. Each test clears `localStorage` to prevent state leaks between runs.
