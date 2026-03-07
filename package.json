@@ -9,7 +9,12 @@
     "typecheck": "turbo typecheck",
     "docker:up": "docker compose -f docker-compose.dev.yml up -d",
     "docker:down": "docker compose -f docker-compose.dev.yml down",
-    "docker:reset": "docker compose -f docker-compose.dev.yml down -v"
+    "docker:reset": "docker compose -f docker-compose.dev.yml down -v",
+    "db:migrate": "cd apps/backend && uv run alembic upgrade head",
+    "db:migrate:down": "cd apps/backend && uv run alembic downgrade -1",
+    "db:migrate:create": "cd apps/backend && uv run alembic revision --autogenerate -m",
+    "db:migrate:history": "cd apps/backend && uv run alembic history",
+    "db:migrate:current": "cd apps/backend && uv run alembic current"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
