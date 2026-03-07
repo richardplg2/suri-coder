@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379"
     jwt_secret: str = "change-me-in-production"
     jwt_expire_minutes: int = 60 * 24  # 24 hours
+    github_client_id: str = ""
+    github_client_secret: str = ""
+    github_redirect_uri: str = "http://localhost:8000/auth/github/callback"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

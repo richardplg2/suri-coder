@@ -10,6 +10,8 @@ from app.models.figma import FigmaTask, FigmaNode
 from app.models.testing import TestRun, TestResult
 from app.models.review import ReviewSession, FileReview
 from app.models.step_review import StepReview
+from app.models.github_account import UserGitHubAccount
+from app.models.project_repository import ProjectRepository
 
 __all__ = [
     "User",
@@ -31,4 +33,6 @@ __all__ = [
     "ReviewSession",
     "FileReview",
     "StepReview",
+    "UserGitHubAccount",
+    "ProjectRepository",
 ]
