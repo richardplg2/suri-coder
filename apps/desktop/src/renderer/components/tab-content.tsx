@@ -3,6 +3,7 @@ import { HomeScreen } from 'renderer/screens/home'
 import { ProjectScreen } from 'renderer/screens/project'
 import { TicketScreen } from 'renderer/screens/ticket'
 import { BrainstormScreen } from 'renderer/screens/brainstorm'
+import { FigmaImportScreen } from 'renderer/screens/figma-import'
 
 export function TabContent() {
   const { tabs, activeTabId } = useTabStore()
@@ -20,6 +21,6 @@ export function TabContent() {
     case 'brainstorm':
       return <BrainstormScreen tabId={activeTab.id} projectId={activeTab.projectId} />
     case 'figma-import':
-      return <div className="flex h-full items-center justify-center text-muted-foreground">Figma Import — coming soon (Plan 10)</div>
+      return <FigmaImportScreen projectId={activeTab.projectId} />
   }
 }
