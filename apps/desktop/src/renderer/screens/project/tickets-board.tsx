@@ -4,6 +4,10 @@ import { Button, SegmentedControl, EmptyState, Spinner, DataTable, Badge, Scroll
 import type { Column } from '@agent-coding/ui'
 import { useTickets } from 'renderer/hooks/queries/use-tickets'
 import { useTabStore } from 'renderer/stores/use-tab-store'
+import { useModalStore } from 'renderer/stores/use-modal-store'
+
+const openCreateTicketModal = (projectId: string) =>
+  useModalStore.getState().open('create-ticket', { projectId })
 import type { Project, TicketListItem, TicketType, TicketPriority } from 'renderer/types/api'
 
 type ViewMode = 'kanban' | 'list'
@@ -64,7 +68,7 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
             ]}
             size="sm"
           />
-          <Button size="sm">
+          <Button size="sm" onClick={() => openCreateTicketModal(project.id)}>
             <Plus className="mr-1.5 size-3.5" />
             New Ticket
           </Button>
