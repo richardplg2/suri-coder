@@ -117,3 +117,29 @@ e2e/
 The single instance lock in `src/lib/electron-app/factories/app/instance.ts` is skipped when `NODE_ENV=test`.
 
 Fixtures chain: `app` → `mock-api` → `auth`. Each test clears `localStorage` to prevent state leaks between runs.
+
+### Writing E2E Tests
+
+**Choose the right fixture:**
+- `app.fixture` — test the login screen or unauthenticated flows
+- `mock-api.fixture` — test flows that call the API (login, data fetching) without a real backend
+- `auth.fixture` — test authenticated screens (home, project, settings) with pre-injected auth
+- `integration.fixture` — test against a real running backend
+
+**Selectors:** Use Playwright's role-based locators (`getByRole`, `getByLabel`, `getByText`). Avoid CSS selectors. When multiple elements match, use `.first()` or be more specific (e.g. `getByRole('heading', { name: 'Projects' })` instead of `getByText('Projects')`).
+
+**Adding API mocks:** Override specific routes in the test body after the fixture sets up the catch-all:
+```ts
+await appPage.route('http://localhost:8000/some/endpoint', async (route) => {
+  await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) })
+})
+```
+
+**File placement:**
+- `e2e/flows/*.spec.ts` — user flow tests (mock project)
+- `e2e/ui/*.spec.ts` — UI interaction tests (mock project)
+- `e2e/integration/*.spec.ts` — real backend tests (integration project)
+
+**Prerequisites:** The Electron app must be built before running e2e tests. The `pretest:e2e` script handles this automatically. Workspace packages (`@agent-coding/shared`, `@agent-coding/ui`) must also be built.
+
+**Destructured fixture params that aren't read directly (e.g. `mockApi`, `authedPage`) still must be included** — they trigger fixture setup as a side effect.
