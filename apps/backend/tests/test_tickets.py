@@ -18,18 +18,8 @@ async def _setup_project_template(client, headers, slug="tkt"):
     assert proj_resp.status_code == 201
     project_id = proj_resp.json()["id"]
 
-    # Create agents referenced by the template
-    for agent_name in ("designer", "developer"):
-        agent_resp = await client.post(
-            f"/projects/{project_id}/agents/",
-            json={
-                "name": agent_name,
-                "system_prompt": f"You are a {agent_name}.",
-                "claude_model": "claude-sonnet-4-20250514",
-            },
-            headers=headers,
-        )
-        assert agent_resp.status_code == 201
+    # Agents are seeded automatically on project creation
+    # (designer, coder, etc.)
 
     # Create template
     tmpl_resp = await client.post(
@@ -46,7 +36,7 @@ async def _setup_project_template(client, headers, slug="tkt"):
                     },
                     {
                         "id": "develop",
-                        "agent": "developer",
+                        "agent": "coder",
                         "depends_on": ["design"],
                         "description": "Development phase",
                     },
