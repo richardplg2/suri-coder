@@ -278,3 +278,58 @@ async def test_approve_step_endpoint(client, db_session):
     )
     assert resp.status_code == 200
     assert resp.json()["step_id"] == step["id"]
+
+
+@pytest.mark.asyncio
+async def test_update_step_prompt(client):
+    """PATCH /tickets/:id/steps/:step_id/prompt updates user_prompt_override."""
+    from tests.conftest import auth_headers
+
+    headers = await auth_headers(client, email="prompt@test.com")
+
+    proj_resp = await client.post(
+        "/projects/",
+        json={"name": "PromptTest", "slug": "pt", "path": "/tmp/pt"},
+        headers=headers,
+    )
+    project_id = proj_resp.json()["id"]
+
+    agent_resp = await client.post(
+        f"/projects/{project_id}/agents/",
+        json={
+            "name": "coder",
+            "system_prompt": "You code.",
+            "claude_model": "sonnet",
+        },
+        headers=headers,
+    )
+    assert agent_resp.status_code == 201
+
+    tmpl_resp = await client.post(
+        f"/projects/{project_id}/templates",
+        json={
+            "name": "flow",
+            "steps_config": {
+                "steps": [{"id": "code", "agent": "coder", "depends_on": []}],
+            },
+        },
+        headers=headers,
+    )
+    assert tmpl_resp.status_code == 201
+
+    ticket_resp = await client.post(
+        f"/projects/{project_id}/tickets",
+        json={"title": "Test", "template_id": tmpl_resp.json()["id"]},
+        headers=headers,
+    )
+    assert ticket_resp.status_code == 201
+    ticket = ticket_resp.json()
+    step = ticket["steps"][0]
+
+    resp = await client.patch(
+        f"/tickets/{ticket['id']}/steps/{step['id']}/prompt",
+        json={"user_prompt_override": "Use TDD approach"},
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["user_prompt_override"] == "Use TDD approach"

@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -187,3 +188,29 @@ async def approve_step(
     await engine.approve_step(step)
     await db.commit()
     return {"detail": "Step approved", "step_id": str(step.id)}
+
+
+class PromptOverrideRequest(BaseModel):
+    user_prompt_override: str | None
+
+
+@router.patch(
+    "/tickets/{ticket_id}/steps/{step_id}/prompt",
+    status_code=status.HTTP_200_OK,
+)
+async def update_step_prompt(
+    ticket_id: uuid.UUID,
+    step_id: uuid.UUID,
+    data: PromptOverrideRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    await _get_ticket_or_404(db, ticket_id)
+    step = await _get_step_or_404(db, step_id, ticket_id)
+
+    step.user_prompt_override = data.user_prompt_override
+    await db.commit()
+    return {
+        "step_id": str(step.id),
+        "user_prompt_override": step.user_prompt_override,
+    }
