@@ -9,6 +9,8 @@ class StepConfig(BaseModel):
     agent: str
     depends_on: list[str] = []
     description: str = ""
+    condition: str | None = None
+    expandable: bool = False
 
 
 class StepsConfigSchema(BaseModel):

@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict
 from app.models.enums import (
     StepStatus,
     TicketPriority,
+    TicketSource,
     TicketStatus,
     TicketType,
 )
@@ -20,6 +21,8 @@ class TicketCreate(BaseModel):
     assignee_id: uuid.UUID | None = None
     budget_usd: float | None = None
     auto_execute: bool = True
+    source: TicketSource = TicketSource.manual
+    figma_data: dict | None = None
 
 
 class TicketUpdate(BaseModel):
@@ -31,6 +34,7 @@ class TicketUpdate(BaseModel):
     assignee_id: uuid.UUID | None = None
     budget_usd: float | None = None
     auto_execute: bool | None = None
+    auto_approval: bool | None = None
 
 
 class WorkflowStepResponse(BaseModel):
@@ -64,6 +68,9 @@ class TicketResponse(BaseModel):
     assignee_id: uuid.UUID | None
     budget_usd: float | None
     auto_execute: bool
+    auto_approval: bool
+    source: TicketSource
+    figma_data: dict | None
     created_by: uuid.UUID
     created_at: datetime
     steps: list[WorkflowStepResponse] = []
