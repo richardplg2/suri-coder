@@ -166,3 +166,41 @@ export interface RegeneratePayload {
 export interface PromptOverridePayload {
   user_prompt_override: string | null
 }
+
+export interface GitHubAccount {
+  id: string
+  github_user_id: number
+  username: string
+  display_name: string | null
+  avatar_url: string | null
+  scopes: string
+  created_at: string
+}
+
+export interface GitHubRepoItem {
+  github_repo_id: number
+  full_name: string
+  clone_url: string
+  default_branch: string
+  is_private: boolean
+  description: string | null
+  updated_at: string | null
+}
+
+export interface ConnectReposRequest {
+  github_account_id: string
+  repos: GitHubRepoItem[]
+}
+
+export interface ProjectRepository {
+  id: string
+  project_id: string
+  github_account_id: string
+  github_repo_id: number
+  repo_full_name: string
+  repo_url: string
+  default_branch: string
+  is_private: boolean
+  connected_at: string
+  connected_by: string
+}
