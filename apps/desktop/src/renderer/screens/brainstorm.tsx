@@ -9,17 +9,19 @@ import { useBrainstormStart, useBrainstormMessage } from 'renderer/hooks/queries
 import type { BrainstormMessage, QuizData } from 'renderer/types/api'
 
 interface BrainstormScreenProps {
+  tabId: string
   projectId: string
   sessionId?: string
 }
 
 type BrainstormPhase = 'chat' | 'review'
 
-export function BrainstormScreen({ projectId, sessionId }: BrainstormScreenProps) {
+export function BrainstormScreen({ tabId, projectId, sessionId }: BrainstormScreenProps) {
   const [messages, setMessages] = useState<BrainstormMessage[]>([])
   const [input, setInput] = useState('')
   const [currentSessionId, setCurrentSessionId] = useState(sessionId ?? '')
   const [isWaiting, setIsWaiting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [phase, setPhase] = useState<BrainstormPhase>('chat')
   const [summary, setSummary] = useState('')
   const [specs, setSpecs] = useState<Record<string, string>>({})
@@ -38,21 +40,21 @@ export function BrainstormScreen({ projectId, sessionId }: BrainstormScreenProps
             setMessages([data.initial_message])
           }
         },
+        onError: () => {
+          setError('Failed to start brainstorm session. Please try again.')
+        },
       })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // WebSocket for live messages
   const handleWsEvent = useCallback((event: WsEvent, data: unknown) => {
-    if (event === WsEvent.BrainstormMessage) {
+    if (event === WsEvent.BrainstormMessage || event === WsEvent.BrainstormQuiz) {
       const msg = data as BrainstormMessage
-      setMessages((prev) => [...prev, msg])
-      setIsWaiting(false)
-    }
-
-    if (event === WsEvent.BrainstormQuiz) {
-      const msg = data as BrainstormMessage
-      setMessages((prev) => [...prev, msg])
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev
+        return [...prev, msg]
+      })
       setIsWaiting(false)
     }
 
@@ -89,22 +91,40 @@ export function BrainstormScreen({ projectId, sessionId }: BrainstormScreenProps
     setMessages((prev) => [...prev, userMsg])
     setInput('')
     setIsWaiting(true)
-    sendMessage.mutate({ sessionId: currentSessionId, content: input.trim() })
+    sendMessage.mutate(
+      { sessionId: currentSessionId, content: input.trim() },
+      { onError: () => setIsWaiting(false) },
+    )
   }
 
   const handleQuizSubmit = (answer: string) => {
-    sendMessage.mutate({ sessionId: currentSessionId, content: answer })
     setIsWaiting(true)
+    sendMessage.mutate(
+      { sessionId: currentSessionId, content: answer },
+      { onError: () => setIsWaiting(false) },
+    )
   }
 
   if (phase === 'review') {
     return (
       <BrainstormReview
+        tabId={tabId}
         summary={summary}
         specs={specs}
         sessionId={currentSessionId}
         projectId={projectId}
       />
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3">
+        <p className="text-[13px] text-destructive">{error}</p>
+        <Button size="sm" variant="outline" onClick={() => { setError(null); window.location.reload() }}>
+          Retry
+        </Button>
+      </div>
     )
   }
 
@@ -133,7 +153,7 @@ export function BrainstormScreen({ projectId, sessionId }: BrainstormScreenProps
                     <Sparkles className="size-4 text-primary" />
                     <span className="text-[13px] font-semibold">Summary Ready</span>
                   </div>
-                  <p className="text-[13px] text-muted-foreground line-clamp-4">{msg.content}</p>
+                  <p className="text-[13px] text-muted-foreground line-clamp-4">{msg.content ?? ''}</p>
                   <Button size="sm" variant="outline" className="mt-3" onClick={() => setPhase('review')}>
                     Review & Edit
                   </Button>
@@ -148,7 +168,7 @@ export function BrainstormScreen({ projectId, sessionId }: BrainstormScreenProps
                 role={msg.role}
                 timestamp={new Date(msg.created_at).toLocaleTimeString()}
               >
-                {msg.content}
+                {msg.content ?? ''}
               </ChatBubble>
             )
           })}
@@ -171,7 +191,7 @@ export function BrainstormScreen({ projectId, sessionId }: BrainstormScreenProps
             placeholder="Type your message..."
             className="flex-1"
           />
-          <Button onClick={handleSend} disabled={!input.trim() || isWaiting}>
+          <Button onClick={handleSend} disabled={!input.trim() || isWaiting} aria-label="Send message">
             <Send className="size-4" />
           </Button>
         </div>

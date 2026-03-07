@@ -6,6 +6,7 @@ import { useBrainstormBatchUpdate, useCreateTicketFromBrainstorm } from 'rendere
 import { useTabStore } from 'renderer/stores/use-tab-store'
 
 interface BrainstormReviewProps {
+  tabId: string
   summary: string
   specs: Record<string, string>
   sessionId: string
@@ -20,7 +21,8 @@ interface InlineComment {
   selectedText: string
 }
 
-export function BrainstormReview({ summary, specs, sessionId, projectId }: BrainstormReviewProps) {
+export function BrainstormReview({ tabId, summary, specs, sessionId, projectId }: BrainstormReviewProps) {
+  const [displayedSummary, setDisplayedSummary] = useState(summary)
   const [comments, setComments] = useState<InlineComment[]>([])
   const [currentSelection, setCurrentSelection] = useState<{
     from: number
@@ -52,16 +54,24 @@ export function BrainstormReview({ summary, specs, sessionId, projectId }: Brain
   }
 
   const handleBatchUpdate = () => {
-    batchUpdate.mutate({
-      sessionId,
-      payload: {
-        comments: comments.map((c) => ({
-          section: c.section,
-          text: c.text,
-          range: c.range,
-        })),
+    batchUpdate.mutate(
+      {
+        sessionId,
+        payload: {
+          comments: comments.map((c) => ({
+            section: c.section,
+            text: c.text,
+            range: c.range,
+          })),
+        },
       },
-    })
+      {
+        onSuccess: (data) => {
+          setDisplayedSummary(data.summary)
+          setComments([])
+        },
+      },
+    )
   }
 
   const handleCreateTicket = () => {
@@ -69,7 +79,9 @@ export function BrainstormReview({ summary, specs, sessionId, projectId }: Brain
       { session_id: sessionId, title: title || 'Untitled Ticket' },
       {
         onSuccess: (data) => {
-          useTabStore.getState().openTicketTab(data.ticket_id, projectId, title || 'Untitled Ticket')
+          const store = useTabStore.getState()
+          store.closeTab(tabId)
+          store.openTicketTab(data.ticket_id, projectId, title || 'Untitled Ticket')
         },
       },
     )
@@ -88,7 +100,7 @@ export function BrainstormReview({ summary, specs, sessionId, projectId }: Brain
         {/* Editor */}
         <div className="flex-1 overflow-auto">
           <TiptapEditor
-            content={summary}
+            content={displayedSummary}
             editable={false}
             onSelectionChange={setCurrentSelection}
           />
@@ -129,6 +141,7 @@ export function BrainstormReview({ summary, specs, sessionId, projectId }: Brain
                     type="button"
                     onClick={() => handleDeleteComment(comment.id)}
                     className="mt-1 text-caption text-red-400 hover:text-red-300"
+                    aria-label="Delete comment"
                   >
                     <Trash2 className="size-3" />
                   </button>

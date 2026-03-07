@@ -18,7 +18,7 @@ export function TabContent() {
     case 'ticket':
       return <TicketScreen ticketId={activeTab.ticketId} projectId={activeTab.projectId} />
     case 'brainstorm':
-      return <BrainstormScreen projectId={activeTab.projectId} />
+      return <BrainstormScreen tabId={activeTab.id} projectId={activeTab.projectId} />
     case 'figma-import':
       return <div className="flex h-full items-center justify-center text-muted-foreground">Figma Import — coming soon (Plan 10)</div>
   }

@@ -49,12 +49,13 @@ export function TiptapEditor({
   return (
     <div className={className}>
       {editable && (
-        <div className="flex items-center gap-1 border-b border-border px-2 py-1">
+        <div className="flex items-center gap-1 border-b border-border px-2 py-1" role="toolbar" aria-label="Text formatting">
           <Button
             size="sm"
             variant="ghost"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={editor.isActive('bold') ? 'bg-secondary' : ''}
+            aria-label="Bold"
           >
             <Bold className="size-3.5" />
           </Button>
@@ -63,6 +64,7 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={editor.isActive('italic') ? 'bg-secondary' : ''}
+            aria-label="Italic"
           >
             <Italic className="size-3.5" />
           </Button>
@@ -71,6 +73,7 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
             className={editor.isActive('heading', { level: 1 }) ? 'bg-secondary' : ''}
+            aria-label="Heading 1"
           >
             <Heading1 className="size-3.5" />
           </Button>
@@ -79,6 +82,7 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             className={editor.isActive('heading', { level: 2 }) ? 'bg-secondary' : ''}
+            aria-label="Heading 2"
           >
             <Heading2 className="size-3.5" />
           </Button>
@@ -87,6 +91,7 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={editor.isActive('bulletList') ? 'bg-secondary' : ''}
+            aria-label="Bullet list"
           >
             <List className="size-3.5" />
           </Button>
@@ -95,6 +100,7 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={editor.isActive('orderedList') ? 'bg-secondary' : ''}
+            aria-label="Ordered list"
           >
             <ListOrdered className="size-3.5" />
           </Button>
@@ -103,6 +109,7 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={editor.isActive('codeBlock') ? 'bg-secondary' : ''}
+            aria-label="Code block"
           >
             <Code className="size-3.5" />
           </Button>
