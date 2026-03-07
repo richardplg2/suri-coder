@@ -191,16 +191,26 @@ async def _run_step_in_background(
     step_id: uuid.UUID,
 ) -> None:
     """Background task to run a step via the workflow engine."""
+    import logging
+
     from app.database import async_session
 
-    async with async_session() as db:
-        step = await db.get(WorkflowStep, step_id)
-        if not step or step.status != StepStatus.ready:
-            return
+    logger = logging.getLogger(__name__)
 
-        engine = WorkflowEngine(db)
-        await engine.auto_start_step(
-            step=step,
-            db_session_factory=async_session,
+    try:
+        async with async_session() as db:
+            step = await db.get(WorkflowStep, step_id)
+            if not step or step.status != StepStatus.ready:
+                return
+
+            engine = WorkflowEngine(db)
+            await engine.auto_start_step(
+                step=step,
+                db_session_factory=async_session,
+            )
+            await db.commit()
+    except Exception:
+        logger.exception(
+            "Background step execution failed for step %s",
+            step_id,
         )
-        await db.commit()

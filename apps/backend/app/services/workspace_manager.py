@@ -229,19 +229,17 @@ class WorkspaceManager:
 
     def _is_coder_step(self, step: WorkflowStep) -> bool:
         """Determine if this is a coder step."""
-        coder_indicators = [
+        coder_indicators = {
             "coder",
             "implement",
             "code",
             "develop",
-        ]
-        step_id_lower = step.template_step_id.lower()
-        name_lower = step.name.lower()
-        return any(
-            indicator in step_id_lower
-            or indicator in name_lower
-            for indicator in coder_indicators
+        }
+        tokens = set(
+            step.template_step_id.lower().split("-")
+            + step.name.lower().split()
         )
+        return bool(tokens & coder_indicators)
 
     async def _run_git(
         self,

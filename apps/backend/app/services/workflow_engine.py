@@ -149,7 +149,10 @@ class WorkflowEngine:
 
         Tier 1 (retry_count < 1): Retry the tester with error context.
         Tier 2 (retry_count == 1): Auto-create a fix task for coder.
-        Tier 3 (retry_count >= max_retries): Mark as FAILED.
+        Tier 3 (retry_count >= 2): Mark as FAILED.
+
+        Note: Uses fixed tier thresholds (1, 2, 3+). The step.max_retries
+        field is reserved for future configurable escalation depth.
         """
         step.retry_count += 1
 
@@ -505,11 +508,9 @@ class WorkflowEngine:
 
     def _is_test_step(self, step: WorkflowStep) -> bool:
         """Determine if this is a test/tester step."""
-        test_indicators = ["test", "tester", "qa", "verify"]
-        step_id_lower = step.template_step_id.lower()
-        name_lower = step.name.lower()
-        return any(
-            indicator in step_id_lower
-            or indicator in name_lower
-            for indicator in test_indicators
+        test_indicators = {"test", "tester", "qa", "verify"}
+        tokens = set(
+            step.template_step_id.lower().split("-")
+            + step.name.lower().split()
         )
+        return bool(tokens & test_indicators)
