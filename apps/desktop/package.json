@@ -28,7 +28,11 @@
     "release": "electron-builder --publish always",
     "clean:dev": "rimraf ./node_modules/.dev",
     "lint": "biome check --no-errors-on-unmatched",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "pretest:e2e": "electron-vite build",
+    "test:e2e": "playwright test --config=e2e/playwright.config.ts",
+    "test:e2e:mock": "playwright test --config=e2e/playwright.config.ts --project=mock",
+    "test:e2e:integration": "playwright test --config=e2e/playwright.config.ts --project=integration"
   },
   "dependencies": {
     "@agent-coding/shared": "workspace:*",
@@ -44,6 +48,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.17",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
