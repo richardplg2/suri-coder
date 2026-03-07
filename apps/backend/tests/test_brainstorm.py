@@ -232,3 +232,23 @@ async def test_approve_brainstorm_marks_completed_and_ticks(db_session: AsyncSes
     # Code step should now be ready (or awaiting_approval depending on config)
     ready_ids = {s.id for s in newly_ready}
     assert len(newly_ready) >= 1
+
+
+from app.services.prompt_builder import format_section_comments
+
+
+def test_format_section_comments():
+    comments = {
+        "summary": "Too vague, be more specific",
+        "approach": "Consider using OAuth instead",
+    }
+    result = format_section_comments(comments)
+    assert "summary" in result
+    assert "Too vague" in result
+    assert "approach" in result
+    assert "OAuth" in result
+
+
+def test_format_section_comments_empty():
+    result = format_section_comments({})
+    assert result == ""
