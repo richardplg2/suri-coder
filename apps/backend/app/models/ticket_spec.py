@@ -45,3 +45,23 @@ class TicketSpec(UUIDMixin, TimestampMixin, Base):
         back_populates="target_spec",
         cascade="all, delete-orphan",
     )
+
+
+class TicketSpecReference(UUIDMixin, Base):
+    __tablename__ = "ticket_spec_references"
+
+    source_spec_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("ticket_specs.id", ondelete="CASCADE"), index=True
+    )
+    target_spec_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("ticket_specs.id", ondelete="CASCADE"), index=True
+    )
+    ref_type: Mapped[SpecRefType] = mapped_column()
+    section: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    source_spec: Mapped["TicketSpec"] = relationship(
+        foreign_keys=[source_spec_id], back_populates="source_references"
+    )
+    target_spec: Mapped["TicketSpec"] = relationship(
+        foreign_keys=[target_spec_id], back_populates="target_references"
+    )
