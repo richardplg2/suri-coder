@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models.project import Project, ProjectMember
 from app.models.user import User
+from app.schemas.github import ConnectReposRequest, ProjectRepositoryResponse
 from app.schemas.project import (
     ProjectCreate,
     ProjectMemberCreate,
@@ -22,6 +23,11 @@ from app.services.project import (
     require_project_member,
     require_project_owner,
     update_project,
+)
+from app.services.project_repository import (
+    connect_repos,
+    disconnect_repo,
+    get_project_repositories,
 )
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -116,3 +122,49 @@ async def remove_project_member(
 ) -> None:
     project, _ = project_member
     await remove_member(db, project.id, user_id)
+
+
+@router.get(
+    "/{project_id}/repositories",
+    response_model=list[ProjectRepositoryResponse],
+)
+async def list_repositories(
+    access: tuple[Project, ProjectMember] = Depends(require_project_member),
+    db: AsyncSession = Depends(get_db),
+):
+    project, _member = access
+    repos = await get_project_repositories(db, project.id)
+    return [ProjectRepositoryResponse.model_validate(r) for r in repos]
+
+
+@router.post(
+    "/{project_id}/repositories",
+    response_model=list[ProjectRepositoryResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_repositories(
+    data: ConnectReposRequest,
+    access: tuple[Project, ProjectMember] = Depends(require_project_owner),
+    db: AsyncSession = Depends(get_db),
+):
+    project, member = access
+    repos = await connect_repos(db, project.id, member.user_id, data)
+    return [ProjectRepositoryResponse.model_validate(r) for r in repos]
+
+
+@router.delete(
+    "/{project_id}/repositories/{repo_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def remove_repository(
+    repo_id: uuid.UUID,
+    access: tuple[Project, ProjectMember] = Depends(require_project_owner),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    project, _member = access
+    deleted = await disconnect_repo(db, project.id, repo_id)
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Repository not found",
+        )
