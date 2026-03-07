@@ -29,6 +29,7 @@ class TicketUpdate(BaseModel):
     priority: TicketPriority | None = None
     assignee_id: uuid.UUID | None = None
     budget_usd: float | None = None
+    auto_execute: bool | None = None
 
 
 class WorkflowStepResponse(BaseModel):
@@ -41,6 +42,10 @@ class WorkflowStepResponse(BaseModel):
     agent_config_id: uuid.UUID | None
     status: StepStatus
     order: int
+    requires_approval: bool | None = None
+    user_prompt_override: str | None = None
+    brainstorm_output: dict | None = None
+    step_breakdown: dict | None = None
 
 
 class TicketResponse(BaseModel):
@@ -57,6 +62,7 @@ class TicketResponse(BaseModel):
     template_id: uuid.UUID | None
     assignee_id: uuid.UUID | None
     budget_usd: float | None
+    auto_execute: bool
     created_by: uuid.UUID
     created_at: datetime
     steps: list[WorkflowStepResponse] = []

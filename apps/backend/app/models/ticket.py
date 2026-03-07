@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Numeric, String, Text
+from sqlalchemy import Boolean, ForeignKey, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -35,6 +35,7 @@ class Ticket(UUIDMixin, TimestampMixin, Base):
     budget_usd: Mapped[float | None] = mapped_column(
         Numeric(10, 2), nullable=True
     )
+    auto_execute: Mapped[bool] = mapped_column(Boolean, default=True)
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
     steps: Mapped[list["WorkflowStep"]] = relationship(
