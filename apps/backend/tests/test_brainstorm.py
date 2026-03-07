@@ -190,6 +190,8 @@ async def test_save_step_breakdowns(db_session: AsyncSession):
     assert data["test_step"].step_breakdown == {"instructions": "Write Cypress tests for login"}
 
 
+from app.models.workflow_step import WorkflowStepDependency
+from app.services.workflow_engine import WorkflowEngine
 from tests.conftest import auth_headers
 
 
@@ -204,3 +206,29 @@ async def test_regenerate_endpoint_rejects_non_review_step(client, db_session):
         headers=headers,
     )
     assert resp.status_code == 404  # ticket not found
+
+
+@pytest.mark.asyncio
+async def test_approve_brainstorm_marks_completed_and_ticks(db_session: AsyncSession):
+    """Approving a brainstorm step should complete it and tick DAG."""
+    data = await _setup_brainstorm_data(db_session)
+    brainstorm_step = data["brainstorm_step"]
+    code_step = data["code_step"]
+
+    # Add dependency: code depends on brainstorm
+    dep = WorkflowStepDependency(
+        step_id=code_step.id, depends_on_id=brainstorm_step.id
+    )
+    db_session.add(dep)
+    await db_session.flush()
+    await db_session.commit()
+
+    engine = WorkflowEngine(db_session)
+    newly_ready = await engine.approve_review_step(brainstorm_step)
+
+    await db_session.refresh(brainstorm_step)
+    assert brainstorm_step.status == StepStatus.completed
+
+    # Code step should now be ready (or awaiting_approval depending on config)
+    ready_ids = {s.id for s in newly_ready}
+    assert len(newly_ready) >= 1
