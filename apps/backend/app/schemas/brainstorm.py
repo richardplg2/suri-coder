@@ -1,7 +1,10 @@
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
+
+from app.models.enums import TicketPriority, TicketType
 
 
 class QuizOption(BaseModel):
@@ -21,7 +24,7 @@ class QuizData(BaseModel):
 
 
 class BrainstormStartRequest(BaseModel):
-    source: str  # "ai" or "figma"
+    source: Literal["ai", "figma"]
     initial_message: str | None = None
     figma_data: dict | None = None
 
@@ -37,8 +40,8 @@ class BrainstormBatchUpdateRequest(BaseModel):
 
 class CreateTicketFromBrainstormRequest(BaseModel):
     title: str
-    type: str  # feature, bug, etc
-    priority: str  # none, low, medium, high, urgent
+    type: TicketType = TicketType.feature
+    priority: TicketPriority = TicketPriority.none
     template_id: uuid.UUID | None = None
 
 
