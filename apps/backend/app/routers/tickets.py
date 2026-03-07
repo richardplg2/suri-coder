@@ -1,12 +1,13 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models.enums import TicketPriority, TicketStatus, TicketType
+from app.models.enums import StepStatus, TicketPriority, TicketStatus, TicketType
 from app.models.project import Project, ProjectMember
 from app.models.user import User
+from app.models.workflow_step import WorkflowStep
 from app.schemas.ticket import (
     TicketCreate,
     TicketListResponse,
@@ -22,6 +23,7 @@ from app.services.ticket import (
     get_ticket,
     update_ticket,
 )
+from app.services.workflow_engine import WorkflowEngine
 
 router = APIRouter(tags=["tickets"])
 
@@ -117,3 +119,88 @@ async def delete_ticket_endpoint(
             detail="Ticket not found",
         )
     await delete_ticket(db, ticket)
+
+
+@router.post(
+    "/tickets/{ticket_id}/start",
+    response_model=TicketResponse,
+)
+async def start_ticket_workflow(
+    ticket_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> TicketResponse:
+    """Start workflow execution for a ticket."""
+    ticket = await get_ticket(db, ticket_id)
+    if ticket is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Ticket not found",
+        )
+
+    if ticket.status not in (
+        TicketStatus.backlog,
+        TicketStatus.todo,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Ticket cannot be started from status "
+                f"'{ticket.status.value}'"
+            ),
+        )
+
+    engine = WorkflowEngine(db)
+
+    # Create Plan Writer step if no steps exist
+    if not ticket.steps:
+        plan_step = WorkflowStep(
+            id=uuid.uuid4(),
+            ticket_id=ticket.id,
+            template_step_id="plan-writer",
+            name="Plan Writer",
+            description=(
+                "Generate implementation plan from ticket spec"
+            ),
+            status=StepStatus.pending,
+            order=0,
+        )
+        db.add(plan_step)
+        await db.flush()
+
+    # Advance the DAG
+    newly_ready = await engine.tick(ticket_id)
+    await db.commit()
+
+    # Schedule auto-start for ready steps
+    for step in newly_ready:
+        if step.status == StepStatus.ready:
+            background_tasks.add_task(
+                _run_step_in_background,
+                ticket_id=ticket.id,
+                step_id=step.id,
+            )
+
+    await db.refresh(ticket)
+    return TicketResponse.model_validate(ticket)
+
+
+async def _run_step_in_background(
+    ticket_id: uuid.UUID,
+    step_id: uuid.UUID,
+) -> None:
+    """Background task to run a step via the workflow engine."""
+    from app.database import async_session
+
+    async with async_session() as db:
+        step = await db.get(WorkflowStep, step_id)
+        if not step or step.status != StepStatus.ready:
+            return
+
+        engine = WorkflowEngine(db)
+        await engine.auto_start_step(
+            step=step,
+            db_session_factory=async_session,
+        )
+        await db.commit()
