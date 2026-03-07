@@ -1,10 +1,11 @@
-import { Folder, MoreHorizontal, Settings, Trash2 } from 'lucide-react'
+import { Folder, MoreHorizontal, Settings, Trash2, GitBranch } from 'lucide-react'
 import {
   Card, CardHeader, CardTitle, CardContent, CardAction,
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
   Button,
 } from '@agent-coding/ui'
 import type { Project } from 'renderer/types/api'
+import { useProjectRepositories } from 'renderer/hooks/queries/use-github'
 
 interface ProjectCardProps {
   project: Project
@@ -14,6 +15,9 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, onClick, onSettings, onDelete }: ProjectCardProps) {
+  const { data: repos } = useProjectRepositories(project.id)
+  const repoCount = repos?.length ?? 0
+
   return (
     <Card
       className="cursor-pointer rounded-[var(--radius-card)] transition-all duration-150 hover:bg-secondary/50 hover:shadow-[var(--shadow-sm)]"
@@ -50,9 +54,17 @@ export function ProjectCard({ project, onClick, onSettings, onDelete }: ProjectC
       </CardHeader>
       <CardContent className="space-y-0.5">
         <p className="text-caption text-muted-foreground truncate">{project.path}</p>
-        <p className="text-caption text-muted-foreground">
-          {project.member_count} member{project.member_count !== 1 ? 's' : ''}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-caption text-muted-foreground">
+            {project.member_count} member{project.member_count !== 1 ? 's' : ''}
+          </p>
+          {repoCount > 0 && (
+            <p className="text-caption text-muted-foreground flex items-center gap-1">
+              <GitBranch className="size-3" />
+              {repoCount} repo{repoCount !== 1 ? 's' : ''}
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   )

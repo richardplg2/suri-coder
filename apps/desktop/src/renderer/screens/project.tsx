@@ -3,6 +3,8 @@ import { useProject } from 'renderer/hooks/queries/use-projects'
 import { Spinner } from '@agent-coding/ui'
 import { TicketsBoard } from './project/tickets-board'
 import { ProjectSettings } from './project/project-settings'
+import { ProjectRepositories } from './project/project-repositories'
+import { GitHubAccounts } from './settings/github-accounts'
 
 interface ProjectScreenProps {
   projectId: string
@@ -27,6 +29,10 @@ export function ProjectScreen({ projectId }: ProjectScreenProps) {
   switch (activeNav) {
     case 'settings':
       return <ProjectSettings project={project} />
+    case 'repositories':
+      return <ProjectRepositories project={project} />
+    case 'github':
+      return <GitHubAccounts />
     case 'agents':
       return <div className="p-6 text-[13px] text-muted-foreground">Agents config — coming soon</div>
     case 'templates':

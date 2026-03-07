@@ -1,13 +1,15 @@
-import { LayoutGrid, Bot, Workflow, Settings } from 'lucide-react'
+import { LayoutGrid, Bot, Workflow, Settings, GitBranch, Github } from 'lucide-react'
 import { SourceList } from '@agent-coding/ui'
 import type { SourceListItem } from '@agent-coding/ui'
 import { useSidebarStore } from 'renderer/stores/use-sidebar-store'
 
 const NAV_ITEMS: SourceListItem[] = [
   { id: 'tickets', label: 'Tickets', icon: <LayoutGrid className="size-4" /> },
+  { id: 'repositories', label: 'Repositories', icon: <GitBranch className="size-4" /> },
   { id: 'agents', label: 'Agents', icon: <Bot className="size-4" /> },
   { id: 'templates', label: 'Templates', icon: <Workflow className="size-4" /> },
   { id: 'settings', label: 'Settings', icon: <Settings className="size-4" /> },
+  { id: 'github', label: 'GitHub', icon: <Github className="size-4" /> },
 ]
 
 interface ProjectSidebarProps {
