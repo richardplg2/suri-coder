@@ -255,3 +255,191 @@ class WorkflowEngine:
         step.status = StepStatus.completed
         await self.db.flush()
         return await self.tick(step.ticket_id)
+
+    async def auto_start_step(
+        self,
+        step: WorkflowStep,
+        db_session_factory,
+        websocket_manager=None,
+    ) -> None:
+        """Full agent execution lifecycle for an auto-started step."""
+        from datetime import UTC, datetime
+
+        from app.models.enums import SessionStatus
+        from app.models.session import Session
+        from app.services.agent_runner import AgentRunner
+        from app.services.workspace_manager import WorkspaceManager
+
+        ticket = await self.db.get(Ticket, step.ticket_id)
+        if not ticket:
+            return
+
+        # Mark step as running
+        await self.start_step(step)
+
+        # 1. Setup workspace
+        workspace_mgr = WorkspaceManager(self.db)
+        try:
+            cwd = await workspace_mgr.setup_workspace(step, ticket)
+        except RuntimeError as e:
+            await self.fail_step(step, error=str(e))
+            return
+
+        # 2. Build spec tools (scoped to this ticket)
+        custom_tools = []
+        try:
+            from app.services.spec_tools import build_spec_tools
+
+            custom_tools = build_spec_tools(
+                ticket.id, db_session_factory
+            )
+        except ImportError:
+            pass  # spec_tools not yet available
+
+        # 3. Build agent options
+        agent_config = None
+        if step.agent_config_id:
+            agent_config = await self.db.get(
+                AgentConfig, step.agent_config_id
+            )
+        if not agent_config:
+            await self.fail_step(
+                step, error="No agent config assigned to step"
+            )
+            return
+
+        runner = AgentRunner(self.db)
+        options = await runner.build_agent_options(
+            step, agent_config, cwd
+        )
+
+        # Append spec tools to existing tools
+        if custom_tools:
+            existing_tools = options.get("tools") or []
+            options["tools"] = existing_tools + custom_tools
+
+        # Append ticket context to system prompt
+        prompt_suffix = (
+            f"\n\n## Ticket Context\n"
+            f"Ticket: {ticket.key} — {ticket.title}\n"
+            f"Step: {step.name}\n"
+        )
+        if step.description:
+            prompt_suffix += f"Description: {step.description}\n"
+        if step.user_prompt_override:
+            prompt_suffix += (
+                f"\n## Special Instructions\n"
+                f"{step.user_prompt_override}\n"
+            )
+        options["system_prompt"] = (
+            options.get("system_prompt", "") + prompt_suffix
+        )
+
+        # Build the user prompt
+        user_prompt = (
+            step.user_prompt_override
+            or step.description
+            or step.name
+        )
+
+        # 4. Create Session record
+        branch_name = (
+            f"agent/{ticket.key}/{step.template_step_id}"
+        )
+        session = Session(
+            id=uuid.uuid4(),
+            step_id=step.id,
+            status=SessionStatus.running.value,
+            git_branch=branch_name,
+            worktree_path=cwd,
+        )
+        self.db.add(session)
+        await self.db.flush()
+
+        # 5. Execute via Claude SDK
+        try:
+            from claude_code_sdk import ClaudeCodeOptions, query
+
+            result_message = None
+            total_cost = 0.0
+            total_tokens = 0
+
+            async for event in query(
+                prompt=user_prompt,
+                options=ClaudeCodeOptions(**options),
+            ):
+                # Relay events via WebSocket if available
+                if websocket_manager:
+                    await websocket_manager.broadcast_session_event(
+                        session_id=session.id,
+                        step_id=step.id,
+                        ticket_id=ticket.id,
+                        event=event,
+                    )
+
+                # Track result
+                if hasattr(event, "is_result") and event.is_result:
+                    result_message = event
+                if hasattr(event, "cost_usd"):
+                    total_cost = event.cost_usd
+                if hasattr(event, "total_tokens"):
+                    total_tokens = event.total_tokens
+
+            # 6. Handle result
+            session.cost_usd = total_cost
+            session.tokens_used = total_tokens
+            session.finished_at = datetime.now(UTC)
+            session.status = SessionStatus.completed.value
+
+            if result_message and hasattr(
+                result_message, "exit_code"
+            ):
+                session.exit_code = result_message.exit_code
+
+            await self.db.flush()
+
+            # Determine success or failure
+            is_test = self._is_test_step(step)
+            exit_code = (
+                getattr(result_message, "exit_code", 0)
+                if result_message
+                else 0
+            )
+
+            if exit_code != 0 and is_test:
+                error_text = (
+                    getattr(result_message, "error_message", "")
+                    if result_message
+                    else "Unknown test failure"
+                )
+                await self.handle_test_failure(
+                    step, error_text or "Test execution failed"
+                )
+            elif exit_code != 0:
+                await self.fail_step(
+                    step,
+                    error="Agent exited with non-zero code",
+                )
+            else:
+                await self.complete_step(step)
+
+        except Exception as e:
+            session.status = SessionStatus.failed.value
+            session.error_message = str(e)
+            session.finished_at = datetime.now(UTC)
+            await self.db.flush()
+            await self.fail_step(step, error=str(e))
+
+        # Cleanup session tracking
+        runner.remove_session(step.id)
+
+    def _is_test_step(self, step: WorkflowStep) -> bool:
+        """Determine if this is a test/tester step."""
+        test_indicators = ["test", "tester", "qa", "verify"]
+        step_id_lower = step.template_step_id.lower()
+        name_lower = step.name.lower()
+        return any(
+            indicator in step_id_lower
+            or indicator in name_lower
+            for indicator in test_indicators
+        )
