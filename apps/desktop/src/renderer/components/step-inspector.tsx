@@ -1,4 +1,4 @@
-import { Play, SkipForward, RotateCcw } from 'lucide-react'
+import { Play, SkipForward, RotateCcw, Eye } from 'lucide-react'
 import { Button, KVRow, Separator, StatusBadge, ScrollArea } from '@agent-coding/ui'
 import type { WorkflowStep, StepStatus } from 'renderer/types/api'
 
@@ -19,9 +19,10 @@ function stepStatusToStatus(status: StepStatus) {
 
 interface StepInspectorProps {
   step: WorkflowStep
+  onOpenReview?: (stepId: string) => void
 }
 
-export function StepInspector({ step }: StepInspectorProps) {
+export function StepInspector({ step, onOpenReview }: StepInspectorProps) {
   return (
     <ScrollArea className="h-full">
       <div className="space-y-4 p-4">
@@ -53,6 +54,12 @@ export function StepInspector({ step }: StepInspectorProps) {
             <RotateCcw className="mr-1.5 size-3.5" />
             Retry
           </Button>
+          {step.status === 'review' && onOpenReview && (
+            <Button size="sm" variant="outline" onClick={() => onOpenReview(step.id)}>
+              <Eye className="mr-1.5 size-3.5" />
+              Open Review
+            </Button>
+          )}
         </div>
       </div>
     </ScrollArea>

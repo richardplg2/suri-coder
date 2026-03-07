@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react'
 import { ScrollArea, Button, StatusBadge, Separator } from '@agent-coding/ui'
-import { Play, Pencil, RotateCcw } from 'lucide-react'
+import { Play, Pencil, RotateCcw, Eye } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { WorkflowDAG } from 'renderer/components/workflow-dag'
 import { EditTaskModal } from 'renderer/components/ticket-detail/edit-task-modal'
 import { useRunStep, useRetryStep, useRunTicketWorkflow } from 'renderer/hooks/queries/use-workflow-actions'
 import { useWsChannel } from 'renderer/hooks/use-ws-channel'
 import { WsChannel, WsEvent } from '@agent-coding/shared'
+import { ReviewPanel } from 'renderer/components/review/review-panel'
 import type { Ticket, WorkflowStep, StepStatus } from 'renderer/types/api'
 
 function stepStatusToStatus(status: StepStatus) {
@@ -32,6 +33,7 @@ interface TasksTabProps {
 export function TasksTab({ ticket, projectId }: TasksTabProps) {
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null)
   const [editingStep, setEditingStep] = useState<WorkflowStep | null>(null)
+  const [reviewStepId, setReviewStepId] = useState<string | null>(null)
   const [liveOutput, setLiveOutput] = useState<Record<string, string[]>>({})
   const qc = useQueryClient()
   const runStep = useRunStep(projectId, ticket.id)
@@ -103,6 +105,11 @@ export function TasksTab({ ticket, projectId }: TasksTabProps) {
                     <RotateCcw className="size-3.5" />
                   </Button>
                 )}
+                {step.status === 'review' && (
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setReviewStepId(step.id) }}>
+                    <Eye className="mr-1.5 size-3.5" /> Review
+                  </Button>
+                )}
               </button>
               {step.status === 'running' && liveOutput[step.id]?.length > 0 && (
                 <div className="mt-2 max-h-48 overflow-y-auto rounded border border-border bg-background p-2 font-mono text-[11px]">
@@ -115,6 +122,16 @@ export function TasksTab({ ticket, projectId }: TasksTabProps) {
           ))}
         </div>
       </div>
+
+      {reviewStepId && (
+        <div className="border-t border-border" style={{ height: '60vh' }}>
+          <ReviewPanel
+            stepId={reviewStepId}
+            ticketId={ticket.id}
+            projectId={projectId}
+          />
+        </div>
+      )}
 
       {editingStep && (
         <EditTaskModal

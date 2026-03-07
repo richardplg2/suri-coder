@@ -284,3 +284,12 @@ export interface BrainstormMessage {
 }
 
 export type TicketSource = 'ai_brainstorm' | 'figma' | 'manual'
+
+export interface TestResult {
+  name: string
+  status: 'passed' | 'failed' | 'skipped'
+  duration_ms: number
+  error_message?: string
+  stack_trace?: string
+  screenshot_url?: string
+}

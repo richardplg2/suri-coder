@@ -6,6 +6,7 @@ import type {
   RequestChangesPayload,
   RegeneratePayload,
   PromptOverridePayload,
+  TestResult,
 } from 'renderer/types/api'
 
 export function useApproveStep(projectId: string, ticketId: string) {
@@ -163,5 +164,14 @@ export function useRunTicketWorkflow(projectId: string, ticketId: string) {
       qc.invalidateQueries({ queryKey: ['projects', projectId, 'tickets', ticketId] })
       qc.invalidateQueries({ queryKey: ['projects', projectId, 'tickets'] })
     },
+  })
+}
+
+export function useStepTestResults(projectId: string, ticketId: string, stepId: string) {
+  return useQuery({
+    queryKey: ['projects', projectId, 'tickets', ticketId, 'steps', stepId, 'test-results'],
+    queryFn: () =>
+      apiClient<TestResult[]>(`/tickets/${ticketId}/steps/${stepId}/test-results`),
+    enabled: !!projectId && !!ticketId && !!stepId,
   })
 }
