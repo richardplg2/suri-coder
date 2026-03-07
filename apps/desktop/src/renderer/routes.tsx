@@ -4,6 +4,8 @@ import { Router } from 'lib/electron-router-dom'
 import { AppLayout } from './components/app-layout'
 import { TabContent } from './components/tab-content'
 import { ModalProvider } from './components/modals'
+import { LoginScreen } from './screens/login'
+import { useAuthStore } from './stores/use-auth-store'
 
 function AppShell() {
   return (
@@ -14,6 +16,11 @@ function AppShell() {
   )
 }
 
+function Root() {
+  const token = useAuthStore((s) => s.token)
+  return token ? <AppShell /> : <LoginScreen />
+}
+
 export function AppRoutes() {
-  return <Router main={<Route element={<AppShell />} path="/" />} />
+  return <Router main={<Route element={<Root />} path="/" />} />
 }

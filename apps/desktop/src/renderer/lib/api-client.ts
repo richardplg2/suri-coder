@@ -1,3 +1,5 @@
+import { useAuthStore } from 'renderer/stores/use-auth-store'
+
 const API_BASE = 'http://localhost:8000'
 
 export class ApiError extends Error {
@@ -14,10 +16,20 @@ export async function apiClient<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
+  const token = useAuthStore.getState().token
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
     ...init,
+    headers: { ...headers, ...(init?.headers as Record<string, string>) },
   })
+
+  if (res.status === 401 && !path.startsWith('/auth/')) {
+    useAuthStore.getState().logout()
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => null)
