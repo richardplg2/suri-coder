@@ -23,7 +23,7 @@ export function HomeScreen() {
   return (
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Projects</h1>
+        <h1 className="text-[13px] font-semibold">Projects</h1>
         <Button size="sm" onClick={() => open('create-project')}>
           <Plus className="mr-1.5 size-4" />
           New Project

@@ -1,9 +1,11 @@
-import { Home, Folder } from 'lucide-react'
-import { TabBar } from '@agent-coding/ui'
+import { Home, Folder, Search, Bell, Sun, Moon } from 'lucide-react'
+import { TabBar, Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@agent-coding/ui'
 import type { Tab } from '@agent-coding/ui'
 import { useTabStore } from 'renderer/stores/use-tab-store'
+import { useThemeStore } from 'renderer/stores/use-theme-store'
 import type { AppTab } from 'renderer/types/tabs'
 import { AppSidebar } from './app-sidebar'
+import { StatusBar } from './status-bar'
 import { useKeyboardShortcuts } from 'renderer/hooks/use-keyboard-shortcuts'
 
 function tabToBarTab(tab: AppTab): Tab {
@@ -17,35 +19,79 @@ function tabToBarTab(tab: AppTab): Tab {
   }
 }
 
+const isMac = window.App?.platform === 'darwin'
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   useKeyboardShortcuts()
   const { tabs, activeTabId, setActiveTab, closeTab } = useTabStore()
+  const { theme, setTheme } = useThemeStore()
 
   const barTabs = tabs.map(tabToBarTab)
 
   return (
-    <div className="flex h-screen flex-col">
-      {/* Toolbar + TabBar */}
-      <div className="flex h-9 shrink-0 items-center border-b border-border bg-card app-drag">
-        {/* Traffic light spacer (macOS) */}
-        <div className="w-[78px] shrink-0" />
-        <div className="flex-1 app-no-drag">
-          <TabBar
-            tabs={barTabs}
-            activeTab={activeTabId}
-            onTabChange={setActiveTab}
-            onTabClose={closeTab}
-          />
+    <TooltipProvider delayDuration={400}>
+      <div className="flex h-screen flex-col">
+        {/* Toolbar + TabBar */}
+        <div className="flex h-9 shrink-0 items-center border-b border-border bg-card app-drag">
+          {/* Traffic light spacer (macOS only) */}
+          {isMac && <div className="w-[78px] shrink-0" />}
+          <div className="flex-1 app-no-drag">
+            <TabBar
+              tabs={barTabs}
+              activeTab={activeTabId}
+              onTabChange={setActiveTab}
+              onTabClose={closeTab}
+            />
+          </div>
+          {/* Right-side actions */}
+          <div className="flex items-center gap-0.5 px-2 app-no-drag">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="size-7">
+                  <Search className="size-4 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Search (Cmd+K)</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="size-7">
+                  <Bell className="size-4 text-muted-foreground" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Notifications</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                >
+                  {theme === 'dark' ? (
+                    <Sun className="size-4 text-muted-foreground" />
+                  ) : (
+                    <Moon className="size-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Toggle theme</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
-      </div>
 
-      {/* Main area: Sidebar + Content */}
-      <div className="flex flex-1 overflow-hidden">
-        <AppSidebar />
-        <main className="flex-1 overflow-hidden">
-          {children}
-        </main>
+        {/* Main area: Sidebar + Content */}
+        <div className="flex flex-1 overflow-hidden">
+          <AppSidebar />
+          <main className="flex-1 overflow-hidden">
+            {children}
+          </main>
+        </div>
+
+        {/* Status bar */}
+        <StatusBar />
       </div>
-    </div>
+    </TooltipProvider>
   )
 }
