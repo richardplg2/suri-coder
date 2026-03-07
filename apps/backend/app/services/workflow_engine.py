@@ -60,6 +60,9 @@ class WorkflowEngine:
         if all_done and steps:
             if ticket.status != TicketStatus.done:
                 ticket.status = TicketStatus.done
+                await self._notify_step_change(
+                    steps[0], ticket, "workflow_completed"
+                )
 
         await self.db.flush()
         return newly_ready
@@ -130,6 +133,9 @@ class WorkflowEngine:
         if ticket and await self.needs_post_approval(step, ticket):
             step.status = StepStatus.review
             await self.db.flush()
+            await self._notify_step_change(
+                step, ticket, "step_awaiting_review"
+            )
             return []
 
         step.status = StepStatus.completed
@@ -222,12 +228,22 @@ class WorkflowEngine:
             # Tier 3: Max retries exceeded — fail permanently
             step.status = StepStatus.failed
             await self.db.flush()
+            ticket = await self.db.get(Ticket, step.ticket_id)
+            if ticket:
+                await self._notify_step_change(
+                    step, ticket, "step_failed"
+                )
             return step
 
     async def fail_step(self, step: WorkflowStep, error: str | None = None):
         """Mark step as failed."""
         step.status = StepStatus.failed
         await self.db.flush()
+        ticket = await self.db.get(Ticket, step.ticket_id)
+        if ticket:
+            await self._notify_step_change(
+                step, ticket, "step_failed"
+            )
 
     async def skip_step(self, step: WorkflowStep):
         """Mark step as skipped and tick the DAG."""
@@ -432,6 +448,60 @@ class WorkflowEngine:
 
         # Cleanup session tracking
         runner.remove_session(step.id)
+
+    async def _notify_step_change(
+        self,
+        step: WorkflowStep,
+        ticket: Ticket,
+        event_type: str,
+    ) -> None:
+        """Send notification for step status changes."""
+        try:
+            from app.services.notification import (
+                NotificationService,
+            )
+        except ImportError:
+            return
+
+        if event_type == "step_awaiting_review":
+            await NotificationService.create(
+                self.db,
+                user_id=ticket.created_by,
+                type="step_awaiting_review",
+                title=f"Step ready for review: {step.name}",
+                body=(
+                    f"Ticket {ticket.key}: {step.name} has "
+                    f"completed and needs your review."
+                ),
+                resource_type="workflow_step",
+                resource_id=step.id,
+            )
+        elif event_type == "step_failed":
+            await NotificationService.create(
+                self.db,
+                user_id=ticket.created_by,
+                type="step_failed",
+                title=f"Step failed: {step.name}",
+                body=(
+                    f"Ticket {ticket.key}: {step.name} has "
+                    f"failed after all retries."
+                ),
+                resource_type="workflow_step",
+                resource_id=step.id,
+            )
+        elif event_type == "workflow_completed":
+            await NotificationService.create(
+                self.db,
+                user_id=ticket.created_by,
+                type="workflow_completed",
+                title=f"Workflow completed: {ticket.key}",
+                body=(
+                    f"All steps for ticket {ticket.key} "
+                    f"({ticket.title}) have completed."
+                ),
+                resource_type="ticket",
+                resource_id=ticket.id,
+            )
 
     def _is_test_step(self, step: WorkflowStep) -> bool:
         """Determine if this is a test/tester step."""
