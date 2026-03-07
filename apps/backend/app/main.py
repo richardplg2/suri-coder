@@ -11,6 +11,7 @@ from app.routers import (
     github,
     projects,
     sessions,
+    specs,
     templates,
     tickets,
     websocket,
@@ -43,6 +44,7 @@ app.include_router(projects.router)
 app.include_router(agents.router)
 app.include_router(templates.router)
 app.include_router(tickets.router)
+app.include_router(specs.router)
 app.include_router(sessions.router)
 app.include_router(workflow.router)
 app.include_router(websocket.router)
