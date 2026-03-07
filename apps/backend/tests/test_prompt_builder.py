@@ -128,3 +128,13 @@ async def test_build_step_prompt_no_override(db_session: AsyncSession):
     builder = PromptBuilder(db_session)
     prompt = await builder.build_step_prompt(data["code_step"])
     assert "Additional instructions" not in prompt
+
+
+from app.models.enums import WsEvent
+
+
+def test_ws_event_has_review_events():
+    assert WsEvent.step_awaiting_approval == "step_awaiting_approval"
+    assert WsEvent.step_review == "step_review"
+    assert WsEvent.step_changes_requested == "step_changes_requested"
+    assert WsEvent.brainstorm_output == "brainstorm_output"
