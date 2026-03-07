@@ -239,6 +239,12 @@ async def approve_review(
             ),
         )
 
+    # Update review record status
+    review_service = StepReviewService(db)
+    review = await review_service.get_latest_review(step.id)
+    if review:
+        await review_service.approve_review(review.id)
+
     engine = WorkflowEngine(db)
     newly_ready = await engine.approve_review_step(step)
     await db.commit()
@@ -274,10 +280,9 @@ async def request_changes(
 
     review_service = StepReviewService(db)
     review = await review_service.get_latest_review(step.id)
-    if review:
-        await review_service.request_changes(
-            review.id, data.comments
-        )
+    if not review:
+        review = await review_service.create_review(step.id)
+    await review_service.request_changes(review.id, data.comments)
 
     engine = WorkflowEngine(db)
     await engine.request_changes_step(step)
