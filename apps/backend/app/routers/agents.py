@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -16,6 +16,7 @@ from app.schemas.agent_config import (
 )
 from app.services.auth import get_current_user
 from app.services.project import require_project_member
+from app.services.project_seeder import seed_project_defaults
 
 router = APIRouter(prefix="/projects/{project_id}/agents", tags=["agents"])
 
@@ -198,3 +199,63 @@ async def delete_agent(
 
     await db.delete(agent)
     await db.commit()
+
+
+@router.post(
+    "/reset-defaults", status_code=status.HTTP_200_OK
+)
+async def reset_agent_defaults(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete all project agents and re-seed from defaults."""
+    await require_project_member(project_id, current_user, db)
+
+    # Check for running workflow steps using project agents
+    result = await db.execute(
+        select(AgentConfig.id).where(
+            AgentConfig.project_id == project_id
+        )
+    )
+    agent_ids = [row[0] for row in result.all()]
+
+    if agent_ids:
+        running = await db.execute(
+            select(WorkflowStep).where(
+                WorkflowStep.agent_config_id.in_(agent_ids),
+                WorkflowStep.status == StepStatus.running,
+            )
+        )
+        if running.scalars().first() is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "Cannot reset agents while workflow"
+                    " steps are running"
+                ),
+            )
+
+    # Delete all project-specific agents (cascade deletes skills)
+    result = await db.execute(
+        select(AgentConfig).where(
+            AgentConfig.project_id == project_id
+        )
+    )
+    for agent in result.scalars().all():
+        await db.delete(agent)
+
+    await db.flush()
+
+    # Re-seed defaults
+    seeded = await seed_project_defaults(db, project_id)
+    await db.commit()
+
+    agents = seeded["agents"]
+    return {
+        "detail": (
+            f"Reset complete. {len(agents)} default agents"
+            " created."
+        ),
+        "agent_count": len(agents),
+    }
