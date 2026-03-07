@@ -93,6 +93,7 @@ async def _create_step(
     status: StepStatus = StepStatus.pending,
     order: int = 0,
     agent_config_id: uuid.UUID | None = None,
+    auto_approval: bool | None = None,
 ) -> WorkflowStep:
     step = WorkflowStep(
         id=uuid.uuid4(),
@@ -102,6 +103,7 @@ async def _create_step(
         status=status,
         order=order,
         agent_config_id=agent_config_id,
+        auto_approval=auto_approval,
     )
     db.add(step)
     await db.flush()
@@ -354,3 +356,197 @@ async def test_ticket_auto_progress(db_session: AsyncSession):
     assert ticket.status == TicketStatus.in_progress
     await db_session.refresh(step_a)
     assert step_a.status == StepStatus.running
+
+
+@pytest.mark.asyncio
+async def test_complete_step_routes_to_review_by_default(
+    db_session: AsyncSession,
+):
+    """complete_step should set status to 'review' when auto_approval is off."""
+    data = await _setup_test_data(db_session)
+    ticket = await _create_ticket(
+        db_session, data["project"].id, data["user"].id
+    )
+    # ticket.auto_approval defaults to False
+    step = await _create_step(
+        db_session,
+        ticket.id,
+        "Code",
+        status=StepStatus.running,
+        order=0,
+    )
+    await db_session.commit()
+
+    engine = WorkflowEngine(db_session)
+    await db_session.refresh(step)
+    result = await engine.complete_step(step)
+
+    await db_session.refresh(step)
+    assert step.status == StepStatus.review
+    assert result == []  # No DAG advancement when going to review
+
+
+@pytest.mark.asyncio
+async def test_complete_step_skips_review_with_ticket_auto_approval(
+    db_session: AsyncSession,
+):
+    """complete_step should skip review when ticket.auto_approval is True."""
+    data = await _setup_test_data(db_session)
+    ticket = await _create_ticket(
+        db_session, data["project"].id, data["user"].id
+    )
+    ticket.auto_approval = True
+    await db_session.flush()
+
+    step_a = await _create_step(
+        db_session,
+        ticket.id,
+        "Code",
+        status=StepStatus.running,
+        order=0,
+    )
+    step_b = await _create_step(
+        db_session,
+        ticket.id,
+        "Test",
+        status=StepStatus.pending,
+        order=1,
+    )
+    await _add_dependency(db_session, step_b.id, step_a.id)
+    await db_session.commit()
+
+    engine = WorkflowEngine(db_session)
+    await db_session.refresh(step_a)
+    result = await engine.complete_step(step_a)
+
+    await db_session.refresh(step_a)
+    assert step_a.status == StepStatus.completed
+    assert len(result) == 1  # step_b became ready
+
+
+@pytest.mark.asyncio
+async def test_step_auto_approval_overrides_ticket(
+    db_session: AsyncSession,
+):
+    """step.auto_approval=False should force review even if ticket.auto_approval=True."""
+    data = await _setup_test_data(db_session)
+    ticket = await _create_ticket(
+        db_session, data["project"].id, data["user"].id
+    )
+    ticket.auto_approval = True
+    await db_session.flush()
+
+    step = await _create_step(
+        db_session,
+        ticket.id,
+        "Code",
+        status=StepStatus.running,
+        order=0,
+        auto_approval=False,
+    )
+    await db_session.commit()
+
+    engine = WorkflowEngine(db_session)
+    await db_session.refresh(step)
+    await engine.complete_step(step)
+
+    await db_session.refresh(step)
+    assert step.status == StepStatus.review
+
+
+@pytest.mark.asyncio
+async def test_escalation_tier1_retry(db_session: AsyncSession):
+    """First test failure: tester retries with error context."""
+    data = await _setup_test_data(db_session)
+    ticket = await _create_ticket(
+        db_session, data["project"].id, data["user"].id
+    )
+    step = await _create_step(
+        db_session,
+        ticket.id,
+        "Tester",
+        status=StepStatus.running,
+        order=0,
+    )
+    step.retry_count = 0
+    await db_session.commit()
+
+    engine = WorkflowEngine(db_session)
+    await db_session.refresh(step)
+    result = await engine.handle_test_failure(
+        step, "AssertionError: expected 1, got 2"
+    )
+
+    await db_session.refresh(step)
+    assert step.status == StepStatus.ready
+    assert step.retry_count == 1
+    assert "AssertionError" in step.user_prompt_override
+    assert result.id == step.id
+
+
+@pytest.mark.asyncio
+async def test_escalation_tier2_creates_fix_step(
+    db_session: AsyncSession,
+):
+    """Second test failure: creates a fix task step."""
+    data = await _setup_test_data(db_session)
+    ticket = await _create_ticket(
+        db_session, data["project"].id, data["user"].id
+    )
+    step = await _create_step(
+        db_session,
+        ticket.id,
+        "Tester",
+        status=StepStatus.running,
+        order=0,
+        agent_config_id=data["agent_config"].id,
+    )
+    step.retry_count = 1  # Already retried once
+    await db_session.commit()
+
+    engine = WorkflowEngine(db_session)
+    await db_session.refresh(step)
+    fix_step = await engine.handle_test_failure(
+        step, "TypeError: undefined is not a function"
+    )
+
+    # Fix step was created
+    assert fix_step.id != step.id
+    assert fix_step.status == StepStatus.ready
+    assert fix_step.parent_step_id == step.id
+    assert "Fix:" in fix_step.name
+
+    # Original step re-queued as pending
+    await db_session.refresh(step)
+    assert step.status == StepStatus.pending
+    assert step.retry_count == 2
+
+
+@pytest.mark.asyncio
+async def test_escalation_tier3_fails_permanently(
+    db_session: AsyncSession,
+):
+    """Third+ test failure: step fails permanently."""
+    data = await _setup_test_data(db_session)
+    ticket = await _create_ticket(
+        db_session, data["project"].id, data["user"].id
+    )
+    step = await _create_step(
+        db_session,
+        ticket.id,
+        "Tester",
+        status=StepStatus.running,
+        order=0,
+    )
+    step.retry_count = 2  # Already at max
+    step.max_retries = 2
+    await db_session.commit()
+
+    engine = WorkflowEngine(db_session)
+    await db_session.refresh(step)
+    result = await engine.handle_test_failure(step, "Fatal error")
+
+    await db_session.refresh(step)
+    assert step.status == StepStatus.failed
+    assert step.retry_count == 3
+    assert result.id == step.id
