@@ -12,6 +12,7 @@ from app.models.ticket import Ticket
 from app.models.workflow_step import WorkflowStep, WorkflowStepDependency
 from app.models.workflow_template import WorkflowTemplate
 from app.schemas.ticket import TicketCreate, TicketUpdate
+from app.services.workflow_engine import WorkflowEngine
 
 
 async def create_ticket(
@@ -45,6 +46,7 @@ async def create_ticket(
         template_id=data.template_id,
         assignee_id=data.assignee_id,
         budget_usd=data.budget_usd,
+        auto_execute=data.auto_execute,
         created_by=user_id,
     )
     db.add(ticket)
@@ -105,12 +107,16 @@ async def create_ticket(
                         )
                         db.add(dep)
 
-            # Set initial statuses
+            # Set initial statuses using workflow engine logic
+            engine = WorkflowEngine(db)
             for step_def in steps_def:
                 step = step_map[step_def["id"]]
                 depends_on = step_def.get("depends_on", [])
                 if not depends_on:
-                    step.status = StepStatus.ready
+                    if await engine.needs_approval(step, ticket):
+                        step.status = StepStatus.awaiting_approval
+                    else:
+                        step.status = StepStatus.ready
                 else:
                     step.status = StepStatus.pending
 

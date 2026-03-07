@@ -19,6 +19,7 @@ class TicketCreate(BaseModel):
     template_id: uuid.UUID | None = None
     assignee_id: uuid.UUID | None = None
     budget_usd: float | None = None
+    auto_execute: bool = True
 
 
 class TicketUpdate(BaseModel):

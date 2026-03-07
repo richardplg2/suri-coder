@@ -333,3 +333,56 @@ async def test_update_step_prompt(client):
     )
     assert resp.status_code == 200
     assert resp.json()["user_prompt_override"] == "Use TDD approach"
+
+
+@pytest.mark.asyncio
+async def test_create_ticket_with_auto_execute_false(client):
+    """Creating ticket with auto_execute=False should set initial steps to awaiting_approval."""
+    from tests.conftest import auth_headers
+
+    headers = await auth_headers(client, email="autoexec@test.com")
+
+    proj_resp = await client.post(
+        "/projects/",
+        json={"name": "AutoExec", "slug": "ae", "path": "/tmp/ae"},
+        headers=headers,
+    )
+    assert proj_resp.status_code == 201
+    project_id = proj_resp.json()["id"]
+
+    agent_resp = await client.post(
+        f"/projects/{project_id}/agents/",
+        json={
+            "name": "coder",
+            "system_prompt": "You code.",
+            "claude_model": "sonnet",
+        },
+        headers=headers,
+    )
+    assert agent_resp.status_code == 201
+
+    tmpl_resp = await client.post(
+        f"/projects/{project_id}/templates",
+        json={
+            "name": "flow",
+            "steps_config": {
+                "steps": [{"id": "code", "agent": "coder", "depends_on": []}],
+            },
+        },
+        headers=headers,
+    )
+    assert tmpl_resp.status_code == 201
+
+    ticket_resp = await client.post(
+        f"/projects/{project_id}/tickets",
+        json={
+            "title": "Manual Ticket",
+            "template_id": tmpl_resp.json()["id"],
+            "auto_execute": False,
+        },
+        headers=headers,
+    )
+    assert ticket_resp.status_code == 201
+    ticket = ticket_resp.json()
+    assert ticket["auto_execute"] is False
+    assert ticket["steps"][0]["status"] == "awaiting_approval"
