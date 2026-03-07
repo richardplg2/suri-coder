@@ -35,7 +35,8 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="relative flex h-screen">
+      <div className="absolute top-0 left-0 right-0 h-9 app-drag" />
       {/* Left — Branding */}
       <div className="hidden w-1/2 flex-col items-center justify-center gap-4 bg-gradient-to-br from-[#0A84FF] to-[#0055CC] lg:flex">
         <Workflow className="size-16 text-white" strokeWidth={1.5} />

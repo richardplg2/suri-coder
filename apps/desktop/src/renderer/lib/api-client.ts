@@ -27,7 +27,7 @@ export async function apiClient<T>(
     headers: { ...headers, ...(init?.headers as Record<string, string>) },
   })
 
-  if (res.status === 401) {
+  if (res.status === 401 && !path.startsWith('/auth/')) {
     useAuthStore.getState().logout()
   }
 
