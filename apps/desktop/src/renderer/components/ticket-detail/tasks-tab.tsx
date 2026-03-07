@@ -79,31 +79,33 @@ export function TasksTab({ ticket, projectId }: TasksTabProps) {
         {/* Task list */}
         <div className="mt-4 space-y-2">
           {sorted.map((step) => (
-            <div
-              key={step.id}
-              className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 ${
-                selectedStepId === step.id ? 'border-primary bg-[var(--selection)]' : 'border-border bg-card'
-              }`}
-              onClick={() => setSelectedStepId(step.id)}
-            >
-              <StatusBadge status={stepStatusToStatus(step.status)} />
-              <span className="flex-1 text-[13px] font-medium">{step.name}</span>
-              <span className="text-caption text-muted-foreground">{step.status.replace('_', ' ')}</span>
-              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setEditingStep(step) }}>
-                <Pencil className="size-3.5" />
-              </Button>
-              {step.status === 'ready' && (
-                <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); runStep.mutate(step.id) }}>
-                  <Play className="size-3.5" />
+            <div key={step.id}>
+              <button
+                type="button"
+                className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-left ${
+                  selectedStepId === step.id ? 'border-primary bg-[var(--selection)]' : 'border-border bg-card'
+                }`}
+                onClick={() => setSelectedStepId(step.id)}
+              >
+                <StatusBadge status={stepStatusToStatus(step.status)} />
+                <span className="flex-1 text-[13px] font-medium">{step.name}</span>
+                <span className="text-caption text-muted-foreground">{step.status.replace('_', ' ')}</span>
+                <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setEditingStep(step) }}>
+                  <Pencil className="size-3.5" />
                 </Button>
-              )}
-              {step.status === 'failed' && (
-                <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); retryStep.mutate(step.id) }}>
-                  <RotateCcw className="size-3.5" />
-                </Button>
-              )}
+                {step.status === 'ready' && (
+                  <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); runStep.mutate(step.id) }}>
+                    <Play className="size-3.5" />
+                  </Button>
+                )}
+                {step.status === 'failed' && (
+                  <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); retryStep.mutate(step.id) }}>
+                    <RotateCcw className="size-3.5" />
+                  </Button>
+                )}
+              </button>
               {step.status === 'running' && liveOutput[step.id]?.length > 0 && (
-                <div className="mt-2 w-full rounded border border-border bg-background p-2 font-mono text-[11px] max-h-48 overflow-y-auto">
+                <div className="mt-2 max-h-48 overflow-y-auto rounded border border-border bg-background p-2 font-mono text-[11px]">
                   {liveOutput[step.id].map((line, j) => (
                     <div key={j} className="text-muted-foreground">{line}</div>
                   ))}

@@ -3,6 +3,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
   Button, Input, Textarea, Label,
 } from '@agent-coding/ui'
+import { useUpdateStep } from 'renderer/hooks/queries/use-workflow-actions'
 import type { WorkflowStep, Ticket } from 'renderer/types/api'
 
 interface EditTaskModalProps {
@@ -16,12 +17,15 @@ export function EditTaskModal({ step, ticket, projectId, onClose }: EditTaskModa
   const [name, setName] = useState(step.name)
   const [description, setDescription] = useState(step.description ?? '')
   const [requiresApproval, setRequiresApproval] = useState(step.requires_approval ?? false)
+  const updateStep = useUpdateStep(projectId, ticket.id)
 
   const otherSteps = ticket.steps.filter((s) => s.id !== step.id)
 
   const handleSave = () => {
-    // TODO: wire up useUpdateStep mutation once available
-    onClose()
+    updateStep.mutate(
+      { stepId: step.id, payload: { name, description: description || undefined, requires_approval: requiresApproval } },
+      { onSuccess: onClose },
+    )
   }
 
   return (
@@ -81,7 +85,7 @@ export function EditTaskModal({ step, ticket, projectId, onClose }: EditTaskModa
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave}>Save</Button>
+          <Button onClick={handleSave} disabled={updateStep.isPending}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
