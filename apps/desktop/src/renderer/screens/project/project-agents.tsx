@@ -41,7 +41,7 @@ export function ProjectAgents({ project }: ProjectAgentsProps) {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold">Agent Configurations</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Agent Configurations</h2>
             {error && (
               <p className="text-[13px] text-destructive mt-1">{error}</p>
             )}
@@ -56,11 +56,11 @@ export function ProjectAgents({ project }: ProjectAgentsProps) {
           </Button>
         </div>
 
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="bento-grid-3">
           {agents.map((agent) => (
             <div
               key={agent.id}
-              className="rounded-lg border bg-card p-4 space-y-3"
+              className="bento-cell space-y-3"
             >
               <div className="flex items-start justify-between">
                 <div>
