@@ -56,8 +56,8 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar */}
-      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
-        <div className="window-title">Tickets</div>
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/50 px-4">
+        <div className="text-sm font-semibold tracking-tight">Tickets</div>
         <div className="flex items-center gap-2">
           <SegmentedControl
             value={viewMode}
@@ -121,11 +121,13 @@ function KanbanView({
         const colTickets = tickets.filter((t) => t.status === col.status)
         return (
           <div key={col.status} className="flex w-64 shrink-0 flex-col">
-            <div className="mb-2 flex items-center gap-2">
+            <div className="mb-3 flex items-center gap-2 px-1">
               <span className="section-header">
                 {col.label}
               </span>
-              <span className="text-caption text-muted-foreground">{colTickets.length}</span>
+              <span className="flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
+                {colTickets.length}
+              </span>
             </div>
             <ScrollArea className="flex-1">
               <div className="space-y-2 pr-2">
@@ -148,7 +150,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketListItem; onClick: () =
     <button
       type="button"
       onClick={onClick}
-      className="w-full cursor-pointer rounded-[var(--radius-card)] border border-border bg-card p-3 text-left transition-all duration-150 hover:bg-secondary/50 hover:shadow-[var(--shadow-sm)]"
+      className="bento-cell w-full cursor-pointer p-3 text-left"
     >
       <div className="mb-1.5 flex items-center justify-between">
         <span className="text-caption text-muted-foreground">{ticket.key}</span>
