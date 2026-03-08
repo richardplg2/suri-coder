@@ -37,7 +37,7 @@ export function ReviewActionBar({ stepId, ticketId, projectId, comments, submitt
   }
 
   return (
-    <div className="flex items-center justify-between border-t border-border bg-card px-4 py-3">
+    <div className="flex items-center justify-between border-t border-border/50 glass-panel px-4 py-3">
       <div className="text-caption text-muted-foreground">
         {submittedChanges ? (
           <span className="flex items-center gap-1.5 text-yellow-400">
