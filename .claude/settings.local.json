@@ -13,7 +13,11 @@
       "Bash(python3:*)",
       "Bash(find:*)",
       "Bash(npm view:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "mcp__stitch__get_screen",
+      "mcp__stitch__generate_screen_from_text",
+      "Skill(react-components)",
+      "Skill(shadcn-ui)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder - Desktop Shell</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0a85ff",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#1e1e1e",
+                        "border-dark": "#333333",
+                        "sidebar-dark": "#252525",
+                        "mac-red": "#ff5f57",
+                        "mac-yellow": "#febc2e",
+                        "mac-green": "#28c840"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-effect { backdrop-filter: blur(12px); background-color: rgba(30, 30, 30, 0.8); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 overflow-hidden h-screen flex flex-col">
+<!-- Top Toolbar -->
+<header class="h-[36px] flex items-center justify-between border-b border-border-dark px-3 shrink-0 bg-sidebar-dark/50 glass-effect">
+<div class="flex items-center gap-2 w-48">
+<div class="flex gap-1.5 ml-1">
+<div class="w-3.5 h-3.5 rounded-full bg-mac-red"></div>
+<div class="w-3.5 h-3.5 rounded-full bg-mac-yellow"></div>
+<div class="w-3.5 h-3.5 rounded-full bg-mac-green"></div>
+</div>
+</div>
+<nav class="flex items-center bg-background-dark/50 rounded-lg p-0.5 border border-border-dark">
+<button class="px-4 py-1 text-xs font-medium rounded-md bg-primary text-white">T-14: Login Flow</button>
+<button class="px-4 py-1 text-xs font-medium text-slate-400 hover:text-slate-100">T-22: Dashboard</button>
+<button class="px-4 py-1 text-xs font-medium text-slate-400 hover:text-slate-100 border-l border-border-dark">Settings</button>
+</nav>
+<div class="flex items-center gap-3 w-48 justify-end">
+<span class="material-symbols-outlined text-[18px] text-slate-400 cursor-pointer">search</span>
+<span class="material-symbols-outlined text-[18px] text-slate-400 cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-[18px] text-slate-400 cursor-pointer">dark_mode</span>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Rail (48px) -->
+<aside class="w-[48px] bg-sidebar-dark border-r border-border-dark flex flex-col items-center py-4 gap-4 shrink-0">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined text-[20px]">home</span>
+</div>
+<div class="relative group">
+<div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:bg-slate-600">SC</div>
+<div class="absolute -left-1 top-2 w-1 h-4 bg-primary rounded-r-full"></div>
+</div>
+<div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:bg-slate-600">WM</div>
+<div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:bg-slate-600">AP</div>
+<div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:bg-slate-600">DT</div>
+<div class="mt-auto">
+<div class="w-8 h-8 rounded-lg border border-dashed border-slate-600 flex items-center justify-center text-slate-400 cursor-pointer hover:border-primary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</div>
+</div>
+</aside>
+<!-- Sidebar (240px) -->
+<aside class="w-[240px] bg-sidebar-dark/30 border-r border-border-dark flex flex-col shrink-0">
+<div class="p-4">
+<h3 class="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-4">Workflow Steps</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-3 px-2 py-1.5 text-sm text-slate-400 cursor-pointer hover:bg-white/5 rounded">
+<span class="material-symbols-outlined text-[18px] text-mac-green">check_circle</span>
+<span>Brainstorm</span>
+</div>
+<div class="flex items-center gap-3 px-2 py-1.5 text-sm text-slate-400 cursor-pointer hover:bg-white/5 rounded">
+<span class="material-symbols-outlined text-[18px] text-mac-green">check_circle</span>
+<span>Specs</span>
+</div>
+<div class="rounded-lg bg-primary/10 border border-primary/20">
+<div class="flex items-center gap-3 px-2 py-2 text-sm text-primary font-medium cursor-pointer">
+<span class="material-symbols-outlined text-[18px] fill-current">expand_more</span>
+<span>Design</span>
+</div>
+<div class="pl-9 pb-2 space-y-1">
+<div class="flex items-center gap-2 text-xs text-slate-300">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+<span>Session #1</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-primary font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-mac-green animate-pulse"></span>
+<span>Session #2</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 px-2 py-1.5 text-sm text-slate-300 cursor-pointer hover:bg-white/5 rounded">
+<span class="material-symbols-outlined text-[18px] animate-spin text-primary">sync</span>
+<span>Implementation</span>
+</div>
+<div class="flex items-center gap-3 px-2 py-1.5 text-sm text-slate-500 cursor-pointer hover:bg-white/5 rounded">
+<span class="material-symbols-outlined text-[18px]">radio_button_unchecked</span>
+<span>Review</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col bg-background-dark min-w-0">
+<!-- Content Header -->
+<div class="p-6 border-b border-border-dark">
+<div class="flex items-center gap-3 mb-2">
+<span class="px-2 py-0.5 bg-slate-800 text-slate-300 rounded text-[10px] font-bold">T-14</span>
+<span class="px-2 py-0.5 bg-primary/20 text-primary rounded text-[10px] font-bold uppercase">feature</span>
+<span class="px-2 py-0.5 bg-mac-yellow/20 text-mac-yellow rounded text-[10px] font-bold uppercase">in_progress</span>
+</div>
+<h1 class="text-2xl font-bold text-slate-100">Login Flow Implementation</h1>
+<div class="mt-6 flex bg-sidebar-dark p-1 rounded-lg w-fit border border-border-dark">
+<button class="px-6 py-1.5 text-sm font-medium text-slate-400">Overview</button>
+<button class="px-6 py-1.5 text-sm font-medium bg-background-dark text-white rounded shadow-sm border border-border-dark">Sessions</button>
+</div>
+</div>
+<!-- Chat / Transcript Area -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- Session Header Card -->
+<div class="bg-sidebar-dark border border-border-dark rounded-xl p-4">
+<div class="flex items-center justify-between mb-4 pb-4 border-b border-border-dark/50">
+<div class="flex items-center gap-3">
+<span class="text-sm font-bold">Session #2</span>
+<span class="px-2 py-0.5 bg-mac-green/20 text-mac-green text-[10px] font-bold rounded">RUNNING</span>
+</div>
+<div class="flex items-center gap-4 text-xs text-slate-400">
+<span>12m active</span>
+<span>4.2K tokens</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[20px]">smart_toy</span>
+</div>
+<div class="flex-1 text-sm leading-relaxed text-slate-300">
+<p class="mb-3 font-mono">I've analyzed the <span class="text-primary">LoginForm.tsx</span> component. We need to integrate the new validation schema and ensure the loading states match the system design guidelines.</p>
+<p class="font-mono">Applying changes to handle OAuth callbacks and error propagation...</p>
+</div>
+</div>
+<!-- Tool Rows -->
+<div class="ml-12 space-y-2">
+<div class="flex items-center justify-between p-2 bg-background-dark border border-border-dark rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-primary">edit_note</span>
+<span class="text-xs font-mono text-slate-400">src/components/LoginForm.tsx</span>
+</div>
+<span class="text-[10px] text-slate-500">Applied</span>
+</div>
+<div class="flex items-center justify-between p-2 bg-background-dark border border-border-dark rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-mac-yellow">terminal</span>
+<span class="text-xs font-mono text-slate-400">npm run test</span>
+</div>
+<span class="text-[10px] text-mac-green">Success</span>
+</div>
+<!-- Subagent Row -->
+<div class="flex items-center gap-3 p-2 bg-primary/5 border border-primary/20 rounded-lg">
+<span class="material-symbols-outlined text-[18px] text-primary animate-pulse">groups</span>
+<span class="text-xs font-medium text-primary">Subagent "Security-Bot" is auditing implementation...</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Inspector Panel (320px) -->
+<aside class="w-[320px] bg-sidebar-dark border-l border-border-dark flex flex-col shrink-0">
+<div class="h-12 flex items-center px-4 border-b border-border-dark shrink-0">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-widest">File Preview</span>
+</div>
+<div class="p-3 bg-background-dark/30 flex items-center gap-2 border-b border-border-dark">
+<span class="material-symbols-outlined text-[16px] text-slate-500">folder</span>
+<div class="flex items-center text-[11px] text-slate-400 font-mono">
+<span>src</span>
+<span class="mx-1">/</span>
+<span>components</span>
+<span class="mx-1">/</span>
+<span class="text-slate-200">LoginForm.tsx</span>
+</div>
+</div>
+<div class="flex-1 bg-[#1e1e1e] overflow-auto p-4 font-mono text-[11px] leading-relaxed no-scrollbar">
+<div class="flex gap-4">
+<div class="text-slate-600 text-right select-none">
+                        1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15
+                    </div>
+<div class="text-slate-300 whitespace-pre">
+<span class="text-primary">import</span> React <span class="text-primary">from</span> 'react';
+<span class="text-primary">import</span> { useAuth } <span class="text-primary">from</span> '../hooks';
+
+<span class="text-primary">export const</span> <span class="text-mac-yellow">LoginForm</span> = () =&gt; {
+  <span class="text-primary">const</span> { login } = <span class="text-mac-yellow">useAuth</span>();
+  
+  <span class="text-slate-500">// Handle form submission</span>
+<span class="text-primary">const</span> <span class="text-mac-yellow">handleSubmit</span> = <span class="text-primary">async</span> (e) =&gt; {
+    e.<span class="text-mac-yellow">preventDefault</span>();
+    <span class="text-primary">try</span> {
+      <span class="text-primary">await</span> <span class="text-mac-yellow">login</span>(data);
+    } <span class="text-primary">catch</span> (err) {
+      <span class="text-mac-red">console</span>.<span class="text-mac-yellow">error</span>(err);
+    }
+  };
+
+  <span class="text-primary">return</span> (
+    <span class="text-mac-green">&lt;form onSubmit={handleSubmit}&gt;</span>
+<span class="text-slate-500">...</span>
+<span class="text-mac-green">&lt;/form&gt;</span>
+  );
+};</div>
+</div>
+</div>
+</aside>
+</div>
+<!-- Status Bar (28px) -->
+<footer class="h-[28px] border-t border-border-dark bg-sidebar-dark flex items-center justify-between px-3 text-[10px] text-slate-400 shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-mac-green"></div>
+<span>Connected</span>
+</div>
+<span class="text-slate-600">v1.2.0</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+<span>Session active</span>
+</div>
+<div class="flex items-center gap-4 border-l border-border-dark pl-4">
+<span>12:34 PM</span>
+<span class="text-primary">4.2K tokens</span>
+<span class="font-medium text-slate-300">$0.08 est.</span>
+</div>
+</div>
+</footer>
+</body></html>

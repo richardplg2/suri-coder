@@ -4,12 +4,84 @@
   "title": "suri-coder",
   "visibility": "PRIVATE",
   "createTime": "2026-03-08T11:06:37.139135Z",
-  "updateTime": "2026-03-08T11:06:37.139135Z",
+  "updateTime": "2026-03-08T12:36:34.951275Z",
   "projectType": "PROJECT_DESIGN",
   "origin": "STITCH",
-  "designTheme": {},
+  "deviceType": "DESKTOP",
+  "designTheme": {
+    "colorMode": "DARK",
+    "customColor": "#0a85ff",
+    "font": "INTER",
+    "roundness": "ROUND_EIGHT",
+    "saturation": 3
+  },
   "metadata": {
     "userRole": "OWNER"
   },
-  "screens": {}
+  "screens": {
+    "app-shell": {
+      "id": "13439ddcf806481d8c1c603a602f23ae",
+      "sourceScreen": "projects/12778645771598198040/screens/13439ddcf806481d8c1c603a602f23ae",
+      "x": 0,
+      "y": 0,
+      "width": 2560,
+      "height": 2048
+    },
+    "home-dashboard": {
+      "id": "b9e6db5179e045338325294ff0730734",
+      "sourceScreen": "projects/12778645771598198040/screens/b9e6db5179e045338325294ff0730734",
+      "x": 0,
+      "y": 1280,
+      "width": 2560,
+      "height": 2048
+    },
+    "project-kanban": {
+      "id": "d47681a513704842bc735cc7fcbb4261",
+      "sourceScreen": "projects/12778645771598198040/screens/d47681a513704842bc735cc7fcbb4261",
+      "x": 0,
+      "y": 2560,
+      "width": 2560,
+      "height": 2048
+    },
+    "ticket-overview": {
+      "id": "984ad5f736704abf819a066d42fdb6cd",
+      "sourceScreen": "projects/12778645771598198040/screens/984ad5f736704abf819a066d42fdb6cd",
+      "x": 0,
+      "y": 3840,
+      "width": 2560,
+      "height": 2048
+    },
+    "ticket-sessions": {
+      "id": "07f3c41228b44d5b8f25b3d31a08a118",
+      "sourceScreen": "projects/12778645771598198040/screens/07f3c41228b44d5b8f25b3d31a08a118",
+      "x": 0,
+      "y": 5120,
+      "width": 2560,
+      "height": 2048
+    },
+    "brainstorm": {
+      "id": "1f2d4e7816234d9fadfa3dbf276892b7",
+      "sourceScreen": "projects/12778645771598198040/screens/1f2d4e7816234d9fadfa3dbf276892b7",
+      "x": 0,
+      "y": 7680,
+      "width": 2560,
+      "height": 2048
+    },
+    "settings": {
+      "id": "b5e747de4f894e30991f230cb54ad69c",
+      "sourceScreen": "projects/12778645771598198040/screens/b5e747de4f894e30991f230cb54ad69c",
+      "x": 0,
+      "y": 8960,
+      "width": 2560,
+      "height": 2048
+    },
+    "modals": {
+      "id": "8de24a4e6962410aae9b9a922ef47c30",
+      "sourceScreen": "projects/12778645771598198040/screens/8de24a4e6962410aae9b9a922ef47c30",
+      "x": 0,
+      "y": 10240,
+      "width": 2560,
+      "height": 2706
+    }
+  }
 }

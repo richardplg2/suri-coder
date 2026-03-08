@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder Home Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,FILL@0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1085f9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                        "mac-bg": "#1e1e1e",
+                        "mac-card": "#2a2a2c",
+                        "mac-border": "#3a3a3c"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .traffic-light-red { background: #ff5f56; }
+        .traffic-light-yellow { background: #ffbd2e; }
+        .traffic-light-green { background: #27c93f; }
+        .glass-sidebar { border-right: 1px solid rgba(255,255,255,0.1); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3a3a3c; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-mac-bg text-slate-100 font-display selection:bg-primary/30 h-screen overflow-hidden flex flex-col">
+<!-- Toolbar (macOS Title Bar) -->
+<header class="h-[36px] min-h-[36px] flex items-center justify-between px-4 border-b border-mac-border/50 bg-mac-bg shrink-0">
+<div class="flex items-center gap-2 w-48">
+<div class="traffic-light-red w-3.5 h-3.5 rounded-full"></div>
+<div class="traffic-light-yellow w-3.5 h-3.5 rounded-full"></div>
+<div class="traffic-light-green w-3.5 h-3.5 rounded-full"></div>
+</div>
+<div class="text-xs font-medium text-slate-400">Suri Coder — Home Dashboard</div>
+<div class="flex items-center gap-4 w-48 justify-end">
+<span class="material-symbols-outlined text-[18px] text-slate-400 cursor-pointer hover:text-white">search</span>
+<span class="material-symbols-outlined text-[18px] text-slate-400 cursor-pointer hover:text-white">notifications</span>
+<span class="material-symbols-outlined text-[18px] text-slate-400 cursor-pointer hover:text-white">dark_mode</span>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Rail (48px) -->
+<aside class="w-[48px] flex flex-col items-center py-4 gap-4 glass-sidebar shrink-0">
+<div class="relative flex items-center justify-center w-full">
+<div class="absolute left-0 w-[3px] h-6 bg-primary rounded-r-full"></div>
+<div class="text-primary material-symbols-outlined text-[24px]">home</div>
+</div>
+<div class="flex flex-col gap-3 mt-2">
+<div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/30 cursor-pointer hover:bg-primary/30" title="Suri Coder">SC</div>
+<div class="w-8 h-8 rounded-lg bg-mac-card flex items-center justify-center text-[10px] font-bold text-slate-400 border border-mac-border cursor-pointer hover:border-slate-500" title="WebManager">WM</div>
+<div class="w-8 h-8 rounded-lg bg-mac-card flex items-center justify-center text-[10px] font-bold text-slate-400 border border-mac-border cursor-pointer hover:border-slate-500" title="ApiTool">AP</div>
+<div class="w-8 h-8 rounded-lg bg-mac-card flex items-center justify-center text-[10px] font-bold text-slate-400 border border-mac-border cursor-pointer hover:border-slate-500" title="DataTracker">DT</div>
+</div>
+<div class="mt-auto">
+<button class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-mac-bg p-8 custom-scrollbar">
+<!-- SECTION 1: NEEDS ATTENTION -->
+<section class="mb-10">
+<div class="flex items-center gap-2 mb-4">
+<h2 class="text-sm font-bold tracking-wider text-slate-500 uppercase">Needs Attention</h2>
+<div class="h-[1px] flex-1 bg-mac-border/50"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Card 1 -->
+<div class="bg-mac-card border border-mac-border rounded-xl p-4 flex flex-col gap-3 hover:border-mac-border*2 transition-colors">
+<div class="flex justify-between items-start">
+<span class="font-mono text-[11px] text-slate-500 bg-mac-bg px-2 py-0.5 rounded border border-mac-border">T-08</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 uppercase tracking-tighter">Review Pending</span>
+</div>
+<div>
+<h3 class="text-sm font-semibold text-slate-100 leading-snug">Login refactor needs review</h3>
+<p class="text-xs text-slate-500 mt-1">Project: WebManager</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-mac-card border border-mac-border rounded-xl p-4 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<span class="font-mono text-[11px] text-slate-500 bg-mac-bg px-2 py-0.5 rounded border border-mac-border">T-15</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 border border-red-500/20 uppercase tracking-tighter">Agent Failed</span>
+</div>
+<div>
+<h3 class="text-sm font-semibold text-slate-100 leading-snug">API endpoint tests failing</h3>
+<p class="text-xs text-slate-500 mt-1">Project: ApiTool</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-mac-card border border-mac-border rounded-xl p-4 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<span class="font-mono text-[11px] text-slate-500 bg-mac-bg px-2 py-0.5 rounded border border-mac-border">T-21</span>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 uppercase tracking-tighter">Needs Input</span>
+</div>
+<div>
+<h3 class="text-sm font-semibold text-slate-100 leading-snug">Clarify auth flow requirements</h3>
+<p class="text-xs text-slate-500 mt-1">Project: SuriCoder</p>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: RUNNING NOW -->
+<section class="mb-10">
+<div class="flex items-center gap-2 mb-4">
+<h2 class="text-sm font-bold tracking-wider text-slate-500 uppercase">Running Now</h2>
+<div class="h-[1px] flex-1 bg-mac-border/50"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Active Session 1 -->
+<div class="bg-mac-card border border-mac-border rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-[11px] text-slate-500">T-14</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] animate-spin" style="animation-duration: 3s;">sync</span>
+<span class="text-[10px] font-bold text-slate-300 uppercase">Design</span>
+</div>
+</div>
+<h3 class="text-base font-semibold text-white mb-1">Login Flow Implementation</h3>
+<p class="text-xs text-slate-400">Session #2 running for <span class="text-primary">12m</span></p>
+<div class="mt-4 flex gap-2">
+<button class="bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold py-1 px-3 rounded border border-primary/20 transition-all">STOP</button>
+<button class="bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-[11px] font-bold py-1 px-3 rounded border border-mac-border transition-all">DETAILS</button>
+</div>
+</div>
+<!-- Active Session 2 -->
+<div class="bg-mac-card border border-mac-border rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-[11px] text-slate-500">T-19</span>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] animate-spin" style="animation-duration: 3s;">sync</span>
+<span class="text-[10px] font-bold text-slate-300 uppercase">Implementation</span>
+</div>
+</div>
+<h3 class="text-base font-semibold text-white mb-1">Dashboard Widgets</h3>
+<p class="text-xs text-slate-400">Session #1 running for <span class="text-primary">3m</span></p>
+<div class="mt-4 flex gap-2">
+<button class="bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold py-1 px-3 rounded border border-primary/20 transition-all">STOP</button>
+<button class="bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-[11px] font-bold py-1 px-3 rounded border border-mac-border transition-all">DETAILS</button>
+</div>
+</div>
+<!-- Placeholder/Empty slot -->
+<div class="border border-dashed border-mac-border rounded-xl p-5 flex flex-col items-center justify-center gap-2 text-slate-600 hover:text-slate-400 hover:border-slate-500 cursor-pointer transition-all">
+<span class="material-symbols-outlined text-[32px]">add_circle</span>
+<span class="text-xs font-medium">New Session</span>
+</div>
+</div>
+</section>
+<!-- SECTION 3: RECENT ACTIVITY -->
+<section>
+<div class="flex items-center gap-2 mb-4">
+<h2 class="text-sm font-bold tracking-wider text-slate-500 uppercase">Recent Activity</h2>
+<div class="h-[1px] flex-1 bg-mac-border/50"></div>
+</div>
+<div class="bg-mac-card border border-mac-border rounded-xl overflow-hidden">
+<table class="w-full text-left text-xs">
+<tbody class="divide-y divide-mac-border/50">
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-4 w-20 font-mono text-slate-500">T-14</td>
+<td class="p-4 text-slate-200">Design session #2 started</td>
+<td class="p-4 text-right text-slate-500">2m ago</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-4 w-20 font-mono text-slate-500">T-08</td>
+<td class="p-4 text-slate-200">Review requested for <span class="text-primary">auth-refactor-v2</span></td>
+<td class="p-4 text-right text-slate-500">14m ago</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-4 w-20 font-mono text-slate-500">T-15</td>
+<td class="p-4 text-slate-200">Automated test agent failed on <span class="text-red-400">CI/CD Pipeline</span></td>
+<td class="p-4 text-right text-slate-500">45m ago</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-4 w-20 font-mono text-slate-500">T-19</td>
+<td class="p-4 text-slate-200">Task moved from <span class="text-slate-400 italic">Backlog</span> to <span class="text-primary italic">In Progress</span></td>
+<td class="p-4 text-right text-slate-500">1h ago</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-4 w-20 font-mono text-slate-500">T-05</td>
+<td class="p-4 text-slate-200">Deployment successful to <span class="text-green-500">production-web-01</span></td>
+<td class="p-4 text-right text-slate-500">3h ago</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="p-4 w-20 font-mono text-slate-500">T-21</td>
+<td class="p-4 text-slate-200">New comment from <span class="text-slate-100 font-medium">@alex_dev</span> on requirements</td>
+<td class="p-4 text-right text-slate-500">5h ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+</div>
+<!-- Status Bar (28px) -->
+<footer class="h-[28px] min-h-[28px] flex items-center justify-between px-3 bg-mac-card border-t border-mac-border text-[10px] font-medium text-slate-400 shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></div>
+<span>Connected</span>
+</div>
+<div class="h-3 w-[1px] bg-mac-border"></div>
+<span>v1.2.0</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-primary/80">3 sessions active</span>
+<div class="h-3 w-[1px] bg-mac-border"></div>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-[14px]">terminal</span>
+<span class="material-symbols-outlined text-[14px]">settings</span>
+</div>
+</div>
+</footer>
+</body></html>

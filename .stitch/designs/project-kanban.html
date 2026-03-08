@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder Project Kanban Board</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1085f9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                        "card-dark": "#1a252f",
+                        "border-dark": "#2f4d6a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display overflow-hidden h-screen flex flex-col">
+<!-- Top Toolbar (macOS Style) -->
+<header class="h-12 flex items-center justify-between px-4 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-md border-b border-slate-200 dark:border-border-dark select-none">
+<div class="flex items-center gap-2">
+<!-- Traffic Lights -->
+<div class="flex gap-2 mr-4">
+<div class="w-3.5 h-3.5 rounded-full bg-[#ff5f56]"></div>
+<div class="w-3.5 h-3.5 rounded-full bg-[#ffbd2e]"></div>
+<div class="w-3.5 h-3.5 rounded-full bg-[#27c93f]"></div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<button class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background-dark"></span>
+</button>
+<button class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded">
+<span class="material-symbols-outlined text-[20px]">dark_mode</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Rail Navigation (48px) -->
+<aside class="w-16 flex flex-col items-center py-4 bg-slate-100 dark:bg-slate-900/50 border-r border-slate-200 dark:border-border-dark gap-4">
+<div class="p-2 text-slate-400 cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">home</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm relative cursor-pointer ring-2 ring-primary ring-offset-2 ring-offset-background-dark">
+                SC
+                <div class="absolute -left-4 w-1 h-6 bg-primary rounded-r-full"></div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-slate-300 dark:bg-slate-800 flex items-center justify-center text-slate-500 font-bold text-sm cursor-pointer hover:bg-slate-700 transition-colors">
+                WM
+            </div>
+<div class="w-10 h-10 rounded-lg bg-slate-300 dark:bg-slate-800 flex items-center justify-center text-slate-500 font-bold text-sm cursor-pointer hover:bg-slate-700 transition-colors">
+                AP
+            </div>
+<div class="w-10 h-10 rounded-lg bg-slate-300 dark:bg-slate-800 flex items-center justify-center text-slate-500 font-bold text-sm cursor-pointer hover:bg-slate-700 transition-colors">
+                DT
+            </div>
+<div class="mt-auto p-2 text-slate-500 cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">add_circle</span>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- Project Header -->
+<div class="px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-border-dark bg-white dark:bg-background-dark">
+<div>
+<h1 class="text-xl font-bold tracking-tight">SuriCoder</h1>
+<p class="text-sm text-slate-500 dark:text-slate-400">Claude Code workflow manager</p>
+</div>
+<div class="flex items-center gap-6">
+<nav class="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-lg">
+<button class="px-4 py-1.5 text-sm font-medium rounded-md bg-white dark:bg-slate-700 shadow-sm text-primary">Board</button>
+<button class="px-4 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">List</button>
+</nav>
+<button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        New Ticket
+                    </button>
+</div>
+</div>
+<!-- Kanban Board -->
+<div class="flex-1 overflow-x-auto p-6 bg-slate-50 dark:bg-[#0c141c]">
+<div class="flex gap-6 h-full min-w-max">
+<!-- Backlog Column -->
+<div class="w-72 flex flex-col gap-4">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                                Backlog <span class="bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">3</span>
+</h2>
+<span class="material-symbols-outlined text-[18px] text-slate-400">more_horiz</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Card T-21 -->
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 shadow-sm hover:ring-1 ring-primary transition-all cursor-grab active:cursor-grabbing">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-primary font-bold">T-21</span>
+<div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+</div>
+<p class="text-sm font-medium mb-3">Implement OAuth flow for GitHub integration</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold uppercase">Feature</span>
+<span class="text-[10px] text-slate-400 ml-auto">Medium</span>
+</div>
+</div>
+<!-- Card T-23 -->
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-primary font-bold">T-23</span>
+<div class="w-2 h-2 rounded-full bg-slate-400"></div>
+</div>
+<p class="text-sm font-medium mb-3">Update dependency manifests</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-500/20 text-slate-600 dark:text-slate-400 font-bold uppercase">Chore</span>
+<span class="text-[10px] text-slate-400 ml-auto">Low</span>
+</div>
+</div>
+<!-- Card T-24 -->
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-primary font-bold">T-24</span>
+<div class="w-2 h-2 rounded-full bg-slate-400"></div>
+</div>
+<p class="text-sm font-medium mb-3">Research WebSockets vs Polling for real-time logs</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-bold uppercase">Spike</span>
+<span class="text-[10px] text-slate-400 ml-auto">Low</span>
+</div>
+</div>
+</div>
+</div>
+<!-- In Progress Column -->
+<div class="w-72 flex flex-col gap-4">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                                In Progress <span class="bg-primary/20 text-primary px-1.5 py-0.5 rounded text-[10px]">2</span>
+</h2>
+<span class="material-symbols-outlined text-[18px] text-slate-400">more_horiz</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Card T-14 -->
+<div class="bg-white dark:bg-card-dark border-l-4 border-l-primary border border-slate-200 dark:border-border-dark rounded-xl p-4 shadow-md">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-primary font-bold">T-14</span>
+<div class="w-2 h-2 rounded-full bg-red-500"></div>
+</div>
+<p class="text-sm font-medium mb-2">Project Sidebar Redesign</p>
+<div class="bg-primary/10 rounded p-2 mb-3">
+<div class="flex items-center justify-between text-[10px] text-primary font-bold mb-1">
+<span>Active: Design</span>
+<span>65%</span>
+</div>
+<div class="w-full h-1 bg-primary/20 rounded-full overflow-hidden">
+<div class="w-2/3 h-full bg-primary"></div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold uppercase">Feature</span>
+<span class="text-[10px] text-red-400 ml-auto font-bold">High</span>
+</div>
+</div>
+<!-- Card T-19 -->
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-primary font-bold">T-19</span>
+<div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+</div>
+<p class="text-sm font-medium mb-2">AI Code Review Assistant Module</p>
+<p class="text-[11px] text-slate-400 mb-3 italic">Active: Implementation</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold uppercase">Feature</span>
+<span class="text-[10px] text-slate-400 ml-auto">Medium</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Review Column -->
+<div class="w-72 flex flex-col gap-4">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                                Review <span class="bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">2</span>
+</h2>
+<span class="material-symbols-outlined text-[18px] text-slate-400">more_horiz</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Card T-08 -->
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-4 shadow-sm opacity-90">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-primary font-bold">T-08</span>
+<div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+</div>
+<p class="text-sm font-medium mb-2">Refactor State Management</p>
+<div class="flex items-center gap-1.5 text-orange-500 mb-3">
+<span class="material-symbols-outlined text-[14px]">history</span>
+<span class="text-[10px] font-bold uppercase">Review pending</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold uppercase">Refactor</span>
+<span class="text-[10px] text-slate-400 ml-auto">Medium</span>
+</div>
+</div>
+<!-- Card T-16 -->
+<div class="bg-white dark:bg-card-dark border border-red-500/30 dark:border-red-500/20 rounded-xl p-4 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-red-500 font-bold">T-16</span>
+<div class="animate-pulse w-2 h-2 rounded-full bg-red-600"></div>
+</div>
+<p class="text-sm font-medium mb-3">Memory leak in terminal emulator component</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 font-bold uppercase">Bug</span>
+<span class="text-[10px] text-red-600 dark:text-red-400 ml-auto font-black italic">CRITICAL</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Done Column -->
+<div class="w-72 flex flex-col gap-4">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                                Done <span class="bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">3</span>
+</h2>
+<span class="material-symbols-outlined text-[18px] text-slate-400">more_horiz</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Card T-12 -->
+<div class="bg-white/50 dark:bg-card-dark/40 border border-slate-200 dark:border-border-dark/50 rounded-xl p-4 shadow-sm grayscale-[0.5] opacity-60">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-slate-400 font-bold">T-12</span>
+<span class="material-symbols-outlined text-[16px] text-emerald-500">check_circle</span>
+</div>
+<p class="text-sm font-medium mb-3 line-through text-slate-500">Terminal font-family bug</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold uppercase">Bug</span>
+</div>
+</div>
+<!-- Card T-10 -->
+<div class="bg-white/50 dark:bg-card-dark/40 border border-slate-200 dark:border-border-dark/50 rounded-xl p-4 shadow-sm grayscale-[0.5] opacity-60">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-slate-400 font-bold">T-10</span>
+<span class="material-symbols-outlined text-[16px] text-emerald-500">check_circle</span>
+</div>
+<p class="text-sm font-medium mb-3 line-through text-slate-500">Initialize Electron forge</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold uppercase">Chore</span>
+</div>
+</div>
+<!-- Card T-07 -->
+<div class="bg-white/50 dark:bg-card-dark/40 border border-slate-200 dark:border-border-dark/50 rounded-xl p-4 shadow-sm grayscale-[0.5] opacity-60">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono text-[10px] text-slate-400 font-bold">T-07</span>
+<span class="material-symbols-outlined text-[16px] text-emerald-500">check_circle</span>
+</div>
+<p class="text-sm font-medium mb-3 line-through text-slate-500">Main application layout shell</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold uppercase">Feature</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Status Bar -->
+<footer class="h-8 flex items-center justify-between px-4 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-border-dark text-[11px] font-medium text-slate-500 dark:text-slate-400 select-none">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+<span>Connected</span>
+</div>
+<span>v1.2.0</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">terminal</span>
+                        2 sessions active
+                    </span>
+<span class="material-symbols-outlined text-[14px] text-slate-400 cursor-pointer">info</span>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

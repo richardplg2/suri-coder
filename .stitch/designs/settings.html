@@ -1,0 +1,322 @@
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#1085f9",
+            "background-light": "#f5f7f8",
+            "background-dark": "#1e1e1e",
+            "surface": "#2a2a2c",
+            "border-ui": "#3a3a3c",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(42, 42, 44, 0.6); backdrop-filter: blur(12px); }
+    .mac-shadow { box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3a3a3c; border-radius: 4px; }
+    .traffic-light { width: 12px; height: 12px; border-radius: 50%; }
+  </style>
+</head>
+<body class="bg-background-dark text-slate-100 selection:bg-primary/30 h-screen overflow-hidden flex flex-col">
+<div class="flex flex-1 overflow-hidden">
+<aside class="w-[68px] border-r border-border-ui bg-background-dark/50 flex flex-col items-center py-4 gap-4 flex-shrink-0">
+<div class="flex flex-col gap-4 items-center w-full">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-slate-400">home</span>
+</button>
+<div class="relative w-full flex justify-center">
+<div class="absolute left-0 top-1 w-1 h-8 bg-primary rounded-r-full"></div>
+<button class="w-10 h-10 bg-primary/20 text-primary border border-primary/30 flex items-center justify-center rounded-lg font-bold text-xs">
+            SC
+          </button>
+</div>
+<button class="w-10 h-10 bg-surface border border-border-ui flex items-center justify-center rounded-lg font-bold text-xs text-slate-400 hover:text-slate-200 transition-colors">
+          WM
+        </button>
+<button class="w-10 h-10 bg-surface border border-border-ui flex items-center justify-center rounded-lg font-bold text-xs text-slate-400 hover:text-slate-200 transition-colors">
+          AP
+        </button>
+<button class="w-10 h-10 bg-surface border border-border-ui flex items-center justify-center rounded-lg font-bold text-xs text-slate-400 hover:text-slate-200 transition-colors">
+          DT
+        </button>
+<button class="w-10 h-10 border border-dashed border-border-ui flex items-center justify-center rounded-lg text-slate-500 hover:border-slate-400 hover:text-slate-300 transition-all">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</aside>
+<main class="flex-1 flex flex-col overflow-hidden">
+<header class="h-14 border-b border-border-ui glass flex items-center justify-between px-4 z-10">
+<div class="flex items-center gap-6">
+<div class="flex gap-2">
+<div class="traffic-light bg-[#FF5F56]"></div>
+<div class="traffic-light bg-[#FFBD2E]"></div>
+<div class="traffic-light bg-[#27C93F]"></div>
+</div>
+<div class="flex items-center gap-1 ml-4">
+<div class="px-3 py-1.5 rounded-md text-sm text-slate-400 hover:bg-white/5 cursor-pointer">T-14: Login Flow</div>
+<div class="px-3 py-1.5 rounded-md text-sm text-primary bg-primary/10 border border-primary/20 font-medium">Settings</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center bg-surface/50 border border-border-ui rounded-md px-2 py-1 w-48">
+<span class="material-symbols-outlined text-slate-500 text-[18px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs w-full text-slate-200" placeholder="Search..." type="text"/>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/5">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">notifications</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white/5">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">dark_mode</span>
+</button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto bg-[#1a1a1c]">
+<div class="sticky top-0 glass border-b border-border-ui z-20">
+<div class="max-w-[800px] mx-auto px-6">
+<nav class="flex gap-8 h-12 items-center">
+<a class="text-sm font-medium border-b-2 border-primary text-primary h-full flex items-center px-1" href="#general">General</a>
+<a class="text-sm font-medium text-slate-400 hover:text-slate-200 h-full flex items-center px-1" href="#repositories">Repositories</a>
+<a class="text-sm font-medium text-slate-400 hover:text-slate-200 h-full flex items-center px-1" href="#agents">Agents</a>
+<a class="text-sm font-medium text-slate-400 hover:text-slate-200 h-full flex items-center px-1" href="#templates">Templates</a>
+<a class="text-sm font-medium text-slate-400 hover:text-slate-200 h-full flex items-center px-1" href="#github">GitHub</a>
+</nav>
+</div>
+</div>
+<div class="max-w-[800px] mx-auto px-6 py-10 space-y-16">
+<section class="space-y-6" id="general">
+<h2 class="text-lg font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">settings</span>
+              GENERAL
+            </h2>
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Project Name</label>
+<input class="w-full bg-surface border-border-ui rounded-lg focus:border-primary focus:ring-1 focus:ring-primary text-sm p-2.5" type="text" value="SuriCoder"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Slug</label>
+<input class="w-full bg-surface border-border-ui rounded-lg focus:border-primary focus:ring-1 focus:ring-primary text-sm p-2.5 font-mono" type="text" value="suri-coder"/>
+</div>
+<div class="space-y-2 col-span-2">
+<label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Local Path</label>
+<div class="relative">
+<input class="w-full bg-surface border-border-ui rounded-lg focus:border-primary focus:ring-1 focus:ring-primary text-sm p-2.5 pr-10" type="text" value="~/Documents/projects/suri-coder"/>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 text-[20px] cursor-pointer hover:text-slate-300">folder</span>
+</div>
+</div>
+<div class="space-y-2 col-span-2">
+<label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Repository URL</label>
+<input class="w-full bg-surface border-border-ui rounded-lg focus:border-primary focus:ring-1 focus:ring-primary text-sm p-2.5" type="text" value="https://github.com/alexdev/suri-coder.git"/>
+</div>
+<div class="space-y-2 col-span-2">
+<label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Description</label>
+<textarea class="w-full bg-surface border-border-ui rounded-lg focus:border-primary focus:ring-1 focus:ring-primary text-sm p-2.5" rows="3">A professional macOS-native developer workflow manager and AI coding assistant application.</textarea>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface/30 border border-border-ui rounded-xl">
+<div class="flex flex-col">
+<span class="text-sm font-medium">Auto-approval</span>
+<span class="text-xs text-slate-400">Automatically approve safe AI agent edits</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex justify-end pt-4">
+<button class="bg-primary hover:bg-primary/90 text-white font-medium px-6 py-2 rounded-lg text-sm transition-colors">Save Changes</button>
+</div>
+</section>
+<section class="space-y-6" id="repositories">
+<h2 class="text-lg font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">account_tree</span>
+              REPOSITORIES
+            </h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface border border-border-ui p-4 rounded-xl flex items-center justify-between group hover:border-slate-500 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-black/20 flex items-center justify-center rounded-lg">
+<svg class="w-6 h-6 text-slate-300" fill="currentColor" viewbox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg>
+</div>
+<div>
+<div class="text-sm font-medium">suri-coder</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+<span class="text-[10px] text-green-500 font-bold uppercase">Connected</span>
+</div>
+</div>
+</div>
+<button class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+<div class="bg-surface border border-border-ui p-4 rounded-xl flex items-center justify-between group hover:border-slate-500 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-black/20 flex items-center justify-center rounded-lg">
+<svg class="w-6 h-6 text-slate-300" fill="currentColor" viewbox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg>
+</div>
+<div>
+<div class="text-sm font-medium">suri-shared</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+<span class="text-[10px] text-green-500 font-bold uppercase">Connected</span>
+</div>
+</div>
+</div>
+<button class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+<div class="border border-dashed border-border-ui p-4 rounded-xl flex items-center justify-center gap-2 text-slate-500 hover:border-slate-400 hover:text-slate-300 transition-all cursor-pointer bg-white/5">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="text-sm font-medium">Add Repository</span>
+</div>
+</div>
+</section>
+<section class="space-y-6" id="agents">
+<h2 class="text-lg font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">psychology</span>
+              AGENTS
+            </h2>
+<div class="grid grid-cols-3 gap-4">
+<div class="bg-surface border border-border-ui p-4 rounded-xl space-y-3">
+<div class="flex justify-between items-start">
+<span class="text-sm font-bold">Planner</span>
+<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono">GPT-4</span>
+</div>
+<div class="text-xs text-slate-400 leading-relaxed">System architecture and planning expert.</div>
+</div>
+<div class="bg-surface border border-border-ui p-4 rounded-xl space-y-3">
+<div class="flex justify-between items-start">
+<span class="text-sm font-bold">Coder</span>
+<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono">Claude 3.5</span>
+</div>
+<div class="text-xs text-slate-400 leading-relaxed">Implements features and resolves bugs.</div>
+</div>
+<div class="bg-surface border border-border-ui p-4 rounded-xl space-y-3">
+<div class="flex justify-between items-start">
+<span class="text-sm font-bold">Tester</span>
+<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono">GPT-4</span>
+</div>
+<div class="text-xs text-slate-400 leading-relaxed">Unit tests and integration verification.</div>
+</div>
+<div class="bg-surface border border-border-ui p-4 rounded-xl space-y-3 relative overflow-hidden">
+<div class="flex justify-between items-start">
+<span class="text-sm font-bold">Designer</span>
+<span class="text-[10px] bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded font-bold uppercase">Paused</span>
+</div>
+<div class="text-xs text-slate-400 leading-relaxed">Tailwind and UI component refinement.</div>
+</div>
+<div class="bg-surface border border-border-ui p-4 rounded-xl space-y-3">
+<div class="flex justify-between items-start">
+<span class="text-sm font-bold">Reviewer</span>
+<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono">Claude 3.5</span>
+</div>
+<div class="text-xs text-slate-400 leading-relaxed">Analyzes pull requests and code quality.</div>
+</div>
+<div class="border border-dashed border-border-ui p-4 rounded-xl flex flex-col items-center justify-center gap-1 text-slate-500 hover:border-slate-400 hover:text-slate-300 transition-all cursor-pointer bg-white/5">
+<span class="material-symbols-outlined text-[24px]">add_circle</span>
+<span class="text-xs font-medium">Add Agent</span>
+</div>
+</div>
+</section>
+<section class="space-y-6" id="templates">
+<h2 class="text-lg font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">description</span>
+              TEMPLATES
+            </h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface border border-border-ui p-5 rounded-xl flex items-center justify-between">
+<div class="space-y-1">
+<div class="text-sm font-bold">Full Feature</div>
+<div class="text-xs text-slate-400">Plan → Implement → Test → Review</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-slate-400 px-2 py-0.5 bg-white/5 rounded-full">4 STEPS</span>
+<span class="material-symbols-outlined text-slate-500 text-[18px] cursor-pointer">more_vert</span>
+</div>
+</div>
+<div class="bg-surface border border-border-ui p-5 rounded-xl flex items-center justify-between">
+<div class="space-y-1">
+<div class="text-sm font-bold">Bug Fix</div>
+<div class="text-xs text-slate-400">Locate → Resolve → Verify</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-slate-400 px-2 py-0.5 bg-white/5 rounded-full">3 STEPS</span>
+<span class="material-symbols-outlined text-slate-500 text-[18px] cursor-pointer">more_vert</span>
+</div>
+</div>
+<div class="bg-surface border border-border-ui p-5 rounded-xl flex items-center justify-between">
+<div class="space-y-1">
+<div class="text-sm font-bold">Refactor</div>
+<div class="text-xs text-slate-400">Analyze → Restructure → Test</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-slate-400 px-2 py-0.5 bg-white/5 rounded-full">3 STEPS</span>
+<span class="material-symbols-outlined text-slate-500 text-[18px] cursor-pointer">more_vert</span>
+</div>
+</div>
+<div class="border border-dashed border-border-ui p-5 rounded-xl flex items-center justify-center gap-2 text-slate-500 hover:border-slate-400 hover:text-slate-300 transition-all cursor-pointer bg-white/5">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="text-sm font-medium">New Template</span>
+</div>
+</div>
+</section>
+<section class="space-y-6" id="github">
+<h2 class="text-lg font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">link</span>
+              GITHUB
+            </h2>
+<div class="bg-surface border border-border-ui p-6 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full border-2 border-primary overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Developer profile avatar on Github" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi8rfpxs1CrCeyLXTn63sDIjUuRmePI3kWudXrs4NSbUPBm3ROy7GJ6_g8w-zGizJa40D2hXM54h0JpTmTVzBArWLnRmP2CUr-Z_tG1udll5ocf-AN6m1O7XDkya_5OHTZCOkQpf2tQbt9kyGbUdWYNsYe46No1ZEIg1nzF0htGtx0IQ0sJ3CZXQum2BITXCOlSAKPAHCYHcz_ES7zP-_KijUWkn0Nvj-HTwz2i7-UPUQWTJ8_Z7QCju9xf4MnGsXlSs234SvRV25K"/>
+</div>
+<div>
+<div class="text-base font-bold">alexdev</div>
+<div class="text-xs text-slate-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                    Primary Account Connected
+                  </div>
+</div>
+</div>
+<button class="text-red-400 hover:bg-red-400/10 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                Remove Account
+              </button>
+</div>
+</section>
+</div>
+</div>
+<footer class="h-8 border-t border-border-ui glass px-4 flex items-center justify-between flex-shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+<span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Connected</span>
+</div>
+<div class="h-3 w-[1px] bg-border-ui"></div>
+<span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Sync: 2m ago</span>
+</div>
+<div class="text-[10px] text-slate-500 font-mono">v1.2.0</div>
+</footer>
+</main>
+</div>
+</body></html>

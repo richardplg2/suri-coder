@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder Ticket Detail Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1085f9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display selection:bg-primary/30 h-screen flex overflow-hidden">
+<!-- Left Rail (48px) -->
+<aside class="w-[64px] border-r border-slate-200 dark:border-slate-800 flex flex-col items-center py-4 gap-4 flex-shrink-0 bg-slate-50 dark:bg-slate-950/50">
+<div class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined">home</span>
+</div>
+<div class="relative w-10 h-10 flex items-center justify-center bg-primary/20 text-primary rounded-xl cursor-pointer">
+<div class="absolute -left-3 w-1 h-6 bg-primary rounded-r-full"></div>
+<span class="font-bold text-sm">SC</span>
+</div>
+<div class="w-8 h-[1px] bg-slate-200 dark:border-slate-800 my-1"></div>
+<div class="flex flex-col gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold border border-white/10" title="WM">WM</div>
+<div class="w-10 h-10 rounded-full bg-indigo-900 flex items-center justify-center text-[10px] font-bold border border-white/10" title="AP">AP</div>
+<div class="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center text-[10px] font-bold border border-white/10" title="DT">DT</div>
+</div>
+<button class="mt-auto w-10 h-10 rounded-xl border border-dashed border-slate-700 flex items-center justify-center text-slate-500 hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined">add</span>
+</button>
+</aside>
+<div class="flex-1 flex flex-col min-w-0">
+<!-- Toolbar (36px approx) -->
+<header class="h-12 border-b border-slate-200 dark:border-slate-800 flex items-center px-4 gap-6 bg-slate-50 dark:bg-slate-900/40">
+<div class="flex gap-2">
+<div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+<div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
+<div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+</div>
+<div class="flex items-center h-full">
+<div class="px-4 h-full flex items-center border-b-2 border-primary bg-primary/10 text-primary text-sm font-medium">
+                    T-14: Login Flow
+                </div>
+<div class="px-4 h-full flex items-center text-slate-400 text-sm font-medium hover:text-slate-200 cursor-pointer transition-colors">
+                    T-22: Dashboard
+                </div>
+<div class="px-4 h-full flex items-center text-slate-400 text-sm font-medium hover:text-slate-200 cursor-pointer transition-colors">
+                    Settings
+                </div>
+</div>
+<div class="flex-1"></div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-slate-100">search</span>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-slate-100">notifications</span>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-slate-100">dark_mode</span>
+</div>
+</header>
+<div class="flex-1 flex min-h-0">
+<!-- Sidebar (Workflow Steps) -->
+<aside class="w-[240px] border-r border-slate-200 dark:border-slate-800 flex flex-col p-4 bg-slate-50 dark:bg-slate-950/20">
+<h3 class="text-[10px] font-bold text-slate-500 tracking-widest mb-4 uppercase">Workflow Steps</h3>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3 px-3 py-2 text-emerald-500">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span class="text-sm font-medium">Brainstorm</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-emerald-500">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span class="text-sm font-medium">Specs</span>
+</div>
+<!-- Active/Expanded Design Step -->
+<div class="flex flex-col bg-primary/10 rounded-lg">
+<div class="flex items-center gap-3 px-3 py-2 text-primary">
+<span class="material-symbols-outlined text-[18px]">pending</span>
+<span class="text-sm font-bold">Design</span>
+</div>
+<div class="pl-10 pb-2 flex flex-col gap-2">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-[14px]">check</span>
+<span>Session #1</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-primary font-medium">
+<span class="material-symbols-outlined text-[14px] animate-pulse">sync</span>
+<span>Session #2 <span class="text-[10px] bg-primary text-white px-1 rounded ml-1">Running</span></span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">radio_button_unchecked</span>
+<span class="text-sm font-medium">Implementation</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-500">
+<span class="material-symbols-outlined text-[18px]">radio_button_unchecked</span>
+<span class="text-sm font-medium">Review</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-[#1E1E1E]">
+<div class="max-w-5xl mx-auto p-8">
+<!-- Ticket Header -->
+<div class="mb-6">
+<div class="flex items-center gap-3 mb-2">
+<span class="font-mono text-sm text-slate-500">T-14</span>
+<span class="px-2 py-0.5 rounded bg-primary/20 text-primary text-[11px] font-bold uppercase tracking-wider">feature</span>
+<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-500 text-[11px] font-bold uppercase tracking-wider">in_progress</span>
+</div>
+<h1 class="text-3xl font-bold dark:text-white">Login Flow Implementation</h1>
+</div>
+<!-- Segmented Control -->
+<div class="flex border-b border-slate-200 dark:border-slate-800 mb-8">
+<button class="px-6 py-3 border-b-2 border-primary text-primary font-semibold text-sm">Overview</button>
+<button class="px-6 py-3 text-slate-500 font-medium text-sm hover:text-slate-300">Sessions</button>
+</div>
+<div class="grid grid-cols-3 gap-8">
+<!-- Left Column (Description, Specs, Figma) -->
+<div class="col-span-2 flex flex-col gap-10">
+<!-- Description -->
+<section>
+<h3 class="text-[11px] font-bold text-slate-500 tracking-widest uppercase mb-4">Description</h3>
+<p class="text-slate-600 dark:text-slate-400 leading-relaxed text-[15px]">
+                                    Implement the primary authentication flow supporting OAuth2 providers (Google, GitHub) and traditional email/password login. Ensure robust form validation, error handling for expired tokens, and seamless redirection to the user's intended destination post-login.
+                                </p>
+</section>
+<!-- Specs Bento Grid -->
+<section>
+<h3 class="text-[11px] font-bold text-slate-500 tracking-widest uppercase mb-4">Specs</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4 group hover:border-primary/50 transition-colors">
+<div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div class="flex-1">
+<div class="text-sm font-semibold">Feature Spec</div>
+<div class="text-[10px] text-slate-500 font-mono">v2.0.4 • Updated yesterday</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-[10px] font-bold uppercase text-slate-400 hover:text-primary transition-opacity">Edit</button>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4 group hover:border-primary/50 transition-colors">
+<div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-indigo-400">
+<span class="material-symbols-outlined">architecture</span>
+</div>
+<div class="flex-1">
+<div class="text-sm font-semibold">Design Spec</div>
+<div class="text-[10px] text-slate-500 font-mono">v1.1.0 • Updated 2d ago</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-[10px] font-bold uppercase text-slate-400 hover:text-primary transition-opacity">Edit</button>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4 group hover:border-primary/50 transition-colors">
+<div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-amber-400">
+<span class="material-symbols-outlined">map</span>
+</div>
+<div class="flex-1">
+<div class="text-sm font-semibold">Plan Spec</div>
+<div class="text-[10px] text-slate-500 font-mono">v3.0.1 • Updated today</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-[10px] font-bold uppercase text-slate-400 hover:text-primary transition-opacity">Edit</button>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4 group hover:border-primary/50 transition-colors">
+<div class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-emerald-400">
+<span class="material-symbols-outlined">fact_check</span>
+</div>
+<div class="flex-1">
+<div class="text-sm font-semibold">Test Spec</div>
+<div class="text-[10px] text-slate-500 font-mono">v1.0.0 • Updated 3d ago</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-[10px] font-bold uppercase text-slate-400 hover:text-primary transition-opacity">Edit</button>
+</div>
+</div>
+</section>
+<!-- Figma References -->
+<section>
+<h3 class="text-[11px] font-bold text-slate-500 tracking-widest uppercase mb-4">Figma References</h3>
+<div class="flex gap-4">
+<div class="w-[180px] group cursor-pointer">
+<div class="w-full h-[110px] rounded-lg bg-slate-800 mb-2 overflow-hidden border border-white/5 group-hover:border-primary/40 transition-colors relative">
+<div class="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-primary/20"></div>
+<div class="w-full h-full flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-600">image</span>
+</div>
+</div>
+<div class="text-xs font-medium text-slate-300">Login Screen</div>
+</div>
+<div class="w-[180px] group cursor-pointer">
+<div class="w-full h-[110px] rounded-lg bg-slate-800 mb-2 overflow-hidden border border-white/5 group-hover:border-primary/40 transition-colors relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-emerald-600/20"></div>
+<div class="w-full h-full flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-600">image</span>
+</div>
+</div>
+<div class="text-xs font-medium text-slate-300">OAuth Flow</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (Tasks, Activity) -->
+<div class="col-span-1 flex flex-col gap-10">
+<!-- Tasks Section -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Tasks</h3>
+<span class="text-[10px] font-mono text-slate-400">3/6 Complete</span>
+</div>
+<div class="w-full bg-slate-800 h-1 rounded-full mb-6">
+<div class="bg-primary h-1 rounded-full" style="width: 50%"></div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex items-start gap-3 opacity-50">
+<span class="material-symbols-outlined text-emerald-500 text-lg mt-0.5">check_circle</span>
+<span class="text-sm line-through">Define OAuth schema</span>
+</div>
+<div class="flex items-start gap-3 opacity-50">
+<span class="material-symbols-outlined text-emerald-500 text-lg mt-0.5">check_circle</span>
+<span class="text-sm line-through">Set up Supabase Auth</span>
+</div>
+<div class="flex items-start gap-3 opacity-50">
+<span class="material-symbols-outlined text-emerald-500 text-lg mt-0.5">check_circle</span>
+<span class="text-sm line-through">Create login layout</span>
+</div>
+<div class="flex items-start gap-3 text-slate-100">
+<span class="material-symbols-outlined text-primary text-lg mt-0.5">radio_button_checked</span>
+<span class="text-sm">Add form validation hooks</span>
+</div>
+<div class="flex items-start gap-3 text-slate-400">
+<span class="material-symbols-outlined text-slate-600 text-lg mt-0.5">radio_button_unchecked</span>
+<span class="text-sm">Implement Google OAuth</span>
+</div>
+<div class="flex items-start gap-3 text-slate-400">
+<span class="material-symbols-outlined text-slate-600 text-lg mt-0.5">radio_button_unchecked</span>
+<span class="text-sm">E2E Login Tests</span>
+</div>
+</div>
+</section>
+<!-- Activity Timeline -->
+<section>
+<h3 class="text-[11px] font-bold text-slate-500 tracking-widest uppercase mb-6">Activity</h3>
+<div class="relative flex flex-col gap-6 pl-4 border-l border-slate-800">
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-primary ring-4 ring-background-dark"></div>
+<div class="text-xs font-semibold">Suri started Session #2</div>
+<div class="text-[10px] text-slate-500">12 minutes ago</div>
+</div>
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-background-dark"></div>
+<div class="text-xs font-semibold">Alex marked 'Design' as ready</div>
+<div class="text-[10px] text-slate-500">2 hours ago</div>
+</div>
+<div class="relative opacity-60">
+<div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-slate-600 ring-4 ring-background-dark"></div>
+<div class="text-xs font-semibold">Spec updated to v2.0.4</div>
+<div class="text-[10px] text-slate-500">Yesterday, 4:45 PM</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Status Bar (28px) -->
+<footer class="h-8 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 bg-slate-50 dark:bg-slate-950/80 text-[10px] font-medium text-slate-500">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+<span>Connected</span>
+</div>
+<span>v1.2.0</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[12px]">keyboard_double_arrow_right</span>
+<span>Session active</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+<span>12:34</span>
+</div>
+<div class="flex items-center gap-4">
+<span>4.2K tokens</span>
+<span class="font-bold text-slate-300">$0.08</span>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

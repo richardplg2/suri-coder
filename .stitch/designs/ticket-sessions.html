@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder Ticket Detail Sessions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1085f9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                        "mac-surface": "#1e1e1e",
+                        "mac-border": "#333333"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-effect {
+            background: rgba(30, 30, 30, 0.7);
+            backdrop-filter: blur(12px);
+        }
+        .mac-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .mac-scrollbar::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 10px;
+        }
+        .line-numbers {
+            counter-reset: line;
+        }
+        .line-numbers div::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 2rem;
+            margin-right: 1rem;
+            text-align: right;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display h-screen overflow-hidden select-none">
+<div class="flex h-full w-full">
+<!-- Left Rail (48px) -->
+<aside class="w-12 flex-shrink-0 flex flex-col items-center py-4 gap-4 border-r border-mac-border bg-mac-surface/50">
+<div class="p-2 rounded-lg hover:bg-slate-800 cursor-pointer">
+<span class="material-symbols-outlined text-slate-400">home</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-xs font-bold shadow-lg shadow-primary/20 cursor-pointer">
+                SC
+            </div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-mac-border cursor-pointer">
+<div class="w-full h-full bg-slate-700 flex items-center justify-center text-[10px]" data-alt="Project Avatar for Mobile App">MA</div>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-mac-border cursor-pointer">
+<div class="w-full h-full bg-slate-700 flex items-center justify-center text-[10px]" data-alt="Project Avatar for Web Dashboard">WD</div>
+</div>
+<div class="mt-auto p-2 rounded-lg hover:bg-slate-800 cursor-pointer">
+<span class="material-symbols-outlined text-slate-400">add</span>
+</div>
+</aside>
+<!-- Main Workspace -->
+<div class="flex flex-col flex-1 overflow-hidden">
+<!-- Toolbar (36px) -->
+<header class="h-9 flex-shrink-0 flex items-center px-4 bg-mac-surface border-b border-mac-border justify-between">
+<div class="flex items-center gap-2 w-24">
+<div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+<div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+<div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+</div>
+<div class="flex-1 flex justify-center h-full pt-1.5">
+<div class="flex items-center gap-2 px-3 py-1 bg-primary/20 text-primary border-t-2 border-primary rounded-t-sm text-[11px] font-medium h-full">
+<span class="material-symbols-outlined text-[14px]">confirmation_number</span>
+                        T-14: Login Flow
+                        <span class="material-symbols-outlined text-[12px] opacity-60">close</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 text-slate-500 rounded-t-sm text-[11px] font-medium h-full hover:bg-slate-800/50 cursor-pointer">
+<span class="material-symbols-outlined text-[14px]">code</span>
+                        LoginForm.tsx
+                    </div>
+</div>
+<div class="flex items-center gap-3 w-24 justify-end">
+<span class="material-symbols-outlined text-slate-500 text-lg hover:text-slate-300 cursor-pointer">search</span>
+<span class="material-symbols-outlined text-slate-500 text-lg hover:text-slate-300 cursor-pointer">settings</span>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar (240px) -->
+<aside class="w-[240px] flex-shrink-0 bg-mac-surface/30 border-r border-mac-border flex flex-col">
+<div class="p-3">
+<h3 class="text-[10px] font-bold text-slate-500 tracking-wider mb-3">WORKFLOW STEPS</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-3 px-2 py-1.5 text-slate-400 rounded hover:bg-slate-800/40 cursor-pointer">
+<span class="material-symbols-outlined text-emerald-500 text-[18px] font-bold">check_circle</span>
+<span class="text-xs">Brainstorm</span>
+</div>
+<div class="flex items-center gap-3 px-2 py-1.5 text-slate-400 rounded hover:bg-slate-800/40 cursor-pointer">
+<span class="material-symbols-outlined text-emerald-500 text-[18px] font-bold">check_circle</span>
+<span class="text-xs">Specs</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-3 px-2 py-1.5 bg-primary/10 text-primary rounded cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">brush</span>
+<span class="text-xs font-semibold">Design</span>
+</div>
+<div class="pl-8 space-y-1">
+<div class="flex items-center gap-2 py-1 text-slate-400 text-[11px] hover:text-slate-200 cursor-pointer">
+<span class="material-symbols-outlined text-[14px] text-emerald-500">check</span>
+                                        Session #1
+                                    </div>
+<div class="flex items-center gap-2 py-1 text-primary text-[11px] font-medium cursor-pointer">
+<div class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(16,133,249,0.8)]"></div>
+                                        Session #2
+                                    </div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col bg-mac-surface overflow-hidden">
+<!-- Ticket Header -->
+<div class="px-6 py-4 border-b border-mac-border bg-mac-surface/40">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<span class="px-1.5 py-0.5 bg-slate-800 text-slate-300 text-[10px] font-bold rounded">T-14</span>
+<h1 class="text-lg font-bold">Design Login Flow UI Components</h1>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 bg-primary/20 text-primary text-[10px] font-bold rounded-full border border-primary/30">FEATURE</span>
+<span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold rounded-full border border-yellow-500/30">IN PROGRESS</span>
+</div>
+</div>
+<!-- Segmented Control -->
+<div class="flex p-0.5 bg-background-dark rounded-lg w-fit">
+<button class="px-4 py-1 text-xs font-medium text-slate-500 hover:text-slate-300">Overview</button>
+<button class="px-4 py-1 text-xs font-medium bg-mac-surface text-slate-100 rounded-md shadow-sm border border-mac-border">Sessions</button>
+</div>
+</div>
+<!-- Session Transcript -->
+<div class="flex-1 overflow-y-auto mac-scrollbar p-6 space-y-4">
+<!-- Collapsed Session -->
+<div class="border border-mac-border bg-mac-surface/40 rounded-lg p-3 flex items-center justify-between opacity-70">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-500">expand_more</span>
+<span class="text-xs font-semibold">Design — Session #1</span>
+<span class="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-500 text-[9px] font-bold rounded uppercase">Completed</span>
+<span class="text-[10px] text-slate-500">12 actions · 4m 20s</span>
+</div>
+<span class="material-symbols-outlined text-slate-600 text-sm">more_horiz</span>
+</div>
+<!-- Active Session -->
+<div class="border border-mac-border bg-mac-surface/20 rounded-lg overflow-hidden">
+<div class="bg-mac-surface/60 p-3 border-b border-mac-border flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">expand_less</span>
+<span class="text-xs font-semibold">Design — Session #2</span>
+<div class="flex items-center gap-1.5 px-1.5 py-0.5 bg-emerald-500/10 text-emerald-500 text-[9px] font-bold rounded uppercase">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                        Running
+                                    </div>
+<span class="text-[10px] text-slate-500">6 actions · 1m 45s</span>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<!-- Message 1: Assistant -->
+<div class="flex gap-3">
+<div class="w-6 h-6 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-white text-[16px]">smart_toy</span>
+</div>
+<div class="text-xs leading-relaxed text-slate-300 max-w-2xl">
+                                        I've reviewed the design requirements for <code class="bg-slate-800 px-1 rounded">LoginForm.tsx</code>. I will now analyze the existing state management to ensure compatibility with the new flow.
+                                    </div>
+</div>
+<!-- Message 2: Tool Read (SELECTED) -->
+<div class="flex gap-3 bg-primary/10 -mx-4 px-4 py-2 border-l-2 border-primary">
+<div class="w-6 h-6 rounded-md bg-slate-700 flex items-center justify-center flex-shrink-0 border border-mac-border">
+<span class="material-symbols-outlined text-slate-300 text-[16px]">file_open</span>
+</div>
+<div class="flex-1 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[11px] font-mono text-primary">src/components/LoginForm.tsx</span>
+<span class="text-[10px] text-slate-500">File Analysis</span>
+</div>
+<span class="px-2 py-0.5 bg-primary/20 text-primary text-[9px] font-bold rounded uppercase">Read</span>
+</div>
+</div>
+<!-- Message 3: Tool Edit -->
+<div class="flex gap-3 px-0 py-1">
+<div class="w-6 h-6 rounded-md bg-slate-700 flex items-center justify-center flex-shrink-0 border border-mac-border">
+<span class="material-symbols-outlined text-slate-300 text-[16px]">edit</span>
+</div>
+<div class="flex-1 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[11px] font-mono text-slate-300">src/components/LoginForm.tsx</span>
+<span class="text-[10px] text-slate-500">Applied validation hooks</span>
+</div>
+<span class="px-2 py-0.5 bg-slate-800 text-slate-400 text-[9px] font-bold rounded uppercase">Edit</span>
+</div>
+</div>
+<!-- Message 4: Assistant -->
+<div class="flex gap-3">
+<div class="w-6 h-6 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-white text-[16px]">smart_toy</span>
+</div>
+<div class="text-xs leading-relaxed text-slate-300">
+                                        Validation logic updated. Running unit tests to verify login state transitions.
+                                    </div>
+</div>
+<!-- Message 5: Tool Bash -->
+<div class="flex gap-3">
+<div class="w-6 h-6 rounded-md bg-slate-900 flex items-center justify-center flex-shrink-0 border border-mac-border">
+<span class="material-symbols-outlined text-emerald-500 text-[16px]">terminal</span>
+</div>
+<div class="flex-1 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[11px] font-mono text-slate-400">npm run test src/components/LoginForm.test.tsx</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[9px] font-bold rounded uppercase">Success</span>
+<span class="px-2 py-0.5 bg-slate-800 text-slate-400 text-[9px] font-bold rounded uppercase">Bash</span>
+</div>
+</div>
+</div>
+<!-- Message 6: Subagent -->
+<div class="flex gap-3 p-3 bg-slate-800/30 rounded-lg border border-mac-border">
+<div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-slate-300 text-[14px]">bolt</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[11px] font-bold text-slate-300">Subagent: Review component accessibility</span>
+<span class="text-[9px] text-slate-500 uppercase">A11Y-CHECKER</span>
+</div>
+<p class="text-[10px] text-slate-400">Analyzing ARIA labels and focus management in LoginForm component...</p>
+</div>
+</div>
+<!-- Message 8: Error -->
+<div class="flex gap-3 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+<div class="w-6 h-6 rounded-md bg-red-500 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-white text-[16px]">error</span>
+</div>
+<div class="flex-1">
+<div class="text-[11px] font-mono text-red-400 mb-1">TypeError: Cannot read property 'map' of undefined</div>
+<div class="text-[10px] text-red-400/70">At src/components/LoginForm.tsx:142:24</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Inspector Panel (320px) -->
+<aside class="w-[320px] flex-shrink-0 bg-background-dark/80 border-l border-mac-border flex flex-col">
+<div class="p-3 border-b border-mac-border">
+<h3 class="text-[10px] font-bold text-slate-500 tracking-wider mb-2 uppercase">File Preview</h3>
+<div class="flex items-center gap-1.5 text-[10px] text-slate-400 overflow-hidden whitespace-nowrap">
+<span>src</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span>components</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span class="text-slate-200">LoginForm.tsx</span>
+</div>
+</div>
+<div class="flex-1 overflow-auto bg-[#1e1e1e] font-mono text-[11px] leading-relaxed line-numbers mac-scrollbar p-2">
+<div class="whitespace-nowrap"><span class="text-purple-400">import</span> React, { useState } <span class="text-purple-400">from</span> <span class="text-emerald-400">'react'</span>;</div>
+<div class="whitespace-nowrap"><span class="text-purple-400">import</span> { useAuth } <span class="text-purple-400">from</span> <span class="text-emerald-400">'../hooks/useAuth'</span>;</div>
+<div class="whitespace-nowrap"></div>
+<div class="whitespace-nowrap"><span class="text-blue-400">export const</span> <span class="text-yellow-200">LoginForm</span> = () <span class="text-blue-400">=&gt;</span> {</div>
+<div class="whitespace-nowrap"> <span class="text-blue-400">const</span> [email, setEmail] = <span class="text-yellow-200">useState</span>(<span class="text-emerald-400">''</span>);</div>
+<div class="whitespace-nowrap"> <span class="text-blue-400">const</span> [password, setPassword] = <span class="text-yellow-200">useState</span>(<span class="text-emerald-400">''</span>);</div>
+<div class="whitespace-nowrap"> <span class="text-blue-400">const</span> { login, loading } = <span class="text-yellow-200">useAuth</span>();</div>
+<div class="whitespace-nowrap"></div>
+<div class="whitespace-nowrap bg-primary/20 -mx-2 px-2 border-l-2 border-primary"> <span class="text-blue-400">const</span> <span class="text-yellow-200">handleSubmit</span> = <span class="text-blue-400">async</span> (e: React.FormEvent) <span class="text-blue-400">=&gt;</span> {</div>
+<div class="whitespace-nowrap bg-primary/20 -mx-2 px-2 border-l-2 border-primary">    e.<span class="text-yellow-200">preventDefault</span>();</div>
+<div class="whitespace-nowrap bg-primary/20 -mx-2 px-2 border-l-2 border-primary"> <span class="text-blue-400">await</span> <span class="text-yellow-200">login</span>(email, password);</div>
+<div class="whitespace-nowrap bg-primary/20 -mx-2 px-2 border-l-2 border-primary">  };</div>
+<div class="whitespace-nowrap"></div>
+<div class="whitespace-nowrap"> <span class="text-purple-400">return</span> (</div>
+<div class="whitespace-nowrap">    &lt;<span class="text-blue-400">form</span> <span class="text-slate-400">onSubmit</span>={handleSubmit} <span class="text-slate-400">className</span>=<span class="text-emerald-400">"space-y-4"</span>&gt;</div>
+<div class="whitespace-nowrap">      &lt;<span class="text-blue-400">div</span>&gt;</div>
+<div class="whitespace-nowrap">        &lt;<span class="text-blue-400">label</span> <span class="text-slate-400">htmlFor</span>=<span class="text-emerald-400">"email"</span>&gt;Email Address&lt;/<span class="text-blue-400">label</span>&gt;</div>
+<div class="whitespace-nowrap">        &lt;<span class="text-blue-400">input</span></div>
+<div class="whitespace-nowrap"> <span class="text-slate-400">type</span>=<span class="text-emerald-400">"email"</span></div>
+<div class="whitespace-nowrap"> <span class="text-slate-400">id</span>=<span class="text-emerald-400">"email"</span></div>
+<div class="whitespace-nowrap"> <span class="text-slate-400">value</span>={email}</div>
+<div class="whitespace-nowrap"> <span class="text-slate-400">onChange</span>={(e) <span class="text-blue-400">=&gt;</span> <span class="text-yellow-200">setEmail</span>(e.target.value)}</div>
+<div class="whitespace-nowrap">        /&gt;</div>
+<div class="whitespace-nowrap">      &lt;/<span class="text-blue-400">div</span>&gt;</div>
+<div class="whitespace-nowrap">      &lt;<span class="text-blue-400">div</span>&gt;</div>
+<div class="whitespace-nowrap">        &lt;<span class="text-blue-400">label</span> <span class="text-slate-400">htmlFor</span>=<span class="text-emerald-400">"password"</span>&gt;Password&lt;/<span class="text-blue-400">label</span>&gt;</div>
+<div class="whitespace-nowrap">        &lt;<span class="text-blue-400">input</span></div>
+<div class="whitespace-nowrap"> <span class="text-slate-400">type</span>=<span class="text-emerald-400">"password"</span></div>
+<div class="whitespace-nowrap"> <span class="text-slate-400">id</span>=<span class="text-emerald-400">"password"</span></div>
+<div class="whitespace-nowrap"> <span class="text-slate-400">value</span>={password}</div>
+<div class="whitespace-nowrap"> <span class="text-slate-400">onChange</span>={(e) <span class="text-blue-400">=&gt;</span> <span class="text-yellow-200">setPassword</span>(e.target.value)}</div>
+<div class="whitespace-nowrap">        /&gt;</div>
+<div class="whitespace-nowrap">      &lt;/<span class="text-blue-400">div</span>&gt;</div>
+<div class="whitespace-nowrap">      &lt;<span class="text-blue-400">button</span> <span class="text-slate-400">type</span>=<span class="text-emerald-400">"submit"</span> <span class="text-slate-400">disabled</span>={loading}&gt;</div>
+<div class="whitespace-nowrap">        {loading ? <span class="text-emerald-400">'Signing in...'</span> : <span class="text-emerald-400">'Sign In'</span>}</div>
+<div class="whitespace-nowrap">      &lt;/<span class="text-blue-400">button</span>&gt;</div>
+<div class="whitespace-nowrap">    &lt;/<span class="text-blue-400">form</span>&gt;</div>
+<div class="whitespace-nowrap">  );</div>
+<div class="whitespace-nowrap">};</div>
+</div>
+</aside>
+</div>
+<!-- Status Bar (28px) -->
+<footer class="h-7 flex-shrink-0 flex items-center justify-between px-3 bg-mac-surface border-t border-mac-border text-[10px] text-slate-500">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5 text-emerald-500 font-medium">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.8)]"></div>
+                        Connected
+                    </div>
+<span>main*</span>
+<span>UTF-8</span>
+</div>
+<div class="flex items-center gap-4">
+<span>Session: Session #2</span>
+<span>Tokens: 1,242 / 128k</span>
+<span>Last action: 12s ago</span>
+</div>
+</footer>
+</div>
+</div>
+</body></html>
