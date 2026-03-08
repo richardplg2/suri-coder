@@ -1,21 +1,20 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@agent-coding/ui'
 import { Bot, Figma } from 'lucide-react'
 import { useModalStore } from 'renderer/stores/use-modal-store'
-import { useTabStore } from 'renderer/stores/use-tab-store'
 
 export function CreateTicketModal() {
   const { activeModal, modalData, close } = useModalStore()
   const isOpen = activeModal === 'create-ticket'
-  const projectId = (modalData?.projectId as string) ?? ''
+  const _projectId = (modalData?.projectId as string) ?? ''
 
   const handleStartWithAI = () => {
     close()
-    useTabStore.getState().openBrainstormTab(projectId, 'New Brainstorm')
+    // TODO: Brainstorm flow will be re-implemented in a later plan
   }
 
   const handleStartFromFigma = () => {
     close()
-    useTabStore.getState().openFigmaImportTab(projectId, 'Figma Import')
+    // TODO: Figma import flow will be re-implemented in a later plan
   }
 
   return (

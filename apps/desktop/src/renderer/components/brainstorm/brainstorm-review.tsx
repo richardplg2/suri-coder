@@ -80,8 +80,8 @@ export function BrainstormReview({ tabId, summary, specs, sessionId, projectId }
       {
         onSuccess: (data) => {
           const store = useTabStore.getState()
-          store.closeTab(tabId)
-          store.openTicketTab(data.ticket_id, projectId, title || 'Untitled Ticket')
+          store.closeTab(projectId, tabId)
+          store.openTicketTab(projectId, data.ticket_id, title || 'Untitled Ticket')
         },
       },
     )

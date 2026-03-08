@@ -1,7 +1,8 @@
-import { Home, Folder, Search, Sun, Moon } from 'lucide-react'
+import { Home, Search, Sun, Moon, Settings } from 'lucide-react'
 import { TabBar, Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, Toaster } from '@agent-coding/ui'
 import type { Tab } from '@agent-coding/ui'
 import { useTabStore } from 'renderer/stores/use-tab-store'
+import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useThemeStore } from 'renderer/stores/use-theme-store'
 import type { AppTab } from 'renderer/types/tabs'
 import { AppSidebar } from './app-sidebar'
@@ -14,14 +15,10 @@ function tabToBarTab(tab: AppTab): Tab {
   switch (tab.type) {
     case 'home':
       return { id: tab.id, label: '', icon: <Home className="size-4" />, closable: false }
-    case 'project':
-      return { id: tab.id, label: '', icon: <Folder className="size-4" />, closable: true }
     case 'ticket':
       return { id: tab.id, label: tab.label, closable: true }
-    case 'brainstorm':
-      return { id: tab.id, label: tab.label, closable: true }
-    case 'figma-import':
-      return { id: tab.id, label: tab.label, closable: true }
+    case 'settings':
+      return { id: tab.id, label: tab.label, icon: <Settings className="size-4" />, closable: true }
   }
 }
 
@@ -30,7 +27,10 @@ const isMac = window.App?.platform === 'darwin'
 export function AppLayout({ children }: { children: React.ReactNode }) {
   useKeyboardShortcuts()
   useNotificationsWs()
-  const { tabs, activeTabId, setActiveTab, closeTab } = useTabStore()
+  const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
+  const tabs = useTabStore((s) => activeProjectId ? s.tabsByProject[activeProjectId] ?? [] : [])
+  const activeTabId = useTabStore((s) => activeProjectId ? s.activeTabByProject[activeProjectId] : undefined)
+  const { setActiveTab, closeTab } = useTabStore()
   const { theme, setTheme } = useThemeStore()
 
   const barTabs = tabs.map(tabToBarTab)
@@ -45,9 +45,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex-1 app-no-drag">
             <TabBar
               tabs={barTabs}
-              activeTab={activeTabId}
-              onTabChange={setActiveTab}
-              onTabClose={closeTab}
+              activeTab={activeTabId ?? ''}
+              onTabChange={(id) => activeProjectId && setActiveTab(activeProjectId, id)}
+              onTabClose={(id) => activeProjectId && closeTab(activeProjectId, id)}
             />
           </div>
           {/* Right-side actions */}

@@ -3,7 +3,6 @@ import { Button, Textarea } from '@agent-coding/ui'
 import { Sparkles } from 'lucide-react'
 import { FigmaViewer } from 'renderer/components/figma/figma-viewer'
 import { useBrainstormStart } from 'renderer/hooks/queries/use-brainstorm'
-import { useTabStore } from 'renderer/stores/use-tab-store'
 import { generateFigmaMarkdown } from 'renderer/lib/figma-export'
 import type { FigmaNode } from 'renderer/hooks/use-figma-connection'
 
@@ -51,7 +50,7 @@ export function FigmaImportScreen({ projectId }: FigmaImportScreenProps) {
       },
       {
         onSuccess: () => {
-          useTabStore.getState().openBrainstormTab(projectId, `Brainstorm: ${figmaData.nodeTree.name}`)
+          // TODO: Brainstorm tab removed — will be re-implemented in a later plan
         },
       },
     )

@@ -5,12 +5,12 @@ import {
 } from '@agent-coding/ui'
 import { useModalStore } from 'renderer/stores/use-modal-store'
 import { useDeleteProject } from 'renderer/hooks/queries/use-projects'
-import { useTabStore } from 'renderer/stores/use-tab-store'
+import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 
 export function DeleteProjectModal() {
   const { activeModal, modalData, close } = useModalStore()
   const deleteProject = useDeleteProject()
-  const { closeTab } = useTabStore()
+  const { activeProjectId, setActiveProject } = useProjectNavStore()
 
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -24,7 +24,10 @@ export function DeleteProjectModal() {
     setError(null)
     try {
       await deleteProject.mutateAsync(projectId)
-      closeTab(`project-${projectId}`)
+      // If we deleted the active project, go back to home
+      if (activeProjectId === projectId) {
+        setActiveProject(null)
+      }
       close()
       setConfirm('')
     } catch (err) {

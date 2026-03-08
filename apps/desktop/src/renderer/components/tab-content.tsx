@@ -1,26 +1,31 @@
 import { useTabStore } from 'renderer/stores/use-tab-store'
+import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { HomeScreen } from 'renderer/screens/home'
 import { ProjectScreen } from 'renderer/screens/project'
 import { TicketScreen } from 'renderer/screens/ticket'
-import { BrainstormScreen } from 'renderer/screens/brainstorm'
-import { FigmaImportScreen } from 'renderer/screens/figma-import'
 
 export function TabContent() {
-  const { tabs, activeTabId } = useTabStore()
-  const activeTab = tabs.find((t) => t.id === activeTabId)
+  const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
+  const activeTab = useTabStore((s) => {
+    if (!activeProjectId) return undefined
+    const tabId = s.activeTabByProject[activeProjectId]
+    if (!tabId) return undefined
+    const tabs = s.tabsByProject[activeProjectId] ?? []
+    return tabs.find((t) => t.id === tabId)
+  })
 
-  if (!activeTab) return null
+  // No project selected — show home
+  if (!activeProjectId) return <HomeScreen />
+
+  // Project selected but no active tab — show project kanban
+  if (!activeTab) return <ProjectScreen projectId={activeProjectId} />
 
   switch (activeTab.type) {
     case 'home':
       return <HomeScreen />
-    case 'project':
-      return <ProjectScreen projectId={activeTab.projectId} />
     case 'ticket':
       return <TicketScreen ticketId={activeTab.ticketId} projectId={activeTab.projectId} />
-    case 'brainstorm':
-      return <BrainstormScreen tabId={activeTab.id} projectId={activeTab.projectId} />
-    case 'figma-import':
-      return <FigmaImportScreen projectId={activeTab.projectId} />
+    case 'settings':
+      return <ProjectScreen projectId={activeProjectId} />
   }
 }

@@ -1,16 +1,15 @@
 import { Plus, Folder } from 'lucide-react'
 import { Button, EmptyState, Spinner, ScrollArea } from '@agent-coding/ui'
 import { useProjects } from 'renderer/hooks/queries/use-projects'
+import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import { useModalStore } from 'renderer/stores/use-modal-store'
-import { useSidebarStore } from 'renderer/stores/use-sidebar-store'
 import { ProjectCard } from 'renderer/components/project-card'
 
 export function HomeScreen() {
   const { data: projects, isLoading } = useProjects()
-  const { openProjectTab } = useTabStore()
+  const { setActiveProject } = useProjectNavStore()
   const { open } = useModalStore()
-  const { setActiveNav } = useSidebarStore()
 
   if (isLoading) {
     return (
@@ -51,10 +50,10 @@ export function HomeScreen() {
               <ProjectCard
                 key={project.id}
                 project={project}
-                onClick={() => openProjectTab(project.id, project.name)}
+                onClick={() => setActiveProject(project.id)}
                 onSettings={() => {
-                  openProjectTab(project.id, project.name)
-                  setActiveNav('settings')
+                  setActiveProject(project.id)
+                  useTabStore.getState().openSettingsTab(project.id)
                 }}
                 onDelete={() => open('delete-project', { projectId: project.id, projectName: project.name })}
               />

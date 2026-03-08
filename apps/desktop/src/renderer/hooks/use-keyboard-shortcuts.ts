@@ -1,9 +1,13 @@
 import { useEffect } from 'react'
 import { useTabStore } from 'renderer/stores/use-tab-store'
+import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useSidebarStore } from 'renderer/stores/use-sidebar-store'
 
 export function useKeyboardShortcuts() {
-  const { tabs, activeTabId, setActiveTab, closeTab } = useTabStore()
+  const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
+  const tabs = useTabStore((s) => activeProjectId ? s.tabsByProject[activeProjectId] ?? [] : [])
+  const activeTabId = useTabStore((s) => activeProjectId ? s.activeTabByProject[activeProjectId] : undefined)
+  const { setActiveTab, closeTab } = useTabStore()
   const { toggle: toggleSidebar } = useSidebarStore()
 
   useEffect(() => {
@@ -13,7 +17,7 @@ export function useKeyboardShortcuts() {
       // Cmd+W: close active tab
       if (mod && e.key === 'w') {
         e.preventDefault()
-        if (activeTabId !== 'home') closeTab(activeTabId)
+        if (activeProjectId && activeTabId) closeTab(activeProjectId, activeTabId)
         return
       }
 
@@ -28,12 +32,12 @@ export function useKeyboardShortcuts() {
       if (mod && e.key >= '1' && e.key <= '9') {
         e.preventDefault()
         const index = Number.parseInt(e.key) - 1
-        if (index < tabs.length) setActiveTab(tabs[index].id)
+        if (activeProjectId && index < tabs.length) setActiveTab(activeProjectId, tabs[index].id)
         return
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [tabs, activeTabId, setActiveTab, closeTab, toggleSidebar])
+  }, [tabs, activeTabId, activeProjectId, setActiveTab, closeTab, toggleSidebar])
 }

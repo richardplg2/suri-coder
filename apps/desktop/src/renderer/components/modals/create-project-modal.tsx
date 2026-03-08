@@ -5,7 +5,7 @@ import {
 } from '@agent-coding/ui'
 import { useModalStore } from 'renderer/stores/use-modal-store'
 import { useCreateProject } from 'renderer/hooks/queries/use-projects'
-import { useTabStore } from 'renderer/stores/use-tab-store'
+import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 
 function slugify(name: string): string {
   return name
@@ -18,7 +18,7 @@ function slugify(name: string): string {
 export function CreateProjectModal() {
   const { activeModal, close } = useModalStore()
   const createProject = useCreateProject()
-  const { openProjectTab } = useTabStore()
+  const { setActiveProject } = useProjectNavStore()
 
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
@@ -60,7 +60,7 @@ export function CreateProjectModal() {
       })
       close()
       reset()
-      openProjectTab(project.id, project.name)
+      setActiveProject(project.id)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create project')
     }
