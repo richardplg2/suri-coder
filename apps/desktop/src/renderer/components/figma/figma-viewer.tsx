@@ -131,7 +131,7 @@ export function FigmaViewer({ onAnnotationsReady }: FigmaViewerProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Connection bar */}
-      <div className="flex items-center gap-3 border-b border-border px-4 py-2">
+      <div className="flex items-center gap-3 border-b border-border/50 glass-panel px-4 py-2">
         <Badge
           variant="outline"
           className={
@@ -225,17 +225,17 @@ export function FigmaViewer({ onAnnotationsReady }: FigmaViewerProps) {
           </SplitPanePanel>
         </SplitPane>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 text-muted-foreground">
           {isLoading ? (
             <Spinner label="Loading design..." />
           ) : (
-            <>
-              <div className="text-[14px]">Connect to Figma and load a design</div>
-              <p className="text-caption max-w-sm text-center">
+            <div className="bento-cell-lg max-w-md text-center">
+              <div className="text-sm font-semibold tracking-tight mb-2">Connect to Figma and load a design</div>
+              <p className="text-caption">
                 Enter the channel ID from the Figma plugin, click Connect, select a frame in Figma, then click Load
                 Design.
               </p>
-            </>
+            </div>
           )}
         </div>
       )}

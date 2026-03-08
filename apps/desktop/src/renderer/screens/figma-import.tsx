@@ -63,7 +63,7 @@ export function FigmaImportScreen({ projectId }: FigmaImportScreenProps) {
         <FigmaViewer onAnnotationsReady={handleAnnotationsReady} />
       </div>
 
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border/50 glass-panel p-4">
         <div className="mx-auto max-w-3xl">
           <label className="text-[11px] text-muted-foreground uppercase block mb-1.5">Overall Description</label>
           <Textarea

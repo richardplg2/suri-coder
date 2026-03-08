@@ -47,7 +47,7 @@ export function TicketScreen({ ticketId, projectId }: TicketScreenProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Fixed header */}
-      <div className="border-b border-border p-4">
+      <div className="border-b border-border/50 p-4 pb-3">
         <div className="mb-1.5 flex items-center gap-2">
           <span className="text-caption text-muted-foreground">{ticket.key}</span>
           <Badge className={`text-[10px] px-1.5 py-0 font-medium uppercase ${TYPE_COLORS[ticket.type]}`}>
@@ -57,11 +57,11 @@ export function TicketScreen({ ticketId, projectId }: TicketScreenProps) {
             {ticket.status.replace('_', ' ')}
           </Badge>
         </div>
-        <h2 className="text-base font-semibold">{ticket.title}</h2>
+        <h2 className="text-base font-semibold tracking-tight">{ticket.title}</h2>
       </div>
 
       {/* Tab bar */}
-      <div className="border-b border-border px-4 py-2">
+      <div className="border-b border-border/50 px-4 py-2">
         <SegmentedControl
           items={TAB_ITEMS}
           value={activeTab}

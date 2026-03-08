@@ -119,11 +119,13 @@ export function BrainstormScreen({ tabId, projectId, sessionId }: BrainstormScre
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3">
-        <p className="text-[13px] text-destructive">{error}</p>
-        <Button size="sm" variant="outline" onClick={() => { setError(null); window.location.reload() }}>
-          Retry
-        </Button>
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <div className="bento-cell max-w-sm text-center">
+          <p className="text-[13px] text-destructive mb-3">{error}</p>
+          <Button size="sm" variant="outline" onClick={() => { setError(null); window.location.reload() }}>
+            Retry
+          </Button>
+        </div>
       </div>
     )
   }
@@ -148,7 +150,7 @@ export function BrainstormScreen({ tabId, projectId, sessionId }: BrainstormScre
             // Summary messages
             if (msg.message_type === 'summary') {
               return (
-                <div key={msg.id} className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
+                <div key={msg.id} className="bento-cell-lg border-primary/20 bg-primary/5">
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="size-4 text-primary" />
                     <span className="text-[13px] font-semibold">Summary Ready</span>
@@ -182,7 +184,7 @@ export function BrainstormScreen({ tabId, projectId, sessionId }: BrainstormScre
       </ScrollArea>
 
       {/* Input bar */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border/50 glass-panel p-4">
         <div className="mx-auto flex max-w-2xl gap-2">
           <Input
             value={input}

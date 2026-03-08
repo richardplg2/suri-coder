@@ -64,8 +64,8 @@ export function TasksTab({ ticket, projectId }: TasksTabProps) {
     <ScrollArea className="h-full">
       <div className="p-4">
         {/* DAG visualization */}
-        <div className="mb-4">
-          <div className="section-header mb-2">Workflow</div>
+        <div className="bento-cell-lg mb-4">
+          <div className="section-header mb-3">Workflow</div>
           <WorkflowDAG steps={ticket.steps} selectedStepId={selectedStepId ?? undefined} onSelectStep={setSelectedStepId} />
         </div>
 
@@ -84,8 +84,8 @@ export function TasksTab({ ticket, projectId }: TasksTabProps) {
             <div key={step.id}>
               <button
                 type="button"
-                className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-left ${
-                  selectedStepId === step.id ? 'border-primary bg-[var(--selection)]' : 'border-border bg-card'
+                className={`bento-cell flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left ${
+                  selectedStepId === step.id ? 'border-primary bg-[var(--selection)]' : ''
                 }`}
                 onClick={() => setSelectedStepId(step.id)}
               >
@@ -112,7 +112,7 @@ export function TasksTab({ ticket, projectId }: TasksTabProps) {
                 )}
               </button>
               {step.status === 'running' && liveOutput[step.id]?.length > 0 && (
-                <div className="mt-2 max-h-48 overflow-y-auto rounded border border-border bg-background p-2 font-mono text-[11px]">
+                <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-border/50 bg-background p-2 font-mono text-[11px]">
                   {liveOutput[step.id].map((line, j) => (
                     <div key={j} className="text-muted-foreground">{line}</div>
                   ))}
@@ -125,7 +125,7 @@ export function TasksTab({ ticket, projectId }: TasksTabProps) {
 
       {reviewStepId && (
         <div className="border-t border-border" style={{ height: '60vh' }}>
-          <div className="flex items-center justify-between border-b border-border bg-card px-4 py-1.5">
+          <div className="flex items-center justify-between border-b border-border/50 glass-panel px-4 py-1.5">
             <span className="text-[12px] font-medium text-muted-foreground">Code Review</span>
             <button
               type="button"

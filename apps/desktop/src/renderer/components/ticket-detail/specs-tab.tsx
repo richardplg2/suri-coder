@@ -32,7 +32,7 @@ function HistoryDialog({ ticketId, specId, onClose }: { ticketId: string; specId
             <div className="text-[13px] text-muted-foreground">No revision history.</div>
           )}
           {history.map((rev) => (
-            <div key={rev.id} className="rounded border border-border p-3">
+            <div key={rev.id} className="bento-cell p-3">
               <div className="flex items-center justify-between text-[13px]">
                 <span className="font-medium">Revision {rev.revision}</span>
                 <span className="text-caption text-muted-foreground">
@@ -114,7 +114,7 @@ function SpecRow({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card">
+    <div className="bento-cell p-0">
       <button
         type="button"
         className="flex w-full items-center gap-3 px-4 py-3 text-left"
@@ -133,7 +133,7 @@ function SpecRow({
       </button>
 
       {isExpanded && (
-        <div className="border-t border-border px-4 py-3">
+        <div className="border-t border-border/50 px-4 py-3">
           {isEditing ? (
             <div className="space-y-2">
               <Textarea value={editContent} onChange={(e) => onEditContentChange(e.target.value)} rows={10} />

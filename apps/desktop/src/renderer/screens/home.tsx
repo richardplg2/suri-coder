@@ -24,8 +24,8 @@ export function HomeScreen() {
     <ScrollArea className="h-full">
       <div className="p-6">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="window-title">Projects</h1>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-lg font-semibold tracking-tight">Projects</h1>
           <Button size="sm" onClick={() => open('create-project')}>
             <Plus className="mr-1.5 size-3.5" />
             New Project
@@ -46,7 +46,7 @@ export function HomeScreen() {
             }
           />
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+          <div className="bento-grid-3">
             {projects.map((project) => (
               <ProjectCard
                 key={project.id}

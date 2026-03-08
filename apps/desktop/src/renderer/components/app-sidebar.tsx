@@ -13,14 +13,9 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        'shrink-0 border-r border-border transition-[width] duration-200 ease-out',
+        'shrink-0 border-r border-border/50 glass-panel bg-[var(--sidebar-bg)] transition-[width] duration-200 ease-out',
         isOpen ? 'w-60' : 'w-0 overflow-hidden'
       )}
-      style={{
-        background: 'var(--sidebar-bg)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-      }}
     >
       <div className="flex h-full flex-col">
         {activeTab?.type === 'home' && <HomeSidebar />}

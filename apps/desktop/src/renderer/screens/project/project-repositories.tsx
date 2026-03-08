@@ -23,9 +23,9 @@ export function ProjectRepositories({ project }: ProjectRepositoriesProps) {
 
   return (
     <ScrollArea className="h-full">
-      <div className="mx-auto max-w-lg p-6 space-y-6">
+      <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">Repositories</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Repositories</h2>
           <Button
             size="sm"
             onClick={() => open('connect-repos', { projectId: project.id })}
@@ -50,11 +50,11 @@ export function ProjectRepositories({ project }: ProjectRepositoriesProps) {
             }
           />
         ) : (
-          <div className="space-y-2">
+          <div className="bento-grid-2">
             {repos.map((repo) => (
               <div
                 key={repo.id}
-                className="flex items-center justify-between rounded-lg border px-4 py-3"
+                className="bento-cell flex items-center justify-between"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

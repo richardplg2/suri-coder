@@ -20,13 +20,13 @@ export function ProjectCard({ project, onClick, onSettings, onDelete }: ProjectC
 
   return (
     <Card
-      className="cursor-pointer rounded-[var(--radius-card)] transition-all duration-150 hover:bg-secondary/50 hover:shadow-[var(--shadow-sm)]"
+      className="bento-cell cursor-pointer p-0 transition-all duration-150"
       onClick={onClick}
     >
       <CardHeader>
         <div className="flex items-center gap-2">
           <Folder className="size-4 text-primary" />
-          <CardTitle className="text-[13px] font-medium">{project.name}</CardTitle>
+          <CardTitle className="text-sm font-semibold tracking-tight">{project.name}</CardTitle>
         </div>
         <CardAction>
           <DropdownMenu>

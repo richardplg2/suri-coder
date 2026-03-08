@@ -26,7 +26,7 @@ export function StatusBar() {
   }, [])
 
   return (
-    <div className="flex h-7 shrink-0 items-center justify-between border-t border-border bg-card/50 px-3 text-caption text-muted-foreground">
+    <div className="flex h-7 shrink-0 items-center justify-between border-t border-border/50 glass-panel px-3 text-caption text-muted-foreground">
       <div className="flex items-center gap-1.5">
         <StatusBadge
           status={connected ? 'connected' : 'disconnected'}
