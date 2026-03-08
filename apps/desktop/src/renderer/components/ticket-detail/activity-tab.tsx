@@ -67,7 +67,7 @@ export function ActivityTab({ ticket }: ActivityTabProps) {
         {liveEvents.map((evt) => {
           const Icon = EVENT_ICONS[evt.event] ?? Activity
           return (
-            <div key={evt.id} className="flex items-start gap-3">
+            <div key={evt.id} className="bento-cell flex items-start gap-3 p-3">
               <Icon className="mt-0.5 size-4 text-muted-foreground" />
               <div className="flex-1">
                 <p className="text-[13px]">{evt.description}</p>
