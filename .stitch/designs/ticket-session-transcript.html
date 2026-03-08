@@ -1,0 +1,265 @@
+<html class="dark"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#1685f3",
+            "background-light": "#f5f7f8",
+            "background-dark": "#101922",
+            "surface-dark": "#182634",
+            "card-dark": "#223649",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #314d68; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4a6b8a; }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<div class="layout-container flex h-screen grow overflow-hidden">
+<!-- Main Content Area -->
+<main class="flex flex-1 overflow-hidden">
+<!-- Left Column: Transcript (70%) -->
+<section class="flex-[7] flex flex-col border-r border-slate-200 dark:border-slate-800 bg-background-light dark:bg-background-dark overflow-hidden">
+<!-- Header -->
+<header class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<h1 class="text-2xl font-bold tracking-tight">Session #2</h1>
+<span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-semibold ring-1 ring-emerald-500/20">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+                Running
+              </span>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
+              4m 22s • $1.24 • 28.5K tokens
+            </p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors text-sm font-semibold">
+              Share
+            </button>
+<button class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-semibold">
+              Stop Session
+            </button>
+</div>
+</header>
+<!-- Transcript Feed -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+<!-- Message 1: Assistant Text -->
+<div class="flex gap-4 max-w-3xl">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-white text-[20px]">smart_toy</span>
+</div>
+<div class="space-y-1">
+<p class="text-sm font-semibold text-slate-400">Claude</p>
+<p class="text-[15px] leading-relaxed">I'll read the auth module first.</p>
+</div>
+</div>
+<!-- Message 2: Selected Tool Card -->
+<div class="ml-12 border-l-4 border-primary bg-primary/5 dark:bg-primary/10 rounded-r-xl p-4 flex items-center justify-between ring-1 ring-primary/20">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Read: auth.service.ts</p>
+<p class="text-xs text-slate-500">150 lines • Source file</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+<!-- Message 3: Assistant Text -->
+<div class="flex gap-4 max-w-3xl pt-2">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-white text-[20px]">smart_toy</span>
+</div>
+<div class="space-y-1">
+<p class="text-sm font-semibold text-slate-400">Claude</p>
+<p class="text-[15px] leading-relaxed">Implementing OAuth2 handler.</p>
+</div>
+</div>
+<!-- Message 4: Tool Card (Edit) -->
+<div class="ml-12 bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 flex items-center justify-between ring-1 ring-slate-200 dark:ring-slate-800">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500">edit</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Edit: auth.service.ts</p>
+<p class="text-xs">
+<span class="text-emerald-500 font-medium">+45</span>
+<span class="text-rose-500 font-medium ml-1">-3</span>
+</p>
+</div>
+</div>
+</div>
+<!-- Message 5: Tool Card (Bash) -->
+<div class="ml-12 bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 flex items-center justify-between ring-1 ring-slate-200 dark:ring-slate-800">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500">terminal</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Bash: npm test</p>
+<p class="text-xs flex items-center gap-1.5 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span class="text-emerald-500 font-mono">exit 0</span>
+</p>
+</div>
+</div>
+</div>
+<!-- Message 6: Todo Card -->
+<div class="ml-12 bg-slate-100 dark:bg-slate-800/50 rounded-xl p-5 ring-1 ring-slate-200 dark:ring-slate-800 space-y-3">
+<div class="flex items-center justify-between">
+<h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Plan Status</h4>
+<span class="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">3/5 done</span>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-3 text-sm opacity-60">
+<span class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+<span class="line-through">Create callback</span>
+</div>
+<div class="flex items-center gap-3 text-sm opacity-60">
+<span class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+<span class="line-through">Exchange token</span>
+</div>
+<div class="flex items-center gap-3 text-sm opacity-60">
+<span class="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+<span class="line-through">Save session</span>
+</div>
+<div class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-slate-400 text-lg">radio_button_unchecked</span>
+<span>Tests</span>
+</div>
+<div class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-slate-400 text-lg">radio_button_unchecked</span>
+<span>Documentation</span>
+</div>
+</div>
+</div>
+<!-- Message 7: Subagent Card -->
+<div class="ml-12 border-l-4 border-purple-500 bg-purple-500/5 dark:bg-purple-500/10 rounded-r-xl p-4 flex items-center justify-between ring-1 ring-purple-500/20">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-purple-500">robot_2</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Subagent: Running tests</p>
+<span class="text-[10px] font-bold uppercase bg-emerald-500 text-white px-1.5 py-0.5 rounded leading-none mt-1 inline-block">Done</span>
+</div>
+</div>
+</div>
+<!-- Message 8: Error Card -->
+<div class="ml-12 border-l-4 border-rose-500 bg-rose-500/5 dark:bg-rose-500/10 rounded-r-xl p-4 ring-1 ring-rose-500/20">
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-lg bg-rose-500/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-rose-500">error</span>
+</div>
+<div class="space-y-1">
+<p class="text-sm font-bold text-slate-900 dark:text-slate-100">Test failed</p>
+<code class="text-xs text-rose-500 font-mono block leading-relaxed">
+                  Expected status code 200, got 401 Unauthorized<br/>
+                  at /tests/auth.spec.ts:42:15
+                </code>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Inspector (30%) -->
+<aside class="flex-[3] flex flex-col bg-slate-50 dark:bg-slate-900/50 overflow-hidden">
+<!-- Inspector Header -->
+<header class="p-6 h-[89px] flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">info</span>
+<h2 class="text-lg font-bold">Inspector</h2>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-500">close</span>
+</button>
+</header>
+<!-- Inspector Content -->
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- File Details -->
+<div class="p-6 space-y-6">
+<div class="space-y-4">
+<div class="flex flex-col gap-1">
+<span class="text-[11px] font-bold uppercase tracking-widest text-slate-500">Current View</span>
+<h3 class="text-xl font-bold font-mono">auth.service.ts</h3>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-slate-200/50 dark:bg-slate-800/50 rounded-lg">
+<p class="text-[10px] font-bold text-slate-500 uppercase">Lines</p>
+<p class="text-sm font-semibold">1-150</p>
+</div>
+<div class="p-3 bg-slate-200/50 dark:bg-slate-800/50 rounded-lg">
+<p class="text-[10px] font-bold text-slate-500 uppercase">Size</p>
+<p class="text-sm font-semibold">4.2 KB</p>
+</div>
+</div>
+</div>
+<!-- Code Block -->
+<div class="rounded-xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-800 bg-white dark:bg-[#0d1117] font-mono text-xs">
+<div class="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-4 py-2 justify-between items-center">
+<span class="text-slate-400 text-[11px]">TypeScript</span>
+<button class="text-[11px] text-primary font-bold">Copy</button>
+</div>
+<div class="flex p-4 overflow-x-auto">
+<div class="text-slate-500 dark:text-slate-600 pr-4 text-right select-none leading-6">
+                  1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12
+                </div>
+<div class="leading-6 whitespace-pre text-slate-700 dark:text-slate-300">
+<span class="text-primary">import</span> { Injectable } <span class="text-primary">from</span> <span class="text-emerald-500">'@nestjs/common'</span>;
+<span class="text-primary">import</span> { JwtService } <span class="text-primary">from</span> <span class="text-emerald-500">'@nestjs/jwt'</span>;
+
+@Injectable()
+<span class="text-primary">export class</span> AuthService {
+  <span class="text-primary">constructor</span>(
+    <span class="text-primary">private</span> jwtService: JwtService,
+    <span class="text-primary">private</span> userService: UserService,
+  ) {}
+
+  <span class="text-primary">async</span> validateUser(token: <span class="text-primary">string</span>) {
+    <span class="text-slate-500">// Implementation logic here...</span>
+<span class="text-primary">return this</span>.userService.findById(token);
+  }
+}</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Inspector Footer -->
+<div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900/80">
+<button class="w-full py-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-bold flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">open_in_new</span>
+            Open in Editor
+          </button>
+</div>
+</aside>
+</main>
+</div>
+
+```</body></html>

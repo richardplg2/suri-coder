@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder - Create Ticket</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0a85ff",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                        "modal-surface": "#252526",
+                        "input-surface": "#2a2a2c",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.625rem", /* 10px */
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .selected-card {
+            border-color: #0a85ff;
+            box-shadow: 0 0 0 1px #0a85ff, 0 0 12px rgba(10, 133, 255, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3e3e42;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-[#1e1e1e] flex items-center justify-center min-h-screen p-4">
+<!-- Modal Container -->
+<div class="w-full max-w-[600px] bg-modal-surface rounded-lg shadow-2xl border border-white/10 overflow-hidden flex flex-col">
+<!-- Header Section -->
+<div class="p-6 pb-4">
+<h1 class="text-slate-100 text-base font-semibold">New Ticket</h1>
+<p class="text-slate-400 text-[13px] mt-1">How would you like to start?</p>
+</div>
+<!-- Source Selection Grid -->
+<div class="px-6 grid grid-cols-3 gap-3">
+<!-- AI Brainstorm Card -->
+<button class="flex flex-col items-start p-4 bg-input-surface border border-white/5 rounded-lg text-left hover:bg-white/5 transition-colors group">
+<div class="w-8 h-8 rounded-md bg-purple-500/20 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-purple-400 text-xl">auto_awesome</span>
+</div>
+<p class="text-slate-100 text-sm font-medium">AI Brainstorm</p>
+<p class="text-slate-400 text-[11px] leading-tight mt-1">Let AI guide you through discovery...</p>
+</button>
+<!-- From Figma Card -->
+<button class="flex flex-col items-start p-4 bg-input-surface border border-white/5 rounded-lg text-left hover:bg-white/5 transition-colors group">
+<div class="w-8 h-8 rounded-md bg-orange-500/20 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-orange-400 text-xl">draw</span>
+</div>
+<p class="text-slate-100 text-sm font-medium">From Figma</p>
+<p class="text-slate-400 text-[11px] leading-tight mt-1">Import Figma designs and components...</p>
+</button>
+<!-- Manual Card (SELECTED) -->
+<button class="flex flex-col items-start p-4 bg-input-surface border-2 selected-card rounded-lg text-left transition-all">
+<div class="w-8 h-8 rounded-md bg-primary/20 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-primary text-xl">edit_note</span>
+</div>
+<p class="text-slate-100 text-sm font-medium">Manual</p>
+<p class="text-slate-400 text-[11px] leading-tight mt-1">Write your own title and details...</p>
+</button>
+</div>
+<!-- Form Section -->
+<div class="p-6 space-y-4">
+<!-- Title Input -->
+<div class="space-y-1.5">
+<label class="text-slate-300 text-xs font-medium uppercase tracking-wider">Title</label>
+<input class="w-full bg-input-surface border border-white/10 rounded-lg h-10 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Ticket title..." type="text"/>
+</div>
+<!-- Type and Priority Row -->
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-slate-300 text-xs font-medium uppercase tracking-wider">Type</label>
+<div class="relative">
+<select class="w-full bg-input-surface border border-white/10 rounded-lg h-10 px-3 text-sm text-slate-100 appearance-none focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer">
+<option selected="" value="feature">Feature</option>
+<option value="bug">Bug</option>
+<option value="task">Task</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">expand_more</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-slate-300 text-xs font-medium uppercase tracking-wider">Priority</label>
+<div class="relative">
+<div class="absolute left-3 top-3 w-2 h-2 rounded-full bg-yellow-400"></div>
+<select class="w-full bg-input-surface border border-white/10 rounded-lg h-10 pl-7 pr-3 text-sm text-slate-100 appearance-none focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer">
+<option value="low">Low</option>
+<option selected="" value="medium">Medium</option>
+<option value="high">High</option>
+<option value="critical">Critical</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Workflow Template -->
+<div class="space-y-1.5">
+<label class="text-slate-300 text-xs font-medium uppercase tracking-wider">Workflow Template</label>
+<div class="relative">
+<select class="w-full bg-input-surface border border-white/10 rounded-lg h-10 px-3 text-sm text-slate-100 appearance-none focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer">
+<option value="basic">Basic Flow</option>
+<option selected="" value="full">Full Feature</option>
+<option value="hotfix">Hotfix Deployment</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">expand_more</span>
+</div>
+</div>
+<!-- Description -->
+<div class="space-y-1.5">
+<label class="text-slate-300 text-xs font-medium uppercase tracking-wider">Description</label>
+<textarea class="w-full bg-input-surface border border-white/10 rounded-lg p-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none custom-scrollbar" placeholder="Enter ticket description (optional)..." rows="4"></textarea>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="px-6 py-5 bg-white/5 border-t border-white/5 flex items-center justify-between">
+<button class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-100 transition-colors">
+                Cancel
+            </button>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-primary/10">
+                Create Ticket
+            </button>
+</div>
+</div>
+</body></html>

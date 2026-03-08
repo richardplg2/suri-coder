@@ -82,6 +82,86 @@
       "y": 10240,
       "width": 2560,
       "height": 2706
+    },
+    "ticket-create-dialog": {
+      "id": "c354898c01be4c14b21ce7d5aa38e335",
+      "sourceScreen": "projects/12778645771598198040/screens/c354898c01be4c14b21ce7d5aa38e335",
+      "x": 0,
+      "y": 12946,
+      "width": 2560,
+      "height": 2048
+    },
+    "brainstorm-quiz": {
+      "id": "fe4bbdf8d72f4c0690fe9549ecc588d2",
+      "sourceScreen": "projects/12778645771598198040/screens/fe4bbdf8d72f4c0690fe9549ecc588d2",
+      "x": 0,
+      "y": 14994,
+      "width": 2560,
+      "height": 2064
+    },
+    "brainstorm-review": {
+      "id": "7d72829c8f3e4348b8a66dbef90c1dda",
+      "sourceScreen": "projects/12778645771598198040/screens/7d72829c8f3e4348b8a66dbef90c1dda",
+      "x": 0,
+      "y": 17058,
+      "width": 2560,
+      "height": 2048
+    },
+    "figma-annotator": {
+      "id": "1c75560930ec4d7786655c358c045a21",
+      "sourceScreen": "projects/12778645771598198040/screens/1c75560930ec4d7786655c358c045a21",
+      "x": 0,
+      "y": 19106,
+      "width": 2560,
+      "height": 2048
+    },
+    "ticket-detail-overview": {
+      "id": "2e183a7ffcc94967b4dc84112f665391",
+      "sourceScreen": "projects/12778645771598198040/screens/2e183a7ffcc94967b4dc84112f665391",
+      "x": 0,
+      "y": 21154,
+      "width": 2560,
+      "height": 2246
+    },
+    "ticket-detail-specs": {
+      "id": "df1a9974c87f47ed98d9717fdb6b2349",
+      "sourceScreen": "projects/12778645771598198040/screens/df1a9974c87f47ed98d9717fdb6b2349",
+      "x": 0,
+      "y": 23400,
+      "width": 2560,
+      "height": 2384
+    },
+    "ticket-detail-tasks": {
+      "id": "567c1c3b83c04d418b0ccba143d216a9",
+      "sourceScreen": "projects/12778645771598198040/screens/567c1c3b83c04d418b0ccba143d216a9",
+      "x": 0,
+      "y": 25784,
+      "width": 2560,
+      "height": 2102
+    },
+    "ticket-session-transcript": {
+      "id": "ce6c163d79a344ddb4fd2c07706660a1",
+      "sourceScreen": "projects/12778645771598198040/screens/ce6c163d79a344ddb4fd2c07706660a1",
+      "x": 0,
+      "y": 27886,
+      "width": 2560,
+      "height": 2096
+    },
+    "code-review-panel": {
+      "id": "71aa921bb22247c3978b35fa825af602",
+      "sourceScreen": "projects/12778645771598198040/screens/71aa921bb22247c3978b35fa825af602",
+      "x": 0,
+      "y": 29982,
+      "width": 2560,
+      "height": 2048
+    },
+    "ticket-detail-activity": {
+      "id": "614f7cf38da44ac98ac2f6a6fd6b9da5",
+      "sourceScreen": "projects/12778645771598198040/screens/614f7cf38da44ac98ac2f6a6fd6b9da5",
+      "x": 0,
+      "y": 32030,
+      "width": 2560,
+      "height": 2454
     }
   }
 }

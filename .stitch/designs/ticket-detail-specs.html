@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder Ticket Detail Specs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1685f3",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101922",
+                        "card-dark": "#1a2632",
+                        "border-muted": "#314d68",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .markdown-content h3 {
+            font-weight: 700;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: #f1f5f9;
+        }
+        .markdown-content p {
+            margin-bottom: 1rem;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Section -->
+<div class="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<p class="text-slate-500 dark:text-primary/70 text-sm font-medium leading-normal pb-2 px-4 uppercase tracking-wider">PROJ-14</p>
+<div class="flex flex-wrap justify-between items-center gap-3 px-4 pb-4">
+<h1 class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-tight min-w-72">Add user authentication with OAuth2</h1>
+</div>
+<!-- Status Badges -->
+<div class="flex gap-3 px-4 pb-6 flex-wrap">
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary/20 border border-primary/30 px-3">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<p class="text-primary text-xs font-bold uppercase tracking-wide">Feature</p>
+</div>
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-green-500/20 border border-green-500/30 px-3">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<p class="text-green-500 text-xs font-bold uppercase tracking-wide">In Progress</p>
+</div>
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-orange-500/20 border border-orange-500/30 px-3">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<p class="text-orange-500 text-xs font-bold uppercase tracking-wide">High</p>
+</div>
+</div>
+<!-- Tab Bar -->
+<div class="flex items-center justify-between border-b border-slate-200 dark:border-border-muted px-4 mb-6">
+<div class="flex gap-8">
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-slate-400 pb-3 pt-2 hover:text-primary transition-colors" href="#">
+<p class="text-sm font-semibold">Overview</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-primary text-slate-900 dark:text-white pb-3 pt-2" href="#">
+<p class="text-sm font-bold">Specs</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-slate-400 pb-3 pt-2 hover:text-primary transition-colors" href="#">
+<p class="text-sm font-semibold">Tasks</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-slate-400 pb-3 pt-2 hover:text-primary transition-colors" href="#">
+<p class="text-sm font-semibold">Activity</p>
+</a>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 mb-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-bold transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>Add Spec</span>
+</button>
+</div>
+<!-- Main Content Area: Specs Cards -->
+<div class="flex flex-col gap-4 px-4 pb-20">
+<!-- 1. Expanded Feature Spec Card -->
+<div class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-muted overflow-hidden shadow-sm">
+<!-- Header -->
+<div class="p-6 border-b border-slate-200 dark:border-border-muted">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<span class="px-2 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/30">FEATURE</span>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white">OAuth2 Authentication Feature Spec</h2>
+<span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs font-medium">Rev 3</span>
+</div>
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+<span class="material-symbols-outlined text-base">history</span>
+<span>2h ago by <span class="text-primary font-medium">Planner Agent</span></span>
+</div>
+</div>
+</div>
+<!-- Markdown Content -->
+<div class="p-6 markdown-content">
+<section class="mb-6">
+<h3>Problem</h3>
+<p>Users currently only have email/password authentication. This creates friction during onboarding and lacks the security benefits of enterprise-grade SSO. We need to implement OAuth2 to support Google, GitHub, and Microsoft login providers.</p>
+</section>
+<section>
+<h3>Requirements</h3>
+<ul class="list-disc list-inside text-slate-600 dark:text-slate-400 space-y-2 text-sm leading-relaxed">
+<li>Integration with Passport.js strategy for OAuth2.</li>
+<li>Automated user account linking based on verified email addresses.</li>
+<li>Secure token storage using encrypted sessions.</li>
+<li>Support for PKCE flow for mobile/desktop client security.</li>
+</ul>
+</section>
+</div>
+<!-- Footer / References -->
+<div class="px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-muted">
+<div class="flex flex-wrap gap-4 items-center text-xs">
+<span class="text-slate-500 font-semibold uppercase tracking-wider">References:</span>
+<a class="flex items-center gap-1 text-primary hover:underline" href="#">
+<span class="material-symbols-outlined text-sm">description</span>
+                                    Implements Design Spec (Rev 2)
+                                </a>
+<a class="flex items-center gap-1 text-primary hover:underline" href="#">
+<span class="material-symbols-outlined text-sm">fact_check</span>
+                                    Verified by Test Spec (Rev 1)
+                                </a>
+</div>
+</div>
+<!-- Revision List -->
+<div class="px-6 py-4 border-t border-slate-200 dark:border-border-muted flex flex-col gap-3">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">History</p>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between text-sm py-1 border-b border-slate-100 dark:border-slate-800/50">
+<div class="flex items-center gap-3">
+<span class="font-mono text-xs text-slate-500">Rev 2</span>
+<span class="text-slate-700 dark:text-slate-300">Added scope definitions for GitHub API</span>
+</div>
+<span class="text-slate-500 text-xs">Planner Agent • 5h ago</span>
+</div>
+<div class="flex items-center justify-between text-sm py-1">
+<div class="flex items-center gap-3">
+<span class="font-mono text-xs text-slate-500">Rev 1</span>
+<span class="text-slate-700 dark:text-slate-300">Initial draft</span>
+</div>
+<span class="text-slate-500 text-xs">Planner Agent • 1d ago</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. Collapsed Design Spec Card -->
+<div class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-muted hover:border-primary/50 transition-colors cursor-pointer p-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-[10px] font-black uppercase border border-purple-500/30">DESIGN</span>
+<h3 class="font-bold text-slate-900 dark:text-slate-200">Auth UI Component Design</h3>
+<span class="text-xs text-slate-500">Rev 2</span>
+</div>
+<div class="flex items-center gap-4 text-xs text-slate-500">
+<span>by <span class="text-primary">Designer</span> • 3h ago</span>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</div>
+</div>
+</div>
+<!-- 3. Collapsed Plan Spec Card -->
+<div class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-muted hover:border-primary/50 transition-colors cursor-pointer p-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-black uppercase border border-green-500/30">PLAN</span>
+<h3 class="font-bold text-slate-900 dark:text-slate-200">Implementation Plan</h3>
+<span class="text-xs text-slate-500">Rev 1</span>
+</div>
+<div class="flex items-center gap-4 text-xs text-slate-500">
+<span>by <span class="text-primary">Planner</span> • 4h ago</span>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</div>
+</div>
+</div>
+<!-- 4. Collapsed Test Spec Card -->
+<div class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-muted hover:border-primary/50 transition-colors cursor-pointer p-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[10px] font-black uppercase border border-orange-500/30">TEST</span>
+<h3 class="font-bold text-slate-900 dark:text-slate-200">Auth Test Plan</h3>
+<span class="text-xs text-slate-500">Rev 1</span>
+</div>
+<div class="flex items-center gap-4 text-xs text-slate-500">
+<span>by <span class="text-primary">Tester</span> • 1h ago</span>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

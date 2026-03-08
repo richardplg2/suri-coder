@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder Ticket Activity Timeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b7cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .timeline-line {
+            width: 1px;
+            background: theme('colors.slate.800');
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            bottom: -24px;
+        }
+        .last-item .timeline-line {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen font-display">
+<div class="max-w-[1440px] mx-auto min-h-screen flex flex-col">
+<!-- Header Section -->
+<header class="px-8 pt-10 pb-6 border-b border-slate-200 dark:border-slate-800">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex flex-col gap-1">
+<span class="text-sm font-medium text-slate-500 dark:text-slate-400 tracking-wider">PROJ-14</span>
+<h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Add user authentication with OAuth2</h1>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">In Progress</span>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-400">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium">Feature</span>
+<span class="px-2.5 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium">High</span>
+</div>
+</div>
+</header>
+<!-- Tab Navigation -->
+<nav class="px-8 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-background-dark/50 sticky top-0 z-10 backdrop-blur-md">
+<div class="flex gap-8">
+<a class="py-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Overview</a>
+<a class="py-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Specs</a>
+<a class="py-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Tasks</a>
+<a class="py-4 text-sm font-bold text-primary border-b-2 border-primary relative" href="#">
+                    Activity
+                </a>
+</div>
+</nav>
+<!-- Timeline Content -->
+<main class="flex-1 px-8 py-10 max-w-4xl">
+<div class="flex flex-col">
+<!-- Event 1: Workflow Started -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">play_arrow</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Workflow started</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Richard started the workflow</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">4h ago</span>
+</div>
+</div>
+<!-- Event 2: Plan step completed -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">check</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Plan step completed</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Planner Agent finished in 2m 14s — $0.32</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">4h ago</span>
+</div>
+</div>
+<!-- Event 3: Feature Spec created -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">description</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Feature Spec created</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Planner Agent generated "OAuth2 Feature Spec" (Rev 1)</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">4h ago</span>
+</div>
+</div>
+<!-- Event 4: Design step completed -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">check</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Design step completed</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Designer Agent finished in 3m 45s — $0.48</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">3h ago</span>
+</div>
+</div>
+<!-- Event 5: Design Spec created -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">brush</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Design Spec created</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Designer Agent generated "Auth UI Design" (Rev 1)</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">3h ago</span>
+</div>
+</div>
+<!-- Event 6: Code step started -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">code</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Code step started</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Coder Agent began execution</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">1h ago</span>
+</div>
+</div>
+<!-- Event 7: Budget alert -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">warning</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Budget alert</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Spending at 80% of $10.00 budget</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">30m ago</span>
+</div>
+</div>
+<!-- Event 8: Test failed -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">close</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Test failed</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-mono bg-red-500/5 px-1.5 py-0.5 rounded border border-red-500/10 inline-block mt-1">auth.callback.test.ts: Expected 200, received 401</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">15m ago</span>
+</div>
+</div>
+<!-- Event 9: Auto-retry triggered -->
+<div class="relative flex gap-6 pb-10">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[14px] text-white font-bold">replay</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Auto-retry triggered</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Tester Agent retrying with error context (attempt 2/3)</p>
+</div>
+<span class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">14m ago</span>
+</div>
+</div>
+<!-- Event 10: Code step running (Active) -->
+<div class="relative flex gap-6 pb-4 last-item">
+<div class="timeline-line"></div>
+<div class="z-10 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center ring-4 ring-white dark:ring-background-dark relative">
+<!-- Pulsing effect -->
+<span class="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-25"></span>
+<span class="material-symbols-outlined text-[14px] text-white font-bold">refresh</span>
+</div>
+<div class="flex flex-1 justify-between items-start pt-0.5">
+<div class="flex flex-col gap-1">
+<h3 class="text-sm font-bold text-slate-900 dark:text-slate-50">Code step running</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 italic">
+                                Coder Agent currently executing...
+                            </p>
+</div>
+<span class="text-xs font-semibold text-primary dark:text-primary tabular-nums">Now</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Optional Bottom Action Bar -->
+<footer class="px-8 py-6 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md mt-auto">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>System Online</span>
+</div>
+<span>•</span>
+<span>Last updated: 30s ago</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                        Pause Workflow
+                    </button>
+<button class="px-4 py-2 text-sm font-semibold bg-primary text-white hover:bg-primary/90 rounded-lg transition-colors shadow-sm">
+                        Refresh Logs
+                    </button>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

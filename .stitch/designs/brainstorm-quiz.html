@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder AI Brainstorm Chat Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0a85ff",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#1e1e1e",
+                        "card-dark": "#252526",
+                        "border-dark": "#333333"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 w-full border-b border-border-dark glass-panel px-6 py-4">
+<div class="max-w-[1200px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-white/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-400">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="text-lg font-semibold tracking-tight">AI Brainstorm</h1>
+<span class="text-xs text-slate-500 font-medium">Question 3 of 6</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-sm font-medium text-slate-400 hover:text-white px-4 py-2 transition-colors">
+                    Skip to Summary
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Chat Content -->
+<main class="flex-1 overflow-y-auto custom-scrollbar pt-8 pb-32">
+<div class="max-w-[720px] mx-auto px-6 space-y-8">
+<!-- AI Message -->
+<div class="flex gap-4 items-start">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 border border-primary/30">
+<span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+</div>
+<div class="space-y-4 max-w-[85%]">
+<p class="text-[15px] text-slate-300 leading-relaxed">Let's define your feature. This will help me generate the right boilerplate and architecture for you.</p>
+</div>
+</div>
+<!-- Quiz Card 1 (Completed) -->
+<div class="ml-12 bg-card-dark border border-border-dark rounded-xl p-5 shadow-xl">
+<p class="text-sm font-semibold text-slate-100 mb-4">What type of feature are you building?</p>
+<div class="grid grid-cols-2 gap-3">
+<!-- Option Selected -->
+<div class="relative group p-4 rounded-lg bg-primary/5 border-2 border-primary cursor-default">
+<div class="flex flex-col gap-1">
+<span class="text-xs font-bold text-primary uppercase tracking-wider">Recommended</span>
+<span class="text-sm font-medium text-white">New UI Component</span>
+</div>
+<div class="absolute top-3 right-3">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+</div>
+</div>
+<!-- Other Options -->
+<div class="p-4 rounded-lg bg-background-dark/50 border border-border-dark text-slate-400 opacity-60">
+<span class="text-sm font-medium">API Endpoint</span>
+</div>
+<div class="p-4 rounded-lg bg-background-dark/50 border border-border-dark text-slate-400 opacity-60">
+<span class="text-sm font-medium">Database Schema</span>
+</div>
+<div class="p-4 rounded-lg bg-background-dark/50 border border-border-dark text-slate-400 opacity-60">
+<span class="text-sm font-medium">Auth Flow</span>
+</div>
+</div>
+</div>
+<!-- User Response -->
+<div class="flex justify-end">
+<div class="bg-primary text-white px-5 py-3 rounded-2xl rounded-tr-sm shadow-lg max-w-[80%]">
+<p class="text-[15px]">New UI Component</p>
+</div>
+</div>
+<!-- Quiz Card 2 (Active) -->
+<div class="flex gap-4 items-start">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 border border-primary/30">
+<span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+</div>
+<div class="w-full bg-card-dark border border-border-dark rounded-xl p-5 shadow-xl space-y-6">
+<div>
+<p class="text-sm font-semibold text-slate-100">Which areas of the codebase will this touch?</p>
+<p class="text-xs text-slate-500 mt-1">Select all that apply for precise code generation.</p>
+</div>
+<div class="space-y-2">
+<!-- Checklist Items -->
+<label class="flex items-center gap-3 p-3 rounded-lg bg-background-dark border border-primary/40 cursor-pointer hover:bg-background-dark/80 transition-all">
+<input checked="" class="w-5 h-5 rounded border-slate-700 bg-slate-800 text-primary focus:ring-primary focus:ring-offset-background-dark" type="checkbox"/>
+<span class="text-sm font-medium text-slate-200">Frontend (UI/Styles)</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg bg-background-dark border border-primary/40 cursor-pointer hover:bg-background-dark/80 transition-all">
+<input checked="" class="w-5 h-5 rounded border-slate-700 bg-slate-800 text-primary focus:ring-primary focus:ring-offset-background-dark" type="checkbox"/>
+<span class="text-sm font-medium text-slate-200">Backend (Logic/Endpoints)</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg bg-background-dark border border-border-dark cursor-pointer hover:border-slate-600 transition-all">
+<input class="w-5 h-5 rounded border-slate-700 bg-slate-800 text-primary focus:ring-primary focus:ring-offset-background-dark" type="checkbox"/>
+<span class="text-sm font-medium text-slate-400">Database (Models/Migrations)</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg bg-background-dark border border-border-dark cursor-pointer hover:border-slate-600 transition-all">
+<input class="w-5 h-5 rounded border-slate-700 bg-slate-800 text-primary focus:ring-primary focus:ring-offset-background-dark" type="checkbox"/>
+<span class="text-sm font-medium text-slate-400">Testing (Unit/Integration)</span>
+</label>
+</div>
+<div class="flex justify-end">
+<button class="bg-primary hover:bg-primary/90 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-all flex items-center gap-2">
+                            Continue
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Input Area -->
+<div class="fixed bottom-0 left-0 w-full glass-panel border-t border-border-dark p-6">
+<div class="max-w-[720px] mx-auto relative">
+<input class="w-full bg-background-dark border border-border-dark rounded-xl py-4 pl-5 pr-14 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-inner" placeholder="Type a message..." type="text"/>
+<button class="absolute right-2.5 top-2.5 w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-all shadow-lg">
+<span class="material-symbols-outlined">arrow_upward</span>
+</button>
+</div>
+<p class="text-center text-[10px] text-slate-600 mt-3 uppercase tracking-widest font-bold">Press enter to send • Suri Coder v2.4</p>
+</div>
+</body></html>

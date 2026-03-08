@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder Ticket Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1685f3",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101922",
+                        "card-dark": "#182634",
+                        "border-dark": "#223649",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex flex-col w-full min-h-screen overflow-x-hidden">
+<!-- Sticky Header Section -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-border-dark px-8 py-6">
+<div class="max-w-7xl mx-auto">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="font-mono text-sm font-medium text-slate-500 dark:text-slate-400">PROJ-14</span>
+<span class="text-slate-300 dark:text-slate-600">/</span>
+<h1 class="text-xl font-semibold tracking-tight">Add user authentication with OAuth2</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                                Edit Ticket
+                            </button>
+<button class="p-2 border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-100 dark:hover:bg-card-dark transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-2">
+<span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30">Feature</span>
+<span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/30">In Progress</span>
+<span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-500/30">High Priority</span>
+<span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30">AI Brainstorm</span>
+</div>
+</div>
+<!-- Tab Bar -->
+<nav class="flex gap-8 mt-8 border-b border-slate-200 dark:border-border-dark">
+<a class="pb-3 text-sm font-semibold border-b-2 border-primary text-primary" href="#">Overview</a>
+<a class="pb-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Specs</a>
+<a class="pb-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Tasks</a>
+<a class="pb-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Activity</a>
+</nav>
+</div>
+</header>
+<!-- Main Content Grid -->
+<main class="max-w-7xl mx-auto w-full px-8 py-8">
+<div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
+<!-- Left Column (65%) -->
+<div class="flex flex-col gap-8">
+<!-- Description Card -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark p-6 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">description</span>
+                                Description
+                            </h3>
+<button class="text-primary text-sm font-medium hover:underline">Edit</button>
+</div>
+<div class="space-y-4 text-slate-600 dark:text-slate-300 leading-relaxed">
+<p>Implement OAuth2 integration to enable secure user authentication across all distributed services. The scope includes supporting both Google and GitHub as identity providers.</p>
+<ul class="list-disc pl-5 space-y-2">
+<li>Configure client credentials and redirect URIs in provider consoles.</li>
+<li>Implement backend middleware for token exchange and validation.</li>
+<li>Create front-end login components and session management.</li>
+</ul>
+<p class="text-sm text-slate-400 pt-2 border-t border-slate-100 dark:border-border-dark">Last updated 2 hours ago by Richard Hendriks</p>
+</div>
+</section>
+<!-- Workflow Progress Card -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark p-6 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">route</span>
+                                Workflow Progress
+                            </h3>
+<span class="text-sm font-mono font-medium text-primary">60% Complete</span>
+</div>
+<div class="relative w-full h-2 bg-slate-100 dark:bg-border-dark rounded-full mb-8 overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary w-[60%] rounded-full"></div>
+</div>
+<div class="flex justify-between relative">
+<!-- Step indicators -->
+<div class="flex flex-col items-center gap-2 z-10">
+<div class="size-8 rounded-full bg-green-500 text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<span class="text-xs font-medium">Plan</span>
+</div>
+<div class="flex flex-col items-center gap-2 z-10">
+<div class="size-8 rounded-full bg-green-500 text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<span class="text-xs font-medium">Design</span>
+</div>
+<div class="flex flex-col items-center gap-2 z-10">
+<div class="size-8 rounded-full bg-primary text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">pending</span>
+</div>
+<span class="text-xs font-medium text-primary">Code</span>
+</div>
+<div class="flex flex-col items-center gap-2 z-10 opacity-40">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-border-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">biotech</span>
+</div>
+<span class="text-xs font-medium">Test</span>
+</div>
+<div class="flex flex-col items-center gap-2 z-10 opacity-40">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-border-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</div>
+<span class="text-xs font-medium">Review</span>
+</div>
+</div>
+</section>
+<!-- Cost Summary Card -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark p-6 shadow-sm">
+<h3 class="text-lg font-bold flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">payments</span>
+                            Cost Summary
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="flex flex-col gap-1">
+<span class="text-sm text-slate-500 dark:text-slate-400">Total Cost</span>
+<span class="text-2xl font-bold font-mono">$2.47</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end">
+<span class="text-sm text-slate-500 dark:text-slate-400">Budget</span>
+<span class="text-xs font-mono">$10.00</span>
+</div>
+<div class="h-2 w-full bg-slate-100 dark:bg-border-dark rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-[24.7%] rounded-full"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-sm text-slate-500 dark:text-slate-400">Tokens Used</span>
+<span class="text-2xl font-bold font-mono">45.2K</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (35%) -->
+<div class="flex flex-col gap-6">
+<!-- Details Card -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark p-5 shadow-sm">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Details</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm text-slate-500 dark:text-slate-400">Assignee</span>
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
+<img alt="Richard avatar" class="size-full object-cover" data-alt="Cartoon avatar of Richard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwy4Gab6hpPQPdnofqO_3LmkgVO_oaejEh0ZWwT5NgEJEKkEZAphgEOlxU0YYMTYZn2x6aJVyOTNEBeCqkIkkq3iQZI-k0aixVyjXMBm-8bBOmF24K8tnJgmB0jLum3_nH8xsdgb9YO3lc0li_4UUDy4Jx6KJX9TuTgclS2WL-NWLuYnfyAmBFPNoW4nF8qqh9bkmk3U90DN0bTc55sOXlFTzRmRU7r7LiGB5PvP_tXKM9PUhgWGk3z3eXJV6Ioi4jSi6OH0OlMZEN"/>
+</div>
+<span class="text-sm font-medium">Richard</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-slate-500 dark:text-slate-400">Template</span>
+<span class="text-sm font-medium">Full Feature</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-slate-500 dark:text-slate-400">Created</span>
+<span class="text-sm font-medium">Oct 12, 2023</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-slate-500 dark:text-slate-400">Updated</span>
+<span class="text-sm font-medium">2 hours ago</span>
+</div>
+</div>
+</section>
+<!-- Settings Card -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark p-5 shadow-sm">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Settings</h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-medium">Auto-execute</span>
+<span class="text-xs text-slate-500">Run tasks automatically</span>
+</div>
+<div class="w-10 h-5 bg-primary rounded-full relative cursor-pointer">
+<div class="absolute right-0.5 top-0.5 size-4 bg-white rounded-full"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-medium">Auto-approval</span>
+<span class="text-xs text-slate-500">Skip manual review</span>
+</div>
+<div class="w-10 h-5 bg-slate-200 dark:bg-border-dark rounded-full relative cursor-pointer">
+<div class="absolute left-0.5 top-0.5 size-4 bg-white dark:bg-slate-400 rounded-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold text-slate-500 uppercase">Allocated Budget ($)</label>
+<input class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm font-mono focus:ring-1 focus:ring-primary focus:outline-none transition-all" type="text" value="10.00"/>
+</div>
+</div>
+</section>
+<!-- Design Reference Card -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark overflow-hidden shadow-sm">
+<div class="p-5 pb-2">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">Design Reference</h3>
+</div>
+<div class="aspect-video relative group bg-slate-100 dark:bg-slate-800">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-purple-500/10" data-alt="Figma design preview placeholder gradient"></div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
+<span class="material-symbols-outlined text-white text-3xl">open_in_new</span>
+</div>
+</div>
+<div class="p-4 bg-slate-50 dark:bg-border-dark/30 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-purple-500 text-[20px]">brush</span>
+<span class="text-xs font-medium">Authentication UI v2</span>
+</div>
+<a class="text-primary text-xs font-bold flex items-center gap-1 hover:underline" href="#">
+                                Figma
+                                <span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+</a>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

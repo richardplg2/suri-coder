@@ -17,7 +17,8 @@
       "mcp__stitch__get_screen",
       "mcp__stitch__generate_screen_from_text",
       "Skill(react-components)",
-      "Skill(shadcn-ui)"
+      "Skill(shadcn-ui)",
+      "Bash(curl:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

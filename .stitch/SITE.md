@@ -21,6 +21,18 @@ A macOS-native desktop application for managing Claude Code workflow sessions. F
 7. `settings` — Project settings page with anchor nav sections
 8. `modals` — Modal collection (Create Project, Create Ticket, Delete Confirm)
 
+### Phase 2: Ticket Lifecycle Screens (Content-Only)
+1. `ticket-create-dialog` — Modal with 3 source options (AI, Figma, Manual) + manual form
+2. `brainstorm-quiz` — AI brainstorm chat with quiz cards and option selection
+3. `brainstorm-review` — Two-column spec review with inline comments
+4. `figma-annotator` — 3-panel Figma viewer (layers, canvas, annotations)
+5. `ticket-detail-overview` — Two-column overview with description, progress, cost, settings
+6. `ticket-detail-specs` — Expandable spec cards with revision history and references
+7. `ticket-detail-tasks` — DAG flow visualization + step list with status badges
+8. `ticket-session-transcript` — Session transcript viewer with tool call cards + inspector
+9. `code-review-panel` — Diff view with file tree, inline comments, approve/request changes
+10. `ticket-detail-activity` — Real-time activity timeline with colored event dots
+
 ## 4. Sitemap
 
 - [x] app-shell
@@ -31,10 +43,20 @@ A macOS-native desktop application for managing Claude Code workflow sessions. F
 - [x] brainstorm
 - [x] settings
 - [x] modals
+- [x] ticket-create-dialog
+- [x] brainstorm-quiz
+- [x] brainstorm-review
+- [x] figma-annotator
+- [x] ticket-detail-overview
+- [x] ticket-detail-specs
+- [x] ticket-detail-tasks
+- [x] ticket-session-transcript
+- [x] code-review-panel
+- [x] ticket-detail-activity
 
 ## 5. Roadmap
 
-All Phase 1 screens completed.
+All Phase 1 and Phase 2 screens completed.
 
 ## 6. Design Notes
 

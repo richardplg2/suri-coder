@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder - Create Ticket (From Figma)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0a85ff",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                        "modal-surface": "#252526",
+                        "input-surface": "#2a2a2c",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.625rem","xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .selected-card {
+            border-color: #0a85ff;
+            box-shadow: 0 0 0 1px #0a85ff, 0 0 12px rgba(10, 133, 255, 0.25);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3e3e42;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-[#1e1e1e] flex items-center justify-center min-h-screen p-4">
+<div class="w-full max-w-[600px] bg-modal-surface rounded-lg shadow-2xl border border-white/10 overflow-hidden flex flex-col">
+<div class="p-6 pb-4">
+<h1 class="text-slate-100 text-base font-semibold">New Ticket</h1>
+<p class="text-slate-400 text-[13px] mt-1">How would you like to start?</p>
+</div>
+<div class="px-6 grid grid-cols-3 gap-3">
+<button class="flex flex-col items-start p-4 bg-input-surface border border-white/5 rounded-lg text-left hover:bg-white/5 transition-colors group">
+<div class="w-8 h-8 rounded-md bg-purple-500/20 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-purple-400 text-xl">auto_awesome</span>
+</div>
+<p class="text-slate-100 text-sm font-medium">AI Brainstorm</p>
+<p class="text-slate-400 text-[11px] leading-tight mt-1">Let AI guide you through discovery...</p>
+</button>
+<button class="flex flex-col items-start p-4 bg-input-surface border-2 selected-card rounded-lg text-left transition-all">
+<div class="w-8 h-8 rounded-md bg-orange-500/20 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-orange-400 text-xl">draw</span>
+</div>
+<p class="text-slate-100 text-sm font-medium">From Figma</p>
+<p class="text-slate-400 text-[11px] leading-tight mt-1">Import Figma designs and components...</p>
+</button>
+<button class="flex flex-col items-start p-4 bg-input-surface border border-white/5 rounded-lg text-left hover:bg-white/5 transition-colors group">
+<div class="w-8 h-8 rounded-md bg-primary/20 flex items-center justify-center mb-3 text-primary opacity-60">
+<span class="material-symbols-outlined text-xl">edit_note</span>
+</div>
+<p class="text-slate-100 text-sm font-medium">Manual</p>
+<p class="text-slate-400 text-[11px] leading-tight mt-1">Write your own title and details...</p>
+</button>
+</div>
+<div class="p-6 space-y-4">
+<div class="space-y-1.5">
+<label class="text-slate-300 text-xs font-medium uppercase tracking-wider">Figma File URL</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-500 text-lg">link</span>
+<input class="w-full bg-input-surface border border-white/10 rounded-lg h-10 pl-10 pr-3 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="https://figma.com/file/..." type="text"/>
+</div>
+<p class="text-slate-500 text-[11px]">Suri will analyze the frames and components to generate your ticket structure.</p>
+</div>
+<div class="h-32"></div>
+</div>
+<div class="px-6 py-5 bg-white/5 border-t border-white/5 flex items-center justify-between">
+<button class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-slate-100 transition-colors">
+                Cancel
+            </button>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-primary/10">
+                Import &amp; Continue
+            </button>
+</div>
+</div>
+
+</body></html>

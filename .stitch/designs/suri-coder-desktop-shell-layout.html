@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder - Light Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        :root {
+            --indigo-accent: #5E5CE6;
+            --mac-bg: #F5F5F7;
+            --mac-border: #E5E5E5;
+            --mac-card: #FFFFFF;
+            --text-primary: #1A1A1A;
+            --text-secondary: #6B7280;
+            --syntax-keyword: #0000FF;
+            --syntax-string: #008000;
+            --syntax-number: #D73A49;
+            --syntax-comment: #6A737D;
+        }
+        @layer base {
+            body { font-family: 'Inter', sans-serif; }
+            .font-mono { font-family: 'JetBrains Mono', monospace; }
+        }
+        .glass-effect { 
+            backdrop-filter: blur(20px); 
+            background-color: rgba(255, 255, 255, 0.7); 
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .diffuse-shadow {
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "indigo-mac": "#5E5CE6",
+                        "mac-offwhite": "#F5F5F7",
+                        "mac-red": "#FF5F57",
+                        "mac-yellow": "#FEBC2E",
+                        "mac-green": "#28C840"
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-mac-offwhite text-[var(--text-primary)] overflow-hidden h-screen flex flex-col">
+<header class="h-[36px] flex items-center justify-between border-b border-[var(--mac-border)] px-3 shrink-0 glass-effect z-10">
+<div class="flex items-center gap-2 w-48">
+<div class="flex gap-2 ml-1">
+<div class="w-3 h-3 rounded-full bg-mac-red"></div>
+<div class="w-3 h-3 rounded-full bg-mac-yellow"></div>
+<div class="w-3 h-3 rounded-full bg-mac-green"></div>
+</div>
+</div>
+<nav class="flex items-center bg-gray-200/50 rounded-lg p-0.5 border border-gray-300/50">
+<button class="px-4 py-1 text-xs font-semibold rounded-md bg-indigo-mac text-white shadow-sm">T-14: Login Flow</button>
+<button class="px-4 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors">T-22: Dashboard</button>
+<button class="px-4 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 border-l border-gray-300">Settings</button>
+</nav>
+<div class="flex items-center gap-3 w-48 justify-end">
+<span class="material-symbols-outlined text-[18px] text-gray-400 cursor-pointer hover:text-gray-600">search</span>
+<span class="material-symbols-outlined text-[18px] text-gray-400 cursor-pointer hover:text-gray-600">notifications</span>
+<span class="material-symbols-outlined text-[18px] text-gray-400 cursor-pointer hover:text-gray-600">light_mode</span>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<aside class="w-[48px] glass-effect border-r border-[var(--mac-border)] flex flex-col items-center py-4 gap-4 shrink-0">
+<div class="w-8 h-8 rounded-lg bg-indigo-mac flex items-center justify-center text-white shadow-md">
+<span class="material-symbols-outlined text-[20px]">home</span>
+</div>
+<div class="relative flex items-center justify-center w-full">
+<div class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-700 cursor-pointer hover:border-indigo-mac transition-colors">SC</div>
+<div class="absolute -left-[1px] top-2 w-1 h-4 bg-indigo-mac rounded-r-full"></div>
+</div>
+<div class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-500 cursor-pointer hover:text-gray-800 transition-colors">WM</div>
+<div class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-500 cursor-pointer hover:text-gray-800 transition-colors">AP</div>
+<div class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-xs font-bold text-gray-500 cursor-pointer hover:text-gray-800 transition-colors">DT</div>
+<div class="mt-auto">
+<div class="w-8 h-8 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-400 cursor-pointer hover:border-indigo-mac hover:text-indigo-mac transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</div>
+</div>
+</aside>
+<aside class="w-[240px] glass-effect border-r border-[var(--mac-border)] flex flex-col shrink-0">
+<div class="p-4">
+<h3 class="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-4">Workflow Steps</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-3 px-2 py-1.5 text-sm text-gray-500 cursor-pointer hover:bg-black/5 rounded">
+<span class="material-symbols-outlined text-[18px] text-mac-green">check_circle</span>
+<span>Brainstorm</span>
+</div>
+<div class="flex items-center gap-3 px-2 py-1.5 text-sm text-gray-500 cursor-pointer hover:bg-black/5 rounded">
+<span class="material-symbols-outlined text-[18px] text-mac-green">check_circle</span>
+<span>Specs</span>
+</div>
+<div class="rounded-lg bg-indigo-mac/5 border border-indigo-mac/10">
+<div class="flex items-center gap-3 px-2 py-2 text-sm text-indigo-mac font-semibold cursor-pointer">
+<span class="material-symbols-outlined text-[18px] fill-current">expand_more</span>
+<span>Design</span>
+</div>
+<div class="pl-9 pb-2 space-y-1">
+<div class="flex items-center gap-2 text-xs text-gray-500">
+<span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+<span>Session #1</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-indigo-mac font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-mac-green animate-pulse"></span>
+<span>Session #2</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 px-2 py-1.5 text-sm text-gray-500 cursor-pointer hover:bg-black/5 rounded">
+<span class="material-symbols-outlined text-[18px] text-indigo-mac">sync</span>
+<span>Implementation</span>
+</div>
+<div class="flex items-center gap-3 px-2 py-1.5 text-sm text-gray-400 cursor-pointer hover:bg-black/5 rounded">
+<span class="material-symbols-outlined text-[18px]">radio_button_unchecked</span>
+<span>Review</span>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col bg-[var(--mac-bg)] min-w-0">
+<div class="p-6 border-b border-[var(--mac-border)]">
+<div class="flex items-center gap-3 mb-2">
+<span class="px-2 py-0.5 bg-gray-200 text-gray-600 rounded text-[10px] font-bold">T-14</span>
+<span class="px-2 py-0.5 bg-indigo-mac/10 text-indigo-mac rounded text-[10px] font-bold uppercase">feature</span>
+<span class="px-2 py-0.5 bg-mac-yellow/20 text-yellow-600 rounded text-[10px] font-bold uppercase">in_progress</span>
+</div>
+<h1 class="text-2xl font-bold text-[var(--text-primary)]">Login Flow Implementation</h1>
+<div class="mt-6 flex bg-gray-200/50 p-1 rounded-lg w-fit border border-gray-300/50">
+<button class="px-6 py-1.5 text-sm font-medium text-gray-500">Overview</button>
+<button class="px-6 py-1.5 text-sm font-medium bg-white text-gray-900 rounded shadow-sm border border-gray-300">Sessions</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<div class="bg-[var(--mac-card)] border border-[var(--mac-border)] rounded-xl p-5 diffuse-shadow">
+<div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+<div class="flex items-center gap-3">
+<span class="text-sm font-bold text-[var(--text-primary)]">Session #2</span>
+<span class="px-2 py-0.5 bg-green-50 text-mac-green border border-green-100 text-[10px] font-bold rounded">RUNNING</span>
+</div>
+<div class="flex items-center gap-4 text-xs text-gray-400">
+<span>12m active</span>
+<span>4.2K tokens</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-lg bg-indigo-mac/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-indigo-mac text-[20px]">smart_toy</span>
+</div>
+<div class="flex-1 text-sm leading-relaxed text-[var(--text-primary)]">
+<p class="mb-3 font-mono">I've analyzed the <span class="text-indigo-mac font-semibold cursor-pointer">LoginForm.tsx</span> component. We need to integrate the new validation schema and ensure the loading states match the system design guidelines.</p>
+<p class="font-mono">Applying changes to handle OAuth callbacks and error propagation...</p>
+</div>
+</div>
+<div class="ml-12 space-y-2">
+<div class="flex items-center justify-between p-2.5 bg-gray-50 border border-gray-200 rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-indigo-mac">edit_note</span>
+<span class="text-xs font-mono text-gray-600">src/components/LoginForm.tsx</span>
+</div>
+<span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Applied</span>
+</div>
+<div class="flex items-center justify-between p-2.5 bg-gray-50 border border-gray-200 rounded-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-mac-yellow">terminal</span>
+<span class="text-xs font-mono text-gray-600">npm run test</span>
+</div>
+<span class="text-[10px] font-bold text-mac-green uppercase tracking-tighter">Success</span>
+</div>
+<div class="flex items-center gap-3 p-2.5 bg-indigo-mac/5 border border-indigo-mac/10 rounded-lg">
+<span class="material-symbols-outlined text-[18px] text-indigo-mac">groups</span>
+<span class="text-xs font-medium text-indigo-mac">Subagent "Security-Bot" is auditing implementation...</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<aside class="w-[320px] bg-white border-l border-[var(--mac-border)] flex flex-col shrink-0">
+<div class="h-12 flex items-center px-4 border-b border-[var(--mac-border)] shrink-0">
+<span class="text-xs font-bold text-gray-400 uppercase tracking-widest">File Preview</span>
+</div>
+<div class="p-3 bg-gray-50 flex items-center gap-2 border-b border-[var(--mac-border)]">
+<span class="material-symbols-outlined text-[16px] text-gray-400">folder</span>
+<div class="flex items-center text-[11px] text-gray-500 font-mono">
+<span>src</span>
+<span class="mx-1 opacity-50">/</span>
+<span>components</span>
+<span class="mx-1 opacity-50">/</span>
+<span class="text-gray-900 font-bold">LoginForm.tsx</span>
+</div>
+</div>
+<div class="flex-1 overflow-auto p-4 font-mono text-[11px] leading-relaxed no-scrollbar bg-white">
+<div class="flex gap-4">
+<div class="text-gray-300 text-right select-none w-4">
+                    1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15
+                </div>
+<div class="text-gray-800 whitespace-pre">
+<span class="text-[var(--syntax-keyword)]">import</span> React <span class="text-[var(--syntax-keyword)]">from</span> <span class="text-[var(--syntax-string)]">'react'</span>;
+<span class="text-[var(--syntax-keyword)]">import</span> { useAuth } <span class="text-[var(--syntax-keyword)]">from</span> <span class="text-[var(--syntax-string)]">'../hooks'</span>;
+<span class="text-[var(--syntax-keyword)]">export const</span> <span class="text-indigo-mac font-semibold">LoginForm</span> = () =&gt; {
+  <span class="text-[var(--syntax-keyword)]">const</span> { login } = <span class="text-indigo-mac">useAuth</span>();
+  <span class="text-[var(--syntax-comment)]">// Handle form submission</span>
+<span class="text-[var(--syntax-keyword)]">const</span> <span class="text-indigo-mac">handleSubmit</span> = <span class="text-[var(--syntax-keyword)]">async</span> (e) =&gt; {
+    e.<span class="text-indigo-mac">preventDefault</span>();
+    <span class="text-[var(--syntax-keyword)]">try</span> {
+      <span class="text-[var(--syntax-keyword)]">await</span> <span class="text-indigo-mac">login</span>(data);
+    } <span class="text-[var(--syntax-keyword)]">catch</span> (err) {
+      <span class="text-[var(--syntax-number)]">console</span>.<span class="text-indigo-mac">error</span>(err);
+    }
+  };
+  <span class="text-[var(--syntax-keyword)]">return</span> (
+    <span class="text-[var(--syntax-string)]">&lt;form onSubmit={handleSubmit}&gt;</span>
+<span class="text-[var(--syntax-comment)]">...</span>
+<span class="text-[var(--syntax-string)]">&lt;/form&gt;</span>
+  );
+};</div>
+</div>
+</div>
+</aside>
+</div>
+<footer class="h-[28px] border-t border-[var(--mac-border)] glass-effect flex items-center justify-between px-3 text-[10px] text-gray-500 shrink-0 z-10">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-mac-green shadow-[0_0_4px_rgba(40,200,64,0.4)]"></div>
+<span class="font-medium">Connected</span>
+</div>
+<span class="text-gray-400">v1.2.0</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-indigo-mac">bolt</span>
+<span>Session active</span>
+</div>
+<div class="flex items-center gap-4 border-l border-gray-200 pl-4">
+<span class="font-medium text-gray-700">12:34 PM</span>
+<span class="text-indigo-mac font-bold">4.2K tokens</span>
+<span class="font-bold text-gray-900">$0.08 est.</span>
+</div>
+</div>
+</footer>
+
+</body></html>
