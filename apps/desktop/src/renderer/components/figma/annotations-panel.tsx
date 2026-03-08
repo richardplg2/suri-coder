@@ -2,20 +2,7 @@ import { useState } from 'react'
 import { ScrollArea, Button, Badge, Textarea } from '@agent-coding/ui'
 import { cn } from '@agent-coding/ui'
 import { Trash2, PlusCircle, FileDown } from 'lucide-react'
-import type { FigmaNode } from 'renderer/hooks/use-figma-connection'
-import type { FlatNode } from 'renderer/components/figma/figma-node-tree'
-
-export interface DesignEntry {
-  id: string
-  name: string
-  type: string
-  nodeTree: FigmaNode
-  flatNodes: FlatNode[]
-  imageDataUrl: string
-  rootBBox: { x: number; y: number; width: number; height: number }
-  notes: string
-  addedAt: number
-}
+import type { DesignEntry } from 'renderer/types/figma'
 
 interface AnnotationsPanelProps {
   readonly entries: DesignEntry[]

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Frame } from 'lucide-react'
 import { Button, SegmentedControl, EmptyState, Spinner, DataTable, Badge, ScrollArea } from '@agent-coding/ui'
 import type { Column } from '@agent-coding/ui'
 import { useTickets } from 'renderer/hooks/queries/use-tickets'
@@ -42,7 +42,7 @@ interface TicketsBoardProps {
 
 export function TicketsBoard({ project }: TicketsBoardProps) {
   const { data: tickets, isLoading } = useTickets(project.id)
-  const { openTicketTab } = useTabStore()
+  const { openTicketTab, openFigmaTab } = useTabStore()
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
 
   if (isLoading) {
@@ -68,6 +68,10 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
             ]}
             size="sm"
           />
+          <Button size="sm" variant="outline" onClick={() => openFigmaTab(project.id)} className="cursor-pointer">
+            <Frame className="mr-1.5 size-3.5" />
+            Figma Import
+          </Button>
           <Button size="sm" onClick={() => openCreateTicketModal(project.id)}>
             <Plus className="mr-1.5 size-3.5" />
             New Ticket
