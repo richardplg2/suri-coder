@@ -1,4 +1,4 @@
-export type TabType = 'home' | 'ticket' | 'settings'
+export type TabType = 'home' | 'ticket' | 'settings' | 'figma'
 
 export interface HomeTab {
   id: 'home'
@@ -21,4 +21,11 @@ export interface SettingsTab {
   label: 'Settings'
 }
 
-export type AppTab = HomeTab | TicketTab | SettingsTab
+export interface FigmaTab {
+  id: string
+  type: 'figma'
+  projectId: string
+  label: string
+}
+
+export type AppTab = HomeTab | TicketTab | SettingsTab | FigmaTab

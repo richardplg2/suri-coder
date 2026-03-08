@@ -10,6 +10,7 @@ interface TabStore {
   // Actions
   openTicketTab: (projectId: string, ticketId: string, label: string) => void
   openSettingsTab: (projectId: string) => void
+  openFigmaTab: (projectId: string) => void
   closeTab: (projectId: string, tabId: string) => void
   setActiveTab: (projectId: string, tabId: string) => void
   updateTabLabel: (projectId: string, tabId: string, label: string) => void
@@ -53,6 +54,24 @@ export const useTabStore = create<TabStore>()(
           return
         }
         const newTab: AppTab = { id: tabId, type: 'settings', projectId, label: 'Settings' }
+        set({
+          tabsByProject: { ...tabsByProject, [projectId]: [...tabs, newTab] },
+          activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
+        })
+      },
+
+      openFigmaTab: (projectId) => {
+        const { tabsByProject, activeTabByProject } = get()
+        const tabs = tabsByProject[projectId] ?? []
+        const tabId = `figma-${projectId}`
+        const existing = tabs.find((t) => t.id === tabId)
+        if (existing) {
+          set({
+            activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
+          })
+          return
+        }
+        const newTab: AppTab = { id: tabId, type: 'figma', projectId, label: 'Figma Annotator' }
         set({
           tabsByProject: { ...tabsByProject, [projectId]: [...tabs, newTab] },
           activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
