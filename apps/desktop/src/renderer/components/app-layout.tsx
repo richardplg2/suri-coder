@@ -1,25 +1,25 @@
-import { useMemo } from 'react'
-import { Home, Search, Sun, Moon, Settings } from 'lucide-react'
+import { Search, Sun, Moon } from 'lucide-react'
 import { TabBar, Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, Toaster } from '@agent-coding/ui'
 import type { Tab } from '@agent-coding/ui'
 import { useTabStore } from 'renderer/stores/use-tab-store'
-import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useThemeStore } from 'renderer/stores/use-theme-store'
+import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import type { AppTab } from 'renderer/types/tabs'
+import { Rail } from './rail'
 import { AppSidebar } from './app-sidebar'
 import { StatusBar } from './status-bar'
 import { useKeyboardShortcuts } from 'renderer/hooks/use-keyboard-shortcuts'
 import { NotificationDropdown } from './notification-dropdown'
 import { useNotificationsWs } from 'renderer/hooks/use-notifications-ws'
 
-function tabToBarTab(tab: AppTab): Tab {
+function tabToBarTab(tab: AppTab): Tab | null {
   switch (tab.type) {
-    case 'home':
-      return { id: tab.id, label: '', icon: <Home className="size-4" />, closable: false }
     case 'ticket':
       return { id: tab.id, label: tab.label, closable: true }
     case 'settings':
-      return { id: tab.id, label: tab.label, icon: <Settings className="size-4" />, closable: true }
+      return { id: tab.id, label: 'Settings', closable: true }
+    default:
+      return null
   }
 }
 
@@ -28,29 +28,30 @@ const isMac = window.App?.platform === 'darwin'
 export function AppLayout({ children }: { children: React.ReactNode }) {
   useKeyboardShortcuts()
   useNotificationsWs()
-  const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
-  const rawTabs = useTabStore((s) => activeProjectId ? s.tabsByProject[activeProjectId] : undefined)
-  const tabs = useMemo(() => rawTabs ?? [], [rawTabs])
-  const activeTabId = useTabStore((s) => activeProjectId ? s.activeTabByProject[activeProjectId] : undefined)
-  const { setActiveTab, closeTab } = useTabStore()
+  const { activeProjectId } = useProjectNavStore()
+  const { getProjectTabs, getActiveTabId, setActiveTab, closeTab } = useTabStore()
   const { theme, setTheme } = useThemeStore()
 
-  const barTabs = tabs.map(tabToBarTab)
+  const projectTabs = activeProjectId ? getProjectTabs(activeProjectId) : []
+  const activeTabId = activeProjectId ? getActiveTabId(activeProjectId) : undefined
+  const barTabs = projectTabs.map(tabToBarTab).filter((t): t is Tab => t !== null)
 
   return (
     <TooltipProvider delayDuration={400}>
       <div className="flex h-screen flex-col">
         {/* Toolbar — 36px, translucent */}
         <div className="flex h-9 shrink-0 items-center border-b border-border/50 glass-panel app-drag">
-          {/* Traffic light spacer (macOS only) */}
+          {/* Traffic light spacer (macOS only) — offset by rail width */}
           {isMac && <div className="w-[78px] shrink-0" />}
           <div className="flex-1 app-no-drag">
-            <TabBar
-              tabs={barTabs}
-              activeTab={activeTabId ?? ''}
-              onTabChange={(id) => activeProjectId && setActiveTab(activeProjectId, id)}
-              onTabClose={(id) => activeProjectId && closeTab(activeProjectId, id)}
-            />
+            {activeProjectId && barTabs.length > 0 && (
+              <TabBar
+                tabs={barTabs}
+                activeTab={activeTabId ?? ''}
+                onTabChange={(id) => setActiveTab(activeProjectId, id)}
+                onTabClose={(id) => closeTab(activeProjectId, id)}
+              />
+            )}
           </div>
           {/* Right-side actions */}
           <div className="flex items-center gap-0.5 px-2 app-no-drag">
@@ -90,8 +91,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Main area: Sidebar + Content */}
+        {/* Main area: Rail + Sidebar + Content */}
         <div className="flex flex-1 overflow-hidden">
+          <Rail />
           <AppSidebar />
           <main className="flex-1 overflow-hidden bg-background">
             {children}
