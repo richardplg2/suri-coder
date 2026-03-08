@@ -1,65 +1,124 @@
-import { Plus, Folder } from 'lucide-react'
-import { Button, EmptyState, Spinner, ScrollArea } from '@agent-coding/ui'
-import { useProjects } from 'renderer/hooks/queries/use-projects'
+import { AlertCircle, Play, Clock } from 'lucide-react'
+import { ScrollArea, StatusBadge } from '@agent-coding/ui'
 import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useTabStore } from 'renderer/stores/use-tab-store'
-import { useModalStore } from 'renderer/stores/use-modal-store'
-import { ProjectCard } from 'renderer/components/project-card'
+
+// --- Mock data (replace with real API later) ---
+
+const MOCK_NEEDS_ATTENTION = [
+  { id: 't-12', key: 'T-12', title: 'Add auth flow', status: 'Review pending', project: 'my-app', projectId: 'p1' },
+  { id: 't-8', key: 'T-8', title: 'Fix login crash', status: 'Test failed', project: 'api-srv', projectId: 'p2' },
+  { id: 't-15', key: 'T-15', title: 'User settings page', status: 'Needs input', project: 'my-app', projectId: 'p1' },
+]
+
+const MOCK_RUNNING = [
+  { id: 't-14', key: 'T-14', title: 'Refactor database layer', step: 'Coding', project: 'my-app', projectId: 'p1' },
+  { id: 't-9', key: 'T-9', title: 'Add API rate limiting', step: 'Testing', project: 'api-srv', projectId: 'p2' },
+]
+
+const MOCK_ACTIVITY = [
+  { id: '1', ticketKey: 'T-12', event: 'Review completed', time: '2m ago', projectId: 'p1' },
+  { id: '2', ticketKey: 'T-14', event: 'Coding started', time: '5m ago', projectId: 'p1' },
+  { id: '3', ticketKey: 'T-8', event: 'Test failed (3 errors)', time: '12m ago', projectId: 'p2' },
+  { id: '4', ticketKey: 'T-15', event: 'Agent needs input', time: '20m ago', projectId: 'p1' },
+]
+
+// --- Component ---
+
+function SectionHeader({ icon: Icon, title, count }: {
+  icon: React.ElementType
+  title: string
+  count: number
+}) {
+  return (
+    <div className="mb-3 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <Icon className="size-4 text-muted-foreground" />
+        <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
+      </div>
+      <span className="text-xs text-muted-foreground">{count}</span>
+    </div>
+  )
+}
 
 export function HomeScreen() {
-  const { data: projects, isLoading } = useProjects()
   const { setActiveProject } = useProjectNavStore()
-  const { open } = useModalStore()
+  const { openTicketTab } = useTabStore()
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Spinner label="Loading projects..." />
-      </div>
-    )
+  const navigateToTicket = (projectId: string, ticketId: string, label: string) => {
+    setActiveProject(projectId)
+    openTicketTab(projectId, ticketId, label)
   }
 
   return (
     <ScrollArea className="h-full">
       <div className="p-6">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-lg font-semibold tracking-tight">Projects</h1>
-          <Button size="sm" onClick={() => open('create-project')}>
-            <Plus className="mr-1.5 size-3.5" />
-            New Project
-          </Button>
-        </div>
+        <h1 className="mb-8 text-lg font-semibold tracking-tight">Dashboard</h1>
 
-        {/* Content */}
-        {(!projects || projects.length === 0) ? (
-          <EmptyState
-            icon={Folder}
-            title="No projects yet"
-            description="Create your first project to get started."
-            action={
-              <Button size="sm" onClick={() => open('create-project')}>
-                <Plus className="mr-1.5 size-3.5" />
-                New Project
-              </Button>
-            }
-          />
-        ) : (
+        {/* Needs Attention */}
+        <section className="mb-8">
+          <SectionHeader icon={AlertCircle} title="Needs Attention" count={MOCK_NEEDS_ATTENTION.length} />
           <div className="bento-grid-3">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onClick={() => setActiveProject(project.id)}
-                onSettings={() => {
-                  setActiveProject(project.id)
-                  useTabStore.getState().openSettingsTab(project.id)
-                }}
-                onDelete={() => open('delete-project', { projectId: project.id, projectName: project.name })}
-              />
+            {MOCK_NEEDS_ATTENTION.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => navigateToTicket(item.projectId, item.id, item.key)}
+                className="bento-cell cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold">{item.key}</span>
+                  <StatusBadge status="warning" label={item.status} />
+                </div>
+                <p className="text-xs text-muted-foreground truncate">{item.title}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground/70">{item.project}</p>
+              </button>
             ))}
           </div>
-        )}
+        </section>
+
+        {/* Running Now */}
+        <section className="mb-8">
+          <SectionHeader icon={Play} title="Running Now" count={MOCK_RUNNING.length} />
+          <div className="bento-grid-3">
+            {MOCK_RUNNING.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => navigateToTicket(item.projectId, item.id, item.key)}
+                className="bento-cell cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold">{item.key}</span>
+                  <StatusBadge status="running" label={item.step} />
+                </div>
+                <p className="text-xs text-muted-foreground truncate">{item.title}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground/70">{item.project}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Recent Activity */}
+        <section>
+          <SectionHeader icon={Clock} title="Recent Activity" count={MOCK_ACTIVITY.length} />
+          <div className="bento-cell p-0">
+            {MOCK_ACTIVITY.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => navigateToTicket(item.projectId, item.id, item.ticketKey)}
+                className="flex w-full items-center justify-between px-4 py-2.5 text-left cursor-pointer transition-colors duration-150 hover:bg-[var(--surface-hover)] first:rounded-t-[12px] last:rounded-b-[12px]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold text-[var(--accent)]">{item.ticketKey}</span>
+                  <span className="text-xs text-foreground">{item.event}</span>
+                </div>
+                <span className="text-[11px] text-muted-foreground">{item.time}</span>
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
     </ScrollArea>
   )
