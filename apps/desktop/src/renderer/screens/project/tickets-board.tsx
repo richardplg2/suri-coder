@@ -42,7 +42,8 @@ interface TicketsBoardProps {
 
 export function TicketsBoard({ project }: TicketsBoardProps) {
   const { data: tickets, isLoading } = useTickets(project.id)
-  const { openTicketTab, openFigmaTab } = useTabStore()
+  const openTicketTab = useTabStore((s) => s.openTicketTab)
+  const openFigmaTab = useTabStore((s) => s.openFigmaTab)
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
 
   if (isLoading) {

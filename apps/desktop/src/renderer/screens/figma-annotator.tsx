@@ -79,8 +79,15 @@ export function FigmaAnnotatorScreen({ projectId }: FigmaAnnotatorScreenProps) {
 
       const selectedNode = selection.selection[0]
 
-      // Prevent duplicates
-      if (designEntries.some((e) => e.id === selectedNode.id)) {
+      // Prevent duplicates — check via ref to avoid stale closure
+      let isDuplicate = false
+      setDesignEntries((prev) => {
+        if (prev.some((e) => e.id === selectedNode.id)) {
+          isDuplicate = true
+        }
+        return prev
+      })
+      if (isDuplicate) {
         setActiveDesignId(selectedNode.id)
         return
       }
@@ -98,6 +105,10 @@ export function FigmaAnnotatorScreen({ projectId }: FigmaAnnotatorScreenProps) {
         ? exported.imageData
         : `data:image/png;base64,${exported.imageData}`
 
+      if (!nodeInfo.absoluteBoundingBox) {
+        throw new Error(`Node "${selectedNode.name}" has no bounding box. Select a frame with dimensions.`)
+      }
+
       const flat: FlatNode[] = []
       flattenNodes(nodeInfo, 0, flat)
 
@@ -108,7 +119,7 @@ export function FigmaAnnotatorScreen({ projectId }: FigmaAnnotatorScreenProps) {
         nodeTree: nodeInfo,
         flatNodes: flat,
         imageDataUrl: imgData,
-        rootBBox: nodeInfo.absoluteBoundingBox!,
+        rootBBox: nodeInfo.absoluteBoundingBox,
         notes: '',
         addedAt: Date.now(),
       }
@@ -124,7 +135,7 @@ export function FigmaAnnotatorScreen({ projectId }: FigmaAnnotatorScreenProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [figma, designEntries])
+  }, [figma])
 
   const handleRemoveDesign = useCallback(
     (id: string) => {
