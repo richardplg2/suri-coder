@@ -6,17 +6,19 @@ import { TicketScreen } from 'renderer/screens/ticket'
 import { SettingsScreen } from 'renderer/screens/settings'
 
 export function TabContent() {
-  const { activeProjectId } = useProjectNavStore()
-  const { getProjectTabs, getActiveTabId } = useTabStore()
+  const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
+  const activeTab = useTabStore((s) => {
+    if (!activeProjectId) return undefined
+    const tabId = s.activeTabByProject[activeProjectId]
+    if (!tabId) return undefined
+    const tabs = s.tabsByProject[activeProjectId] ?? []
+    return tabs.find((t) => t.id === tabId)
+  })
 
   // No active project → Home dashboard
   if (!activeProjectId) {
     return <HomeScreen />
   }
-
-  const tabs = getProjectTabs(activeProjectId)
-  const activeTabId = getActiveTabId(activeProjectId)
-  const activeTab = tabs.find((t) => t.id === activeTabId)
 
   // Active project but no tab → Project screen (kanban)
   if (!activeTab) {

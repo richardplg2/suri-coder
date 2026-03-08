@@ -6,12 +6,13 @@ import { TicketSidebar } from './sidebar/ticket-sidebar'
 
 export function AppSidebar() {
   const { isOpen } = useSidebarStore()
-  const { activeProjectId } = useProjectNavStore()
-  const { getProjectTabs, getActiveTabId } = useTabStore()
-
-  const tabs = activeProjectId ? getProjectTabs(activeProjectId) : []
-  const activeTabId = activeProjectId ? getActiveTabId(activeProjectId) : undefined
-  const activeTab = tabs.find((t) => t.id === activeTabId)
+  const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
+  const activeTabId = useTabStore((s) => activeProjectId ? s.activeTabByProject[activeProjectId] : undefined)
+  const activeTab = useTabStore((s) => {
+    if (!activeProjectId) return undefined
+    const tabs = s.tabsByProject[activeProjectId] ?? []
+    return tabs.find((t) => t.id === activeTabId)
+  })
 
   // Sidebar only visible for ticket tabs
   const showSidebar = isOpen && activeTab?.type === 'ticket'
