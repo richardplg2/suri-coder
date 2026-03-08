@@ -1,18 +1,9 @@
-export type TabType = 'home' | 'project' | 'ticket' | 'brainstorm' | 'figma-import'
+export type TabType = 'home' | 'ticket' | 'settings'
 
 export interface HomeTab {
   id: 'home'
   type: 'home'
   label: 'Home'
-  pinned: true
-}
-
-export interface ProjectTab {
-  id: string
-  type: 'project'
-  projectId: string
-  label: string
-  pinned: true
 }
 
 export interface TicketTab {
@@ -21,23 +12,13 @@ export interface TicketTab {
   ticketId: string
   projectId: string
   label: string
-  pinned: false
 }
 
-export interface BrainstormTab {
+export interface SettingsTab {
   id: string
-  type: 'brainstorm'
+  type: 'settings'
   projectId: string
-  label: string
-  pinned: false
+  label: 'Settings'
 }
 
-export interface FigmaImportTab {
-  id: string
-  type: 'figma-import'
-  projectId: string
-  label: string
-  pinned: false
-}
-
-export type AppTab = HomeTab | ProjectTab | TicketTab | BrainstormTab | FigmaImportTab
+export type AppTab = HomeTab | TicketTab | SettingsTab
