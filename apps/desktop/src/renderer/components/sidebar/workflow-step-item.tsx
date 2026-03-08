@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CheckCircle2, Circle, XCircle, Loader2, ChevronRight } from 'lucide-react'
 import { cn } from '@agent-coding/ui'
 import type { StepStatus } from 'renderer/types/api'
@@ -49,6 +49,11 @@ export function WorkflowStepItem({
   onClickSession,
 }: WorkflowStepItemProps) {
   const [expanded, setExpanded] = useState(isActive)
+
+  useEffect(() => {
+    if (isActive) setExpanded(true)
+  }, [isActive])
+
   const { icon: Icon, className: iconClass } = getStatusIcon(status)
   const hasSessions = sessions && sessions.length > 0
 

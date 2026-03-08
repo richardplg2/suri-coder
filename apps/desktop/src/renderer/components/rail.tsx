@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { LayoutDashboard, Plus, Settings, Pencil, Trash2 } from 'lucide-react'
 import {
   cn, Tooltip, TooltipTrigger, TooltipContent, ScrollArea,
@@ -31,6 +32,60 @@ function ProjectIcon({ name, isActive, onClick }: {
         <div className="absolute -left-[7px] top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-[var(--accent)]" />
       )}
     </button>
+  )
+}
+
+function ProjectWithContextMenu({ project, isActive, onSelect, onSettings, onDelete }: {
+  project: { id: string; name: string }
+  isActive: boolean
+  onSelect: () => void
+  onSettings: () => void
+  onDelete: () => void
+}) {
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  return (
+    <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <span
+              onContextMenu={(e) => {
+                e.preventDefault()
+                setMenuOpen(true)
+              }}
+            >
+              <ProjectIcon
+                name={project.name}
+                isActive={isActive}
+                onClick={onSelect}
+              />
+            </span>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="right">{project.name}</TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent side="right" align="start" className="w-48">
+        <DropdownMenuItem onClick={() => {
+          // TODO: inline rename — open rename modal
+        }}>
+          <Pencil className="size-4" />
+          Rename
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onSettings}>
+          <Settings className="size-4" />
+          Settings
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="text-[var(--destructive)] focus:text-[var(--destructive)]"
+          onClick={onDelete}
+        >
+          <Trash2 className="size-4" />
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -68,45 +123,17 @@ export function Rail() {
       <ScrollArea className="flex-1 w-full">
         <div className="flex flex-col items-center gap-1 px-2">
           {projects?.map((project) => (
-            <DropdownMenu key={project.id}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <span>
-                      <ProjectIcon
-                        name={project.name}
-                        isActive={activeProjectId === project.id}
-                        onClick={() => setActiveProject(project.id)}
-                      />
-                    </span>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="right">{project.name}</TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent side="right" align="start" className="w-48">
-                <DropdownMenuItem onClick={() => {
-                  // TODO: inline rename — open rename modal
-                }}>
-                  <Pencil className="size-4" />
-                  Rename
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => {
-                  setActiveProject(project.id)
-                  openSettingsTab(project.id)
-                }}>
-                  <Settings className="size-4" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-[var(--destructive)] focus:text-[var(--destructive)]"
-                  onClick={() => open('delete-project', { projectId: project.id, projectName: project.name })}
-                >
-                  <Trash2 className="size-4" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ProjectWithContextMenu
+              key={project.id}
+              project={project}
+              isActive={activeProjectId === project.id}
+              onSelect={() => setActiveProject(project.id)}
+              onSettings={() => {
+                setActiveProject(project.id)
+                openSettingsTab(project.id)
+              }}
+              onDelete={() => open('delete-project', { projectId: project.id, projectName: project.name })}
+            />
           ))}
         </div>
       </ScrollArea>

@@ -24,7 +24,6 @@ export function WorkflowStepList({
           name={step.name}
           status={step.status}
           isActive={step.id === activeStepId}
-          sessions={[]}
           onClickStep={() => onClickStep?.(step.id)}
           onClickSession={onClickSession}
         />

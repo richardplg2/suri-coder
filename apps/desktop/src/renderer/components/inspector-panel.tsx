@@ -6,6 +6,8 @@ import { FilePreview } from './inspector/file-preview'
 
 function parsePatch(patch: string): DiffLine[] {
   return patch.split('\n').map((line) => {
+    if (line.startsWith('@@') || line.startsWith('---') || line.startsWith('+++'))
+      return { type: 'unchanged' as const, content: line }
     if (line.startsWith('+')) return { type: 'added' as const, content: line.slice(1) }
     if (line.startsWith('-')) return { type: 'removed' as const, content: line.slice(1) }
     return { type: 'unchanged' as const, content: line.startsWith(' ') ? line.slice(1) : line }
