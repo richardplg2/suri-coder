@@ -16,22 +16,22 @@
   --accent-foreground: #007AFF;
   --destructive: #FF3B30;
   --destructive-foreground: #FFFFFF;
-  --border: #D1D1D6;
-  --input: #D1D1D6;
+  --border: #E5E5E5;
+  --input: #E5E5E5;
   --ring: #007AFF;
 
   /* Design system extras — light */
   --surface: #FFFFFF;
   --surface-hover: #FAFAFA;
   --sidebar-bg: rgba(240,240,240,0.85);
-  --text-secondary: #6E6E73;
+  --text-secondary: #6B7280;
   --accent-hover: #409CFF;
   --selection: rgba(0,122,255,0.12);
   --success: #28CD41;
   --warning: #FFCC00;
 
   /* Glass / Vibrancy */
-  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.2);
   --glass-blur: 20px;
 
@@ -79,7 +79,7 @@
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: rgba(0,122,255,0.12);
   --sidebar-accent-foreground: #007AFF;
-  --sidebar-border: #D1D1D6;
+  --sidebar-border: #E5E5E5;
   --sidebar-ring: #007AFF;
 }
 

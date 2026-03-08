@@ -54,6 +54,7 @@ function ProjectWithContextMenu({ project, isActive, onSelect, onSettings, onDel
                 e.preventDefault()
                 setMenuOpen(true)
               }}
+              onPointerDown={(e) => e.preventDefault()}
             >
               <ProjectIcon
                 name={project.name}
@@ -96,7 +97,7 @@ export function Rail() {
   const { open } = useModalStore()
 
   return (
-    <aside className="w-[48px] bg-sidebar border-r border-border flex flex-col items-center py-4 gap-4 shrink-0 app-drag z-10">
+    <aside className="w-[48px] glass-effect border-r border-border flex flex-col items-center py-4 gap-4 shrink-0 app-drag z-10">
       {/* Home button */}
       <Tooltip>
         <TooltipTrigger asChild>

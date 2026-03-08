@@ -26,7 +26,7 @@ export function StatusBar() {
   }, [])
 
   return (
-    <footer className="h-[28px] border-t border-border bg-sidebar flex items-center justify-between px-3 text-[10px] text-muted-foreground shrink-0 z-10">
+    <footer className="h-[28px] border-t border-border glass-effect flex items-center justify-between px-3 text-[10px] text-muted-foreground shrink-0 z-10">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1.5">
           <div className={`w-2 h-2 rounded-full ${connected ? 'bg-mac-green' : 'bg-mac-red'}`}></div>

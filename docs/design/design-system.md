@@ -45,15 +45,15 @@
 | Surface | `#FFFFFF` | `--surface` |
 | Surface Hover | `#FAFAFA` | `--surface-hover` |
 | Sidebar | `rgba(240,240,240,0.85)` | `--sidebar` |
-| Border | `#D1D1D6` | `--border` |
+| Border | `#E5E5E5` | `--border` |
 | Text | `#1D1D1F` | `--text` |
-| Text Secondary | `#6E6E73` | `--text-secondary` |
+| Text Secondary | `#6B7280` | `--text-secondary` |
 | Accent | `#007AFF` | `--accent` |
 | Success | `#28CD41` | `--success` |
 | Warning | `#FFCC00` | `--warning` |
 | Destructive | `#FF3B30` | `--destructive` |
 | Selection | `rgba(0,122,255,0.12)` | `--selection` |
-| Glass BG | `rgba(255,255,255,0.72)` | `--glass-bg` |
+| Glass BG | `rgba(255,255,255,0.7)` | `--glass-bg` |
 | Glass Border | `rgba(255,255,255,0.2)` | `--glass-border` |
 | Elevated Surface | `#FFFFFF` | `--surface-elevated` |
 | Elevated Hover | `#FAFAFA` | `--surface-elevated-hover` |
@@ -148,7 +148,7 @@ Bento cells use `--surface-elevated` background, `1px solid var(--border)` borde
 Frosted glass panels for chrome elements (toolbar, sidebar, status bar, input bars).
 
 ```css
-.glass-panel {
+.glass-effect {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -158,7 +158,7 @@ Frosted glass panels for chrome elements (toolbar, sidebar, status bar, input ba
 
 | Mode | Background | Border |
 |------|-----------|--------|
-| Light | `rgba(255,255,255,0.72)` | `rgba(255,255,255,0.2)` |
+| Light | `rgba(255,255,255,0.7)` | `rgba(255,255,255,0.2)` |
 | Dark | `rgba(30,30,30,0.72)` | `rgba(255,255,255,0.08)` |
 
 **Applied to:** Toolbar, sidebar, status bar, brainstorm input bar, review action bar.
@@ -289,7 +289,7 @@ Three-panel layout: Sidebar (240px) + Main Content + Inspector (320px, collapsib
 - Overly colorful UI — keep neutral grays, single accent color
 - Flat uniform card grids — use bento grid with mixed cell sizes for visual hierarchy
 - Hard opaque borders on chrome — use `border-border/50` for glass panels
-- Inline `style` for backdrop-filter — use `glass-panel` utility class
+- Inline `style` for backdrop-filter — use `glass-effect` utility class
 - Inconsistent card radii — use `bento-cell` (12px) or `bento-cell-lg` (16px), not ad-hoc values
 
 ---

@@ -434,7 +434,7 @@ Built in `@agent-coding/ui` package. Radix UI primitives + CVA variants. Lucide 
 | `bento-grid-4` | 4, 12px gap | Dashboard metrics |
 | `bento-span-2` | Span 2 cols | Hero/featured cards |
 | `bento-span-row-2` | Span 2 rows | Tall content |
-| `glass-panel` | — | Frosted glass: `backdrop-filter: blur(20px)`, semi-transparent |
+| `glass-effect` | — | Frosted glass: `backdrop-filter: blur(20px)`, semi-transparent |
 
 ---
 

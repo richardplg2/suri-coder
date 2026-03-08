@@ -33,7 +33,7 @@ References: Xcode, Tower (Git), TablePlus, macOS Finder, Apple.com bento grid sh
   - Tests (test-tube-2 icon)
   - Reviews (file-diff icon)
 - **Bottom**: settings gear, connection status dot (green/red)
-- Uses `glass-panel` class for frosted vibrancy (`backdrop-filter: blur(20px)`)
+- Uses `glass-effect` class for frosted vibrancy (`backdrop-filter: blur(20px)`)
 - Border: `border-border/50` (subtle)
 
 ## Toolbar (36px height, translucent)
@@ -42,7 +42,7 @@ References: Xcode, Tower (Git), TablePlus, macOS Finder, Apple.com bento grid sh
 - Draggable region (`-webkit-app-region: drag`)
 - Right side: search trigger (Cmd+K), notifications bell, theme toggle
 - Buttons use `no-drag` to remain clickable
-- Uses `glass-panel` class (frosted glass with `backdrop-filter: blur(20px)`)
+- Uses `glass-effect` class (frosted glass with `backdrop-filter: blur(20px)`)
 - Border: `border-border/50` (subtle, not full opacity)
 
 ## Detail/Inspector Panel (320px, collapsible)
@@ -55,7 +55,7 @@ References: Xcode, Tower (Git), TablePlus, macOS Finder, Apple.com bento grid sh
 
 - Left: connection status, backend version
 - Right: active session status dot, duration, token count, cost
-- Uses `glass-panel` class, `border-border/50` top border
+- Uses `glass-effect` class, `border-border/50` top border
 
 ## Electron Window Configuration
 
@@ -105,7 +105,7 @@ Card-based content areas use Apple-style bento grid instead of flat uniform grid
 ### Glass Chrome Pattern
 
 All chrome elements (toolbar, sidebar, status bar) share the same visual treatment:
-- `glass-panel` utility class
+- `glass-effect` utility class
 - `border-border/50` (50% border opacity)
 - No inline `style` for backdrop-filter
 
