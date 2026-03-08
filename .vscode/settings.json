@@ -31,5 +31,8 @@
     "*.css": "tailwindcss"
   },
 
-  "tailwindCSS.experimental.configFile": "apps/desktop/src/renderer/globals.css"
+  "tailwindCSS.experimental.configFile": "apps/desktop/src/renderer/globals.css",
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
 }

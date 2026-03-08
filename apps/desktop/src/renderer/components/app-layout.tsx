@@ -9,6 +9,7 @@ import type { AppTab } from 'renderer/types/tabs'
 import { Rail } from './rail'
 import { AppSidebar } from './app-sidebar'
 import { StatusBar } from './status-bar'
+import { InspectorPanel } from './inspector-panel'
 import { useKeyboardShortcuts } from 'renderer/hooks/use-keyboard-shortcuts'
 import { NotificationDropdown } from './notification-dropdown'
 import { useNotificationsWs } from 'renderer/hooks/use-notifications-ws'
@@ -100,6 +101,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <main className="flex-1 overflow-hidden bg-background">
             {children}
           </main>
+          <InspectorPanel />
         </div>
 
         {/* Status bar */}
