@@ -41,12 +41,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <TooltipProvider delayDuration={400}>
-      <div className="flex h-screen flex-col">
+      <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
         {/* Toolbar — 36px, translucent */}
-        <div className="flex h-9 shrink-0 items-center border-b border-border/50 glass-panel app-drag">
-          {/* Traffic light spacer (macOS only) — offset by rail width */}
-          {isMac && <div className="w-[78px] shrink-0" />}
-          <div className="flex-1 app-no-drag">
+        <header className="flex h-[36px] shrink-0 items-center justify-between border-b border-border px-3 bg-sidebar/50 glass-effect app-drag">
+          <div className="flex items-center gap-2 w-48">
+            {/* Traffic light spacer (macOS only) — offset by rail width */}
+            {isMac && <div className="w-[78px] shrink-0" />}
+          </div>
+          <div className="flex items-center justify-center flex-1 app-no-drag">
             {activeProjectId && barTabs.length > 0 && (
               <TabBar
                 tabs={barTabs}
@@ -57,7 +59,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             )}
           </div>
           {/* Right-side actions */}
-          <div className="flex items-center gap-0.5 px-2 app-no-drag">
+          <div className="flex items-center gap-3 w-48 justify-end app-no-drag text-muted-foreground">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon-sm" className="size-7">
@@ -92,13 +94,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <TooltipContent side="bottom">Toggle theme</TooltipContent>
             </Tooltip>
           </div>
-        </div>
+        </header>
 
         {/* Main area: Rail + Sidebar + Content */}
         <div className="flex flex-1 overflow-hidden">
           <Rail />
           <AppSidebar />
-          <main className="flex-1 overflow-hidden bg-background">
+          <main className="flex-1 overflow-hidden bg-background min-w-0">
             {children}
           </main>
           <InspectorPanel />

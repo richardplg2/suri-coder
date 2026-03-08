@@ -16,22 +16,22 @@ function ProjectIcon({ name, isActive, onClick }: {
 }) {
   const initials = (name || '??').slice(0, 2).toUpperCase()
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'relative flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-semibold cursor-pointer',
-        'bg-[var(--surface-elevated)] text-muted-foreground border border-border/50',
-        'transition-all duration-150 hover:bg-[var(--surface-elevated-hover)] hover:text-foreground',
-        isActive && 'text-foreground ring-1 ring-[var(--accent)]',
-      )}
-    >
-      {initials}
-      {/* Active indicator: 3px accent bar on left */}
-      {isActive && (
-        <div className="absolute -left-[7px] top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-[var(--accent)]" />
-      )}
-    </button>
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          'relative flex w-8 h-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold cursor-pointer transition-all duration-150 app-no-drag',
+          isActive
+            ? 'bg-secondary text-secondary-foreground'
+            : 'bg-muted text-muted-foreground hover:bg-secondary'
+        )}
+      >
+        {initials}
+        {/* Active indicator: line on the left */}
+        {isActive && (
+          <div className="absolute -left-1 top-2 w-1 h-4 bg-primary rounded-r-full" />
+        )}
+      </button>
   )
 }
 
@@ -78,7 +78,7 @@ function ProjectWithContextMenu({ project, isActive, onSelect, onSettings, onDel
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="text-[var(--destructive)] focus:text-[var(--destructive)]"
+          className="text-destructive focus:text-destructive"
           onClick={onDelete}
         >
           <Trash2 className="size-4" />
@@ -96,7 +96,7 @@ export function Rail() {
   const { open } = useModalStore()
 
   return (
-    <div className="flex h-full w-12 shrink-0 flex-col items-center border-r border-border/50 glass-panel py-2 gap-1">
+    <aside className="w-[48px] bg-sidebar border-r border-border flex flex-col items-center py-4 gap-4 shrink-0 app-drag z-10">
       {/* Home button */}
       <Tooltip>
         <TooltipTrigger asChild>
@@ -104,24 +104,23 @@ export function Rail() {
             type="button"
             onClick={() => setActiveProject(null)}
             className={cn(
-              'flex size-8 shrink-0 items-center justify-center rounded-lg cursor-pointer',
-              'text-muted-foreground transition-colors duration-150',
-              'hover:bg-[var(--surface-elevated-hover)] hover:text-foreground',
-              activeProjectId === null && 'bg-[var(--surface-elevated)] text-foreground',
+              'flex w-8 h-8 shrink-0 items-center justify-center rounded-lg cursor-pointer transition-colors duration-150 app-no-drag',
+              activeProjectId === null
+                ? 'bg-primary text-primary-foreground shadow-lg'
+                : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
             )}
           >
-            <LayoutDashboard className="size-4" />
+            <LayoutDashboard className="size-5" />
           </button>
         </TooltipTrigger>
         <TooltipContent side="right">Dashboard</TooltipContent>
       </Tooltip>
 
-      {/* Separator */}
-      <div className="mx-2 my-1 h-px w-6 bg-border/50" />
+
 
       {/* Project list (scrollable) */}
-      <ScrollArea className="flex-1 w-full">
-        <div className="flex flex-col items-center gap-1 px-2">
+      <ScrollArea className="flex-1 w-full app-no-drag">
+        <div className="flex flex-col items-center gap-4 px-2">
           {projects?.map((project) => (
             <ProjectWithContextMenu
               key={project.id}
@@ -138,26 +137,22 @@ export function Rail() {
         </div>
       </ScrollArea>
 
-      {/* Separator */}
-      <div className="mx-2 my-1 h-px w-6 bg-border/50" />
 
-      {/* Add project button */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            onClick={() => open('create-project')}
-            className={cn(
-              'flex size-8 shrink-0 items-center justify-center rounded-lg cursor-pointer',
-              'text-muted-foreground transition-colors duration-150',
-              'hover:bg-[var(--surface-elevated-hover)] hover:text-foreground',
-            )}
-          >
-            <Plus className="size-4" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="right">New Project</TooltipContent>
-      </Tooltip>
-    </div>
+
+      <div className="mt-auto">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => open('create-project')}
+              className="flex w-8 h-8 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground cursor-pointer hover:border-primary hover:text-primary transition-colors app-no-drag"
+            >
+              <Plus className="size-5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">New Project</TooltipContent>
+        </Tooltip>
+      </div>
+    </aside>
   )
 }

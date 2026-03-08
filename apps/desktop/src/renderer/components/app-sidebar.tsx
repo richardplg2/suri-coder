@@ -20,8 +20,8 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        'shrink-0 border-r border-border/50 glass-panel bg-[var(--sidebar-bg)] transition-[width] duration-200 ease-out',
-        showSidebar ? 'w-60' : 'w-0 overflow-hidden',
+        'shrink-0 border-r border-border bg-sidebar transition-[width] duration-200 ease-out z-10',
+        showSidebar ? 'w-[240px]' : 'w-0 overflow-hidden'
       )}
     >
       <div className="flex h-full flex-col">

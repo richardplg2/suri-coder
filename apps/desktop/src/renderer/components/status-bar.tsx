@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Zap } from 'lucide-react'
-import { StatusBadge } from '@agent-coding/ui'
 import { apiClient } from 'renderer/lib/api-client'
 
 export function StatusBar() {
@@ -27,23 +26,25 @@ export function StatusBar() {
   }, [])
 
   return (
-    <div className="flex h-7 shrink-0 items-center justify-between border-t border-border/50 glass-panel px-3 text-caption text-muted-foreground">
-      <div className="flex items-center gap-3">
-        <StatusBadge
-          status={connected ? 'connected' : 'disconnected'}
-          showDot
-          className="text-[11px] px-1.5 py-0"
-        >
-          {connected ? 'Connected' : 'Disconnected'}
-        </StatusBadge>
-        <span className="text-muted-foreground/50">v1.0.0</span>
-      </div>
-      <div className="flex items-center gap-3">
+    <footer className="h-[28px] border-t border-border bg-sidebar flex items-center justify-between px-3 text-[10px] text-muted-foreground shrink-0 z-10">
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-1.5">
-          <Zap className="size-3 text-muted-foreground" />
+          <div className={`w-2 h-2 rounded-full ${connected ? 'bg-mac-green' : 'bg-mac-red'}`}></div>
+          <span>{connected ? 'Connected' : 'Disconnected'}</span>
+        </div>
+        <span className="text-muted-foreground/60">v1.2.0</span>
+      </div>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-1.5">
+          <Zap className="size-3" />
           <span>No active session</span>
         </div>
+        <div className="flex items-center gap-4 border-l border-border pl-4">
+          <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          <span className="text-primary">0 tokens</span>
+          <span className="font-medium text-foreground">$0.00 est.</span>
+        </div>
       </div>
-    </div>
+    </footer>
   )
 }

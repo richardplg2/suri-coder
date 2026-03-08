@@ -53,6 +53,16 @@
   --color-surface-elevated-hover: var(--surface-elevated-hover);
   --color-glass-bg: var(--glass-bg);
   --color-glass-border: var(--glass-border);
+
+  /* App Shell Design Colors */
+  --color-primary: #0a85ff;
+  --color-background-light: #f5f7f8;
+  --color-background-dark: #1e1e1e;
+  --color-border-dark: #333333;
+  --color-sidebar-dark: #252525;
+  --color-mac-red: #ff5f57;
+  --color-mac-yellow: #febc2e;
+  --color-mac-green: #28c840;
 }
 
 @layer base {
@@ -181,5 +191,14 @@
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border-color: var(--glass-border);
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    background-color: rgba(30, 30, 30, 0.8);
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
