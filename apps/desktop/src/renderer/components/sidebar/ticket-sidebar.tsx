@@ -1,22 +1,6 @@
-import { ScrollArea, SourceList, StatusBadge } from '@agent-coding/ui'
-import type { SourceListItem } from '@agent-coding/ui'
+import { ScrollArea } from '@agent-coding/ui'
 import { useTicket } from 'renderer/hooks/queries/use-tickets'
-import type { StepStatus } from 'renderer/types/api'
-
-function stepStatusVariant(status: StepStatus) {
-  const map: Record<StepStatus, 'passed' | 'running' | 'failed' | 'pending' | 'idle'> = {
-    completed: 'passed',
-    running: 'running',
-    failed: 'failed',
-    ready: 'pending',
-    awaiting_approval: 'pending',
-    review: 'pending',
-    changes_requested: 'failed',
-    pending: 'idle',
-    skipped: 'idle',
-  }
-  return map[status]
-}
+import { WorkflowStepList } from './workflow-step-list'
 
 interface TicketSidebarProps {
   ticketId: string
@@ -26,23 +10,25 @@ interface TicketSidebarProps {
 export function TicketSidebar({ ticketId, projectId }: TicketSidebarProps) {
   const { data: ticket } = useTicket(projectId, ticketId)
 
-  const stepItems: SourceListItem[] = (ticket?.steps ?? []).map((step) => ({
-    id: step.id,
-    label: step.name,
-    badge: <StatusBadge status={stepStatusVariant(step.status)} className="text-[10px] px-1.5 py-0" />,
-  }))
+  // Find the first active/running step for highlight
+  const activeStep = ticket?.steps?.find(
+    (s) => s.status === 'running' || s.status === 'ready' || s.status === 'review' || s.status === 'awaiting_approval',
+  )
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-border px-3 py-2">
+      <div className="border-b border-border/50 px-3 py-2">
         <div className="text-caption text-muted-foreground">{ticket?.key}</div>
         <div className="window-title truncate">{ticket?.title}</div>
       </div>
       <div className="section-header px-3 py-1.5">
-        Workflow
+        Workflow Steps
       </div>
       <ScrollArea className="flex-1">
-        <SourceList items={stepItems} />
+        <WorkflowStepList
+          steps={ticket?.steps ?? []}
+          activeStepId={activeStep?.id}
+        />
       </ScrollArea>
     </div>
   )

@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useSidebarStore } from 'renderer/stores/use-sidebar-store'
+import { useInspectorStore } from 'renderer/stores/use-inspector-store'
 
 export function useKeyboardShortcuts() {
   const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
@@ -10,6 +11,7 @@ export function useKeyboardShortcuts() {
   const activeTabId = useTabStore((s) => activeProjectId ? s.activeTabByProject[activeProjectId] : undefined)
   const { setActiveTab, closeTab } = useTabStore()
   const { toggle: toggleSidebar } = useSidebarStore()
+  const { toggle: toggleInspector } = useInspectorStore()
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -29,6 +31,13 @@ export function useKeyboardShortcuts() {
         return
       }
 
+      // Cmd+I: toggle inspector
+      if (mod && e.key === 'i') {
+        e.preventDefault()
+        toggleInspector()
+        return
+      }
+
       // Cmd+1-9: switch to tab by position
       if (mod && e.key >= '1' && e.key <= '9') {
         e.preventDefault()
@@ -40,5 +49,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [tabs, activeTabId, activeProjectId, setActiveTab, closeTab, toggleSidebar])
+  }, [tabs, activeTabId, activeProjectId, setActiveTab, closeTab, toggleSidebar, toggleInspector])
 }
