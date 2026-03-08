@@ -1,21 +1,39 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@agent-coding/ui'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Bot, Figma } from 'lucide-react'
+import { apiClient } from 'renderer/lib/api-client'
 import { useModalStore } from 'renderer/stores/use-modal-store'
+import { useTabStore } from 'renderer/stores/use-tab-store'
+import type { Ticket, TicketSource } from 'renderer/types/api'
 
 export function CreateTicketModal() {
   const { activeModal, modalData, close } = useModalStore()
   const isOpen = activeModal === 'create-ticket'
-  const _projectId = (modalData?.projectId as string) ?? ''
+  const projectId = (modalData?.projectId as string) ?? ''
+  const qc = useQueryClient()
+  const openTicketTab = useTabStore((s) => s.openTicketTab)
 
-  const handleStartWithAI = () => {
+  const createAndOpen = useMutation({
+    mutationFn: ({ pid, source }: { pid: string; source: TicketSource }) =>
+      apiClient<Ticket>(`/projects/${pid}/tickets`, {
+        method: 'POST',
+        body: JSON.stringify({ title: 'Untitled ticket', source }),
+      }),
+    onSuccess: (ticket, { pid }) => {
+      qc.invalidateQueries({ queryKey: ['projects', pid, 'tickets'] })
+      openTicketTab(pid, ticket.id, `${ticket.key}: ${ticket.title}`)
+    },
+  })
+
+  const handleCreate = (source: TicketSource) => {
+    const pid = projectId
     close()
-    // TODO: Brainstorm flow will be re-implemented in a later plan
+    createAndOpen.mutate({ pid, source })
   }
 
-  const handleStartFromFigma = () => {
-    close()
-    // TODO: Figma import flow will be re-implemented in a later plan
-  }
+  const handleStartWithAI = () => handleCreate('ai_brainstorm')
+
+  const handleStartFromFigma = () => handleCreate('figma')
 
   return (
     <Dialog open={isOpen} onOpenChange={close}>
