@@ -39,7 +39,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <TooltipProvider delayDuration={400}>
       <div className="flex h-screen flex-col">
         {/* Toolbar — 36px, translucent */}
-        <div className="flex h-9 shrink-0 items-center border-b border-border bg-card/80 backdrop-blur-xl app-drag">
+        <div className="flex h-9 shrink-0 items-center border-b border-border/50 glass-panel app-drag">
           {/* Traffic light spacer (macOS only) */}
           {isMac && <div className="w-[78px] shrink-0" />}
           <div className="flex-1 app-no-drag">
