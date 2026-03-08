@@ -89,8 +89,8 @@ export function BrainstormReview({ tabId, summary, specs, sessionId, projectId }
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-border p-4">
-        <h2 className="text-base font-semibold">Review Brainstorm Output</h2>
+      <div className="border-b border-border/50 p-4">
+        <h2 className="text-base font-semibold tracking-tight">Review Brainstorm Output</h2>
         <p className="text-caption text-muted-foreground mt-1">
           Review the summary below. Select text to add comments, then batch update or create ticket.
         </p>
@@ -106,7 +106,7 @@ export function BrainstormReview({ tabId, summary, specs, sessionId, projectId }
           />
 
           {currentSelection && (
-            <div className="mx-4 mb-4 flex items-center gap-2 rounded-lg border border-border bg-card p-3">
+            <div className="mx-4 mb-4 flex items-center gap-2 bento-cell p-3">
               <MessageSquare className="size-4 text-muted-foreground shrink-0" />
               <span className="text-caption text-muted-foreground truncate max-w-48">
                 &ldquo;{currentSelection.text}&rdquo;
@@ -127,12 +127,12 @@ export function BrainstormReview({ tabId, summary, specs, sessionId, projectId }
         </div>
 
         {/* Comment list sidebar */}
-        <div className="w-72 border-l border-border">
+        <div className="w-72 border-l border-border/50 glass-panel">
           <div className="section-header px-4 py-3">Comments ({comments.length})</div>
           <ScrollArea className="h-full">
             <div className="space-y-2 p-4">
               {comments.map((comment) => (
-                <div key={comment.id} className="rounded-lg border border-border bg-card p-3">
+                <div key={comment.id} className="bento-cell p-3">
                   <div className="text-caption text-muted-foreground italic truncate">
                     &ldquo;{comment.selectedText}&rdquo;
                   </div>
@@ -153,7 +153,7 @@ export function BrainstormReview({ tabId, summary, specs, sessionId, projectId }
       </div>
 
       {/* Action bar */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border/50 glass-panel p-4">
         <div className="flex items-center gap-3">
           <Input
             value={title}
