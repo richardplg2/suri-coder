@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Zap } from 'lucide-react'
 import { StatusBadge } from '@agent-coding/ui'
 import { apiClient } from 'renderer/lib/api-client'
 
@@ -27,7 +28,7 @@ export function StatusBar() {
 
   return (
     <div className="flex h-7 shrink-0 items-center justify-between border-t border-border/50 glass-panel px-3 text-caption text-muted-foreground">
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-3">
         <StatusBadge
           status={connected ? 'connected' : 'disconnected'}
           showDot
@@ -35,9 +36,13 @@ export function StatusBar() {
         >
           {connected ? 'Connected' : 'Disconnected'}
         </StatusBadge>
+        <span className="text-muted-foreground/50">v1.0.0</span>
       </div>
       <div className="flex items-center gap-3">
-        <span>No active session</span>
+        <div className="flex items-center gap-1.5">
+          <Zap className="size-3 text-muted-foreground" />
+          <span>No active session</span>
+        </div>
       </div>
     </div>
   )

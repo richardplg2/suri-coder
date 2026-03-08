@@ -1,22 +1,23 @@
-import { LayoutDashboard, Plus } from 'lucide-react'
-import { cn, Tooltip, TooltipTrigger, TooltipContent, ScrollArea } from '@agent-coding/ui'
+import { LayoutDashboard, Plus, Settings, Pencil, Trash2 } from 'lucide-react'
+import {
+  cn, Tooltip, TooltipTrigger, TooltipContent, ScrollArea,
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
+} from '@agent-coding/ui'
 import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useProjects } from 'renderer/hooks/queries/use-projects'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import { useModalStore } from 'renderer/stores/use-modal-store'
 
-function ProjectIcon({ name, isActive, onClick, onContextMenu }: {
+function ProjectIcon({ name, isActive, onClick }: {
   name: string
   isActive: boolean
   onClick: () => void
-  onContextMenu: (e: React.MouseEvent) => void
 }) {
   const initials = (name || '??').slice(0, 2).toUpperCase()
   return (
     <button
       type="button"
       onClick={onClick}
-      onContextMenu={onContextMenu}
       className={cn(
         'relative flex size-8 shrink-0 items-center justify-center rounded-lg text-xs font-semibold cursor-pointer',
         'bg-[var(--surface-elevated)] text-muted-foreground border border-border/50',
@@ -38,14 +39,6 @@ export function Rail() {
   const { data: projects } = useProjects()
   const { openSettingsTab } = useTabStore()
   const { open } = useModalStore()
-
-  const handleProjectContext = (e: React.MouseEvent, projectId: string, _projectName: string) => {
-    e.preventDefault()
-    // TODO: context menu with Rename, Settings, Delete
-    // For now, open settings tab
-    openSettingsTab(projectId)
-    setActiveProject(projectId)
-  }
 
   return (
     <div className="flex h-full w-12 shrink-0 flex-col items-center border-r border-border/50 glass-panel py-2 gap-1">
@@ -75,19 +68,45 @@ export function Rail() {
       <ScrollArea className="flex-1 w-full">
         <div className="flex flex-col items-center gap-1 px-2">
           {projects?.map((project) => (
-            <Tooltip key={project.id}>
-              <TooltipTrigger asChild>
-                <span>
-                  <ProjectIcon
-                    name={project.name}
-                    isActive={activeProjectId === project.id}
-                    onClick={() => setActiveProject(project.id)}
-                    onContextMenu={(e) => handleProjectContext(e, project.id, project.name)}
-                  />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="right">{project.name}</TooltipContent>
-            </Tooltip>
+            <DropdownMenu key={project.id}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <span>
+                      <ProjectIcon
+                        name={project.name}
+                        isActive={activeProjectId === project.id}
+                        onClick={() => setActiveProject(project.id)}
+                      />
+                    </span>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="right">{project.name}</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent side="right" align="start" className="w-48">
+                <DropdownMenuItem onClick={() => {
+                  // TODO: inline rename — open rename modal
+                }}>
+                  <Pencil className="size-4" />
+                  Rename
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  setActiveProject(project.id)
+                  openSettingsTab(project.id)
+                }}>
+                  <Settings className="size-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-[var(--destructive)] focus:text-[var(--destructive)]"
+                  onClick={() => open('delete-project', { projectId: project.id, projectName: project.name })}
+                >
+                  <Trash2 className="size-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ))}
         </div>
       </ScrollArea>
