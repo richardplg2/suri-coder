@@ -3,87 +3,112 @@ import { persist } from 'zustand/middleware'
 import type { AppTab } from 'renderer/types/tabs'
 
 interface TabStore {
-  tabs: AppTab[]
-  activeTabId: string
-  openProjectTab: (projectId: string, label: string) => void
-  openTicketTab: (ticketId: string, projectId: string, label: string) => void
-  openBrainstormTab: (projectId: string, label: string) => void
-  openFigmaImportTab: (projectId: string, label: string) => void
-  closeTab: (id: string) => void
-  setActiveTab: (id: string) => void
-  updateTabLabel: (id: string, label: string) => void
-}
+  // Per-project tab state
+  tabsByProject: Record<string, AppTab[]>
+  activeTabByProject: Record<string, string>
 
-const HOME_TAB: AppTab = { id: 'home', type: 'home', label: 'Home', pinned: true }
+  // Actions
+  openTicketTab: (projectId: string, ticketId: string, label: string) => void
+  openSettingsTab: (projectId: string) => void
+  closeTab: (projectId: string, tabId: string) => void
+  setActiveTab: (projectId: string, tabId: string) => void
+  updateTabLabel: (projectId: string, tabId: string, label: string) => void
+  getProjectTabs: (projectId: string) => AppTab[]
+  getActiveTabId: (projectId: string) => string | undefined
+}
 
 export const useTabStore = create<TabStore>()(
   persist(
     (set, get) => ({
-      tabs: [HOME_TAB],
-      activeTabId: 'home',
+      tabsByProject: {},
+      activeTabByProject: {},
 
-      openProjectTab: (projectId, label) => {
-        const { tabs } = get()
-        const tabId = `project-${projectId}`
-        const existing = tabs.find((t) => t.id === tabId)
-        if (existing) {
-          set({ activeTabId: tabId })
-          return
-        }
-        const newTab: AppTab = { id: tabId, type: 'project', projectId, label, pinned: true }
-        // Insert pinned tabs after other pinned tabs, before regular tabs
-        const lastPinnedIndex = tabs.findLastIndex((t) => t.pinned)
-        const newTabs = [...tabs]
-        newTabs.splice(lastPinnedIndex + 1, 0, newTab)
-        set({ tabs: newTabs, activeTabId: tabId })
-      },
-
-      openTicketTab: (ticketId, projectId, label) => {
-        const { tabs } = get()
+      openTicketTab: (projectId, ticketId, label) => {
+        const { tabsByProject, activeTabByProject } = get()
+        const tabs = tabsByProject[projectId] ?? []
         const tabId = `ticket-${ticketId}`
         const existing = tabs.find((t) => t.id === tabId)
         if (existing) {
-          set({ activeTabId: tabId })
+          set({
+            activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
+          })
           return
         }
-        const newTab: AppTab = { id: tabId, type: 'ticket', ticketId, projectId, label, pinned: false }
-        set({ tabs: [...tabs, newTab], activeTabId: tabId })
-      },
-
-      openBrainstormTab: (projectId, label) => {
-        const tabId = `brainstorm-${Date.now()}`
-        const newTab: AppTab = { id: tabId, type: 'brainstorm', projectId, label, pinned: false }
-        set({ tabs: [...get().tabs, newTab], activeTabId: tabId })
-      },
-
-      openFigmaImportTab: (projectId, label) => {
-        const tabId = `figma-import-${Date.now()}`
-        const newTab: AppTab = { id: tabId, type: 'figma-import', projectId, label, pinned: false }
-        set({ tabs: [...get().tabs, newTab], activeTabId: tabId })
-      },
-
-      closeTab: (id) => {
-        if (id === 'home') return
-        const { tabs, activeTabId } = get()
-        const index = tabs.findIndex((t) => t.id === id)
-        const newTabs = tabs.filter((t) => t.id !== id)
-        if (activeTabId === id) {
-          const nextIndex = Math.min(index, newTabs.length - 1)
-          set({ tabs: newTabs, activeTabId: newTabs[nextIndex].id })
-        } else {
-          set({ tabs: newTabs })
-        }
-      },
-
-      setActiveTab: (id) => set({ activeTabId: id }),
-
-      updateTabLabel: (id, label) => {
+        const newTab: AppTab = { id: tabId, type: 'ticket', ticketId, projectId, label }
         set({
-          tabs: get().tabs.map((t) => {
-            if (t.id !== id || t.type === 'home') return t
-            return { ...t, label } as AppTab
-          }),
+          tabsByProject: { ...tabsByProject, [projectId]: [...tabs, newTab] },
+          activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
         })
+      },
+
+      openSettingsTab: (projectId) => {
+        const { tabsByProject, activeTabByProject } = get()
+        const tabs = tabsByProject[projectId] ?? []
+        const tabId = `settings-${projectId}`
+        const existing = tabs.find((t) => t.id === tabId)
+        if (existing) {
+          set({
+            activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
+          })
+          return
+        }
+        const newTab: AppTab = { id: tabId, type: 'settings', projectId, label: 'Settings' }
+        set({
+          tabsByProject: { ...tabsByProject, [projectId]: [...tabs, newTab] },
+          activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
+        })
+      },
+
+      closeTab: (projectId, tabId) => {
+        const { tabsByProject, activeTabByProject } = get()
+        const tabs = tabsByProject[projectId] ?? []
+        const index = tabs.findIndex((t) => t.id === tabId)
+        if (index === -1) return
+        const newTabs = tabs.filter((t) => t.id !== tabId)
+        const updates: Partial<TabStore> = {
+          tabsByProject: { ...tabsByProject, [projectId]: newTabs },
+        }
+        if (activeTabByProject[projectId] === tabId) {
+          // Select adjacent tab or clear
+          if (newTabs.length > 0) {
+            const nextIndex = Math.min(index, newTabs.length - 1)
+            updates.activeTabByProject = {
+              ...activeTabByProject,
+              [projectId]: newTabs[nextIndex].id,
+            }
+          } else {
+            const { [projectId]: _, ...rest } = activeTabByProject
+            updates.activeTabByProject = rest
+          }
+        }
+        set(updates as TabStore)
+      },
+
+      setActiveTab: (projectId, tabId) => {
+        set({
+          activeTabByProject: { ...get().activeTabByProject, [projectId]: tabId },
+        })
+      },
+
+      updateTabLabel: (projectId, tabId, label) => {
+        const { tabsByProject } = get()
+        const tabs = tabsByProject[projectId] ?? []
+        set({
+          tabsByProject: {
+            ...tabsByProject,
+            [projectId]: tabs.map((t) =>
+              t.id === tabId && t.type === 'ticket' ? { ...t, label } : t,
+            ),
+          },
+        })
+      },
+
+      getProjectTabs: (projectId) => {
+        return get().tabsByProject[projectId] ?? []
+      },
+
+      getActiveTabId: (projectId) => {
+        return get().activeTabByProject[projectId]
       },
     }),
     { name: 'tab-store' },
