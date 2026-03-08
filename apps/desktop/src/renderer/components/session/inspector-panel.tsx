@@ -18,6 +18,7 @@ export function InspectorPanel({ message, onClose }: InspectorPanelProps) {
         <button
           type="button"
           onClick={onClose}
+          aria-label="Close detail panel"
           className="flex size-6 items-center justify-center rounded-md cursor-pointer text-muted-foreground hover:text-foreground hover:bg-[var(--surface-hover)] transition-colors duration-150"
         >
           <X className="size-3.5" />
@@ -99,7 +100,7 @@ function InspectorContent({ message }: { message: SessionMessageData }) {
       <div className="space-y-2">
         <p className="text-xs font-semibold">Todo List</p>
         {type.items.map((item, i) => (
-          <div key={i} className="flex items-center gap-2 text-xs">
+          <div key={`${i}-${item.label}`} className="flex items-center gap-2 text-xs">
             <div className={cn(
               'size-3.5 rounded-sm border',
               item.done

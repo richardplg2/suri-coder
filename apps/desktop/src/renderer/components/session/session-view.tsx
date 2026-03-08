@@ -34,7 +34,7 @@ export function SessionView({ sessions }: SessionViewProps) {
                 {session.duration && (
                   <span className="text-[11px] text-muted-foreground">{session.duration}</span>
                 )}
-                {session.tokenCount && (
+                {session.tokenCount != null && (
                   <span className="text-[11px] text-muted-foreground">{session.tokenCount.toLocaleString()} tokens</span>
                 )}
               </div>
