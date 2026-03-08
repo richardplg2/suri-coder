@@ -30,6 +30,20 @@
   --success: #28CD41;
   --warning: #FFCC00;
 
+  /* Glass / Vibrancy */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: 20px;
+
+  /* Elevated surface */
+  --surface-elevated: #FFFFFF;
+  --surface-elevated-hover: #FAFAFA;
+
+  /* Bento grid */
+  --bento-gap: 12px;
+  --bento-radius: 12px;
+  --bento-radius-lg: 16px;
+
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
@@ -99,6 +113,20 @@
   --selection: rgba(10,132,255,0.15);
   --success: #32D74B;
   --warning: #FFD60A;
+
+  /* Glass / Vibrancy — dark */
+  --glass-bg: rgba(30, 30, 30, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 20px;
+
+  /* Elevated surface — dark */
+  --surface-elevated: #2A2A2C;
+  --surface-elevated-hover: #323234;
+
+  /* Bento grid (same values) */
+  --bento-gap: 12px;
+  --bento-radius: 12px;
+  --bento-radius-lg: 16px;
 
   /* Shadows (stronger in dark mode) */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.15);
