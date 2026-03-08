@@ -20,7 +20,7 @@ export function ProjectCard({ project, onClick, onSettings, onDelete }: ProjectC
 
   return (
     <Card
-      className="bento-cell cursor-pointer transition-all duration-150"
+      className="bento-cell cursor-pointer p-0 transition-all duration-150"
       onClick={onClick}
     >
       <CardHeader>

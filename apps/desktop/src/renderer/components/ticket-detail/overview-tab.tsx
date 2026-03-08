@@ -26,7 +26,7 @@ export function OverviewTab({ ticket, projectId }: OverviewTabProps) {
   return (
     <ScrollArea className="h-full">
       <div className="p-4">
-        <div className="bento-grid-3">
+        <div className="bento-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
           {/* Description — spans 2 columns */}
           <div className="bento-cell-lg bento-span-2">
             <label className="section-header mb-2 block">Description</label>

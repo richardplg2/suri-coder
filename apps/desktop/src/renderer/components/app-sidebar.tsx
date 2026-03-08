@@ -13,7 +13,7 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        'shrink-0 border-r border-border/50 glass-panel transition-[width] duration-200 ease-out',
+        'shrink-0 border-r border-border/50 glass-panel bg-[var(--sidebar-bg)] transition-[width] duration-200 ease-out',
         isOpen ? 'w-60' : 'w-0 overflow-hidden'
       )}
     >

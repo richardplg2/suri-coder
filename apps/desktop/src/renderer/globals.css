@@ -127,19 +127,19 @@
   .bento-grid-2 {
     display: grid;
     gap: var(--bento-gap);
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 
   .bento-grid-3 {
     display: grid;
     gap: var(--bento-gap);
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
 
   .bento-grid-4 {
     display: grid;
     gap: var(--bento-gap);
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 
   .bento-span-2 {
