@@ -85,12 +85,12 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
         ) : viewMode === 'kanban' ? (
           <KanbanView
             tickets={tickets}
-            onTicketClick={(t) => openTicketTab(t.id, project.id, `${t.key}: ${t.title}`)}
+            onTicketClick={(t) => openTicketTab(project.id, t.id, `${t.key}: ${t.title}`)}
           />
         ) : (
           <ListView
             tickets={tickets}
-            onTicketClick={(t) => openTicketTab(t.id, project.id, `${t.key}: ${t.title}`)}
+            onTicketClick={(t) => openTicketTab(project.id, t.id, `${t.key}: ${t.title}`)}
           />
         )}
       </div>
