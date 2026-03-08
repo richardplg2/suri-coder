@@ -1,11 +1,12 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useSidebarStore } from 'renderer/stores/use-sidebar-store'
 
 export function useKeyboardShortcuts() {
   const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
-  const tabs = useTabStore((s) => activeProjectId ? s.tabsByProject[activeProjectId] ?? [] : [])
+  const rawTabs = useTabStore((s) => activeProjectId ? s.tabsByProject[activeProjectId] : undefined)
+  const tabs = useMemo(() => rawTabs ?? [], [rawTabs])
   const activeTabId = useTabStore((s) => activeProjectId ? s.activeTabByProject[activeProjectId] : undefined)
   const { setActiveTab, closeTab } = useTabStore()
   const { toggle: toggleSidebar } = useSidebarStore()

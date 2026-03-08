@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Home, Search, Sun, Moon, Settings } from 'lucide-react'
 import { TabBar, Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, Toaster } from '@agent-coding/ui'
 import type { Tab } from '@agent-coding/ui'
@@ -28,7 +29,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   useKeyboardShortcuts()
   useNotificationsWs()
   const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
-  const tabs = useTabStore((s) => activeProjectId ? s.tabsByProject[activeProjectId] ?? [] : [])
+  const rawTabs = useTabStore((s) => activeProjectId ? s.tabsByProject[activeProjectId] : undefined)
+  const tabs = useMemo(() => rawTabs ?? [], [rawTabs])
   const activeTabId = useTabStore((s) => activeProjectId ? s.activeTabByProject[activeProjectId] : undefined)
   const { setActiveTab, closeTab } = useTabStore()
   const { theme, setTheme } = useThemeStore()
