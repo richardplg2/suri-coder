@@ -1,8 +1,8 @@
 # App Shell & Layout
 
-macOS-native desktop app feel, combining System Preferences structure with Xcode/Tower app patterns. Dark mode primary. Developer power-user tool density.
+macOS-native desktop app feel, combining System Preferences structure with Xcode/Tower app patterns. Dark mode primary. Developer power-user tool density. Bento grid layouts for dashboard and card views. Frosted glass vibrancy on all chrome elements.
 
-References: Xcode, Tower (Git), TablePlus, macOS Finder.
+References: Xcode, Tower (Git), TablePlus, macOS Finder, Apple.com bento grid showcase.
 
 ## 3-Panel Layout
 
@@ -33,7 +33,8 @@ References: Xcode, Tower (Git), TablePlus, macOS Finder.
   - Tests (test-tube-2 icon)
   - Reviews (file-diff icon)
 - **Bottom**: settings gear, connection status dot (green/red)
-- Vibrancy blur effect on background (`backdrop-filter: blur(20px)`)
+- Uses `glass-panel` class for frosted vibrancy (`backdrop-filter: blur(20px)`)
+- Border: `border-border/50` (subtle)
 
 ## Toolbar (36px height, translucent)
 
@@ -41,6 +42,8 @@ References: Xcode, Tower (Git), TablePlus, macOS Finder.
 - Draggable region (`-webkit-app-region: drag`)
 - Right side: search trigger (Cmd+K), notifications bell, theme toggle
 - Buttons use `no-drag` to remain clickable
+- Uses `glass-panel` class (frosted glass with `backdrop-filter: blur(20px)`)
+- Border: `border-border/50` (subtle, not full opacity)
 
 ## Detail/Inspector Panel (320px, collapsible)
 
@@ -52,6 +55,7 @@ References: Xcode, Tower (Git), TablePlus, macOS Finder.
 
 - Left: connection status, backend version
 - Right: active session status dot, duration, token count, cost
+- Uses `glass-panel` class, `border-border/50` top border
 
 ## Electron Window Configuration
 
@@ -70,6 +74,40 @@ const mainWindow = new BrowserWindow({
   },
 })
 ```
+
+## Content Layouts
+
+### Bento Grid
+
+Card-based content areas use Apple-style bento grid instead of flat uniform grids.
+
+```
+┌──────────────┬──────────┬──────────┐
+│              │          │          │
+│  Featured    │  Card 2  │  Card 3  │
+│  (span 2)   │          │          │
+│              │          │          │
+├──────┬───────┼──────────┤          │
+│      │       │          │          │
+│  C4  │  C5   │  Card 6  │  (row 2) │
+│      │       │          │          │
+└──────┴───────┴──────────┴──────────┘
+```
+
+| Screen | Grid | Cell Style |
+|--------|------|------------|
+| Home (Projects) | `bento-grid-3` | `bento-cell` per project card |
+| Project Agents | `bento-grid-3` | `bento-cell` per agent card |
+| Project Repos | `bento-grid-2` | `bento-cell` per repo card |
+| Settings | `bento-grid-2` | `bento-cell` per settings group |
+| Brainstorm Summary | standalone | `bento-cell-lg` |
+
+### Glass Chrome Pattern
+
+All chrome elements (toolbar, sidebar, status bar) share the same visual treatment:
+- `glass-panel` utility class
+- `border-border/50` (50% border opacity)
+- No inline `style` for backdrop-filter
 
 ## Keyboard Shortcuts
 

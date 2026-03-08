@@ -72,4 +72,17 @@ Built in `@agent-coding/ui` package. Radix UI primitives + CVA variants. Lucide 
 | `Panel` | `Panel` | Content area with optional header bar + toolbar |
 | `TabBar` | `TabBar` | macOS-style tabs for multiple sessions, closable |
 
+## Bento Grid (CSS utility classes)
+
+| Class | Description | Usage |
+|-------|-------------|-------|
+| `bento-grid-2` | 2-column grid, 12px gap | Settings, side-by-side panels |
+| `bento-grid-3` | 3-column grid, 12px gap | Project cards, feature grids |
+| `bento-grid-4` | 4-column grid, 12px gap | Dashboard metrics |
+| `bento-span-2` | Span 2 columns | Hero/featured cards |
+| `bento-span-row-2` | Span 2 rows | Tall content cards |
+| `bento-cell` | Card with 12px radius, 16px padding, elevated bg, shadow hover | Standard card |
+| `bento-cell-lg` | Card with 16px radius, 24px padding, elevated bg, shadow hover | Hero/summary cards |
+| `glass-panel` | Frosted glass: `backdrop-filter: blur(20px)`, semi-transparent bg | Toolbar, sidebar, status bar |
+
 > **—** = Not yet implemented. These are app-shell components to be built in `apps/desktop`.

@@ -7,9 +7,9 @@
 ---
 
 **Project:** Claude Code Workflow Manager
-**Updated:** 2026-03-06
+**Updated:** 2026-03-08
 **Category:** Developer Tool / Desktop App
-**Style:** macOS Native (Xcode/Tower/TablePlus)
+**Style:** macOS Native (Xcode/Tower/TablePlus) + Bento Grid
 
 ---
 
@@ -32,6 +32,10 @@
 | Warning | `#FFD60A` | `--warning` (macOS yellow) |
 | Destructive | `#FF453A` | `--destructive` (macOS red) |
 | Selection | `rgba(10,132,255,0.15)` | `--selection` |
+| Glass BG | `rgba(30,30,30,0.72)` | `--glass-bg` |
+| Glass Border | `rgba(255,255,255,0.08)` | `--glass-border` |
+| Elevated Surface | `#2A2A2C` | `--surface-elevated` |
+| Elevated Hover | `#323234` | `--surface-elevated-hover` |
 
 ### Color Palette — Light Mode
 
@@ -49,6 +53,10 @@
 | Warning | `#FFCC00` | `--warning` |
 | Destructive | `#FF3B30` | `--destructive` |
 | Selection | `rgba(0,122,255,0.12)` | `--selection` |
+| Glass BG | `rgba(255,255,255,0.72)` | `--glass-bg` |
+| Glass Border | `rgba(255,255,255,0.2)` | `--glass-border` |
+| Elevated Surface | `#FFFFFF` | `--surface-elevated` |
+| Elevated Hover | `#FAFAFA` | `--surface-elevated-hover` |
 
 ### Typography
 
@@ -85,6 +93,8 @@
 |---------|-------|
 | Buttons | 6px |
 | Cards / Panels | 8px |
+| Bento Cells | 12px (`--bento-radius`) |
+| Bento Cells (large) | 16px (`--bento-radius-lg`) |
 | Modals / Sheets | 10px |
 | Input fields | 6px |
 | Tags / Badges | 9999px |
@@ -103,6 +113,57 @@
 - Panel slide: `200ms ease`
 - Page transitions: `250ms ease`
 - Always respect `prefers-reduced-motion`
+
+### Bento Grid
+
+Apple-style modular grid layout for dashboards, project views, and feature showcases.
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--bento-gap` | 12px | Gap between bento cells |
+| `--bento-radius` | 12px | Border radius for bento cells |
+| `--bento-radius-lg` | 16px | Border radius for hero/large cells |
+
+#### Layout Classes
+
+| Class | Columns | Usage |
+|-------|---------|-------|
+| `bento-grid-2` | 2 columns | Settings groups, side-by-side panels |
+| `bento-grid-3` | 3 columns | Project cards, feature grids |
+| `bento-grid-4` | 4 columns | Dashboard metrics, small stats |
+| `bento-span-2` | Span 2 cols | Hero/feature highlight cards |
+| `bento-span-row-2` | Span 2 rows | Tall content cards |
+
+#### Cell Styles
+
+| Class | Radius | Padding | Hover | Usage |
+|-------|--------|---------|-------|-------|
+| `bento-cell` | 12px | 16px | `shadow-md` | Standard card (project, ticket, setting) |
+| `bento-cell-lg` | 16px | 24px | `shadow-md` | Hero/featured cards, summaries |
+
+Bento cells use `--surface-elevated` background, `1px solid var(--border)` border, and `150ms ease` transition on shadow/transform.
+
+### Vibrancy / Glass Effects
+
+Frosted glass panels for chrome elements (toolbar, sidebar, status bar, input bars).
+
+```css
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+```
+
+| Mode | Background | Border |
+|------|-----------|--------|
+| Light | `rgba(255,255,255,0.72)` | `rgba(255,255,255,0.2)` |
+| Dark | `rgba(30,30,30,0.72)` | `rgba(255,255,255,0.08)` |
+
+**Applied to:** Toolbar, sidebar, status bar, brainstorm input bar, review action bar.
+
+**Borders:** Chrome elements use `border-border/50` (50% opacity) for subtlety.
 
 ---
 
@@ -226,6 +287,10 @@ Three-panel layout: Sidebar (240px) + Main Content + Inspector (320px, collapsib
 - Invisible focus states
 - Modal dialogs for non-blocking actions (use Sheets or Popovers)
 - Overly colorful UI — keep neutral grays, single accent color
+- Flat uniform card grids — use bento grid with mixed cell sizes for visual hierarchy
+- Hard opaque borders on chrome — use `border-border/50` for glass panels
+- Inline `style` for backdrop-filter — use `glass-panel` utility class
+- Inconsistent card radii — use `bento-cell` (12px) or `bento-cell-lg` (16px), not ad-hoc values
 
 ---
 
@@ -240,3 +305,8 @@ Three-panel layout: Sidebar (240px) + Main Content + Inspector (320px, collapsib
 - [ ] `prefers-reduced-motion` respected
 - [ ] Vibrancy/blur effects degrade gracefully on non-macOS
 - [ ] Compact density (32px row heights, 13px body text)
+- [ ] Bento grid used for card layouts (not flat uniform grids)
+- [ ] Glass panels on all chrome elements (toolbar, sidebar, status bar)
+- [ ] Chrome borders use `border-border/50` (subtle, not full opacity)
+- [ ] Cards use `bento-cell` or `bento-cell-lg` styling
+- [ ] Section titles use `text-sm font-semibold tracking-tight`
