@@ -11,7 +11,7 @@ function ProjectIcon({ name, isActive, onClick, onContextMenu }: {
   onClick: () => void
   onContextMenu: (e: React.MouseEvent) => void
 }) {
-  const initials = name.slice(0, 2).toUpperCase()
+  const initials = (name || '??').slice(0, 2).toUpperCase()
   return (
     <button
       type="button"
