@@ -3,9 +3,9 @@
 <html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Suri Coder Brainstorm Review Interface</title>
+<title>Suri Coder Brainstorm Review</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
@@ -16,204 +16,30 @@
                     colors: {
                         "primary": "#1685f3",
                         "background-light": "#f5f7f8",
-                        "background-dark": "#1e1e1e",
-                        "surface-dark": "#2a2a2c",
-                        "border-dark": "#3a3a3c",
+                        "background-dark": "#101922",
+                        "neutral-dark": "#1e1e1e",
+                        "card-dark": "#2a2a2c",
+                        "border-dark": "#314d68"
                     },
                     fontFamily: {
                         "display": ["Inter", "sans-serif"],
                         "mono": ["JetBrains Mono", "monospace"]
                     },
-                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
                 },
             },
         }
     </script>
-</head>
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display selection:bg-primary/30 h-screen flex flex-col overflow-hidden">
-<header class="flex items-center justify-between border-b border-border-dark px-6 py-3 bg-background-dark sticky top-0 z-50">
-<div class="flex items-center gap-4">
-<button class="hover:bg-surface-dark p-2 rounded-lg transition-colors">
-<span class="material-symbols-outlined text-slate-400">arrow_back</span>
-</button>
-<div class="flex items-center gap-3">
-<div class="size-8 bg-primary rounded-lg flex items-center justify-center">
-<span class="material-symbols-outlined text-white text-xl">psychology</span>
-</div>
-<h2 class="text-lg font-bold tracking-tight">Brainstorm Review</h2>
-</div>
-</div>
-<div class="flex gap-3">
-<button class="flex items-center gap-2 px-4 py-2 bg-surface-dark hover:bg-border-dark text-slate-200 text-sm font-semibold rounded-lg border border-border-dark transition-all">
-<span class="material-symbols-outlined text-sm">auto_fix_high</span>
-<span>Revise with AI</span>
-</button>
-<button class="px-5 py-2 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all">
-                Create Ticket
-            </button>
-</div>
-</header>
-<main class="flex flex-1 overflow-hidden">
-<div class="w-3/5 overflow-y-auto border-r border-border-dark p-12 custom-scrollbar">
-<div class="max-w-3xl mx-auto space-y-10 pb-24">
-<section class="group relative">
-<button class="absolute -right-8 top-1 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-primary">
-<span class="material-symbols-outlined text-xl">chat_bubble</span>
-</button>
-<h3 class="text-sm font-bold uppercase tracking-wider text-primary mb-3">Problem</h3>
-<p class="text-xl leading-relaxed text-slate-300">
-                        The current cost tracking system lacks real-time updates, leading to discrepancies in financial reporting. Stakeholders currently wait up to 24 hours for data reconciliation, causing delays in budget allocation decisions.
-                    </p>
-</section>
-<section class="group relative">
-<button class="absolute -right-8 top-1 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-primary">
-<span class="material-symbols-outlined text-xl">chat_bubble</span>
-</button>
-<h3 class="text-sm font-bold uppercase tracking-wider text-primary mb-3">Solution</h3>
-<p class="text-lg leading-relaxed text-slate-300">
-                        Implement a live dashboard that pulls data from the billing API every 5 minutes. Use a Redis caching layer to handle high-concurrency read requests from the management UI.
-                    </p>
-</section>
-<section class="group relative">
-<button class="absolute -right-8 top-1 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-primary">
-<span class="material-symbols-outlined text-xl">chat_bubble</span>
-</button>
-<h3 class="text-sm font-bold uppercase tracking-wider text-primary mb-3">Requirements</h3>
-<ul class="space-y-3 list-disc list-inside text-slate-300">
-<li class="hover:text-slate-100 transition-colors">Real-time data synchronization with AWS Billing API.</li>
-<li class="hover:text-slate-100 transition-colors">Interactive graph components for historical trend analysis.</li>
-<li class="hover:text-slate-100 transition-colors">Export functionality for CSV and PDF formats.</li>
-<li class="hover:text-slate-100 transition-colors">Role-based access control for financial data visibility.</li>
-</ul>
-</section>
-<section class="group relative">
-<button class="absolute -right-8 top-1 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-primary">
-<span class="material-symbols-outlined text-xl">chat_bubble</span>
-</button>
-<h3 class="text-sm font-bold uppercase tracking-wider text-primary mb-3">Acceptance Criteria</h3>
-<ol class="space-y-4 list-decimal list-inside text-slate-300">
-<li class="pl-2">Dashboard must load within 1.5 seconds for users with &lt; 100 projects.</li>
-<li class="pl-2">Data discrepancy between AWS console and dashboard must be &lt; 0.01%.</li>
-<li class="pl-2">Alert system triggers when API rate limits reach 80% capacity.</li>
-</ol>
-</section>
-<section class="group relative">
-<button class="absolute -right-8 top-1 opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-primary">
-<span class="material-symbols-outlined text-xl">chat_bubble</span>
-</button>
-<h3 class="text-sm font-bold uppercase tracking-wider text-primary mb-3">Technical Notes</h3>
-<div class="bg-surface-dark p-6 rounded-xl border border-border-dark font-mono text-sm space-y-2">
-<div class="flex gap-4">
-<span class="text-primary/70">schema</span>
-<span class="text-slate-400">CostMetric {</span>
-</div>
-<div class="pl-8 text-slate-300">
-                            id: <span class="text-emerald-400">UUID</span>,<br/>
-                            timestamp: <span class="text-emerald-400">DateTime</span>,<br/>
-                            value: <span class="text-emerald-400">Decimal</span>,<br/>
-                            currency: <span class="text-emerald-400">String(3)</span>
-</div>
-<div class="text-slate-400">}</div>
-</div>
-</section>
-</div>
-</div>
-<aside class="w-2/5 flex flex-col bg-[#161618]">
-<div class="p-6 border-b border-border-dark flex justify-between items-center">
-<h3 class="font-bold text-slate-200">Comments (2)</h3>
-<button class="text-slate-400 hover:text-white">
-<span class="material-symbols-outlined">filter_list</span>
-</button>
-</div>
-<div class="flex-1 overflow-y-auto p-6 space-y-6">
-<div class="bg-surface-dark rounded-xl p-4 border border-border-dark">
-<div class="flex items-center justify-between mb-3">
-<div class="flex items-center gap-2">
-<div class="size-6 bg-amber-500 rounded-full flex items-center justify-center text-[10px] font-bold">JD</div>
-<span class="text-sm font-medium text-slate-200">Jane Doe</span>
-<span class="text-xs text-slate-500">• 2m ago</span>
-</div>
-<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase rounded">Requirements</span>
-</div>
-<p class="text-sm text-slate-400 mb-3">Should we include Azure billing in the initial scope or just focus on AWS first?</p>
-<div class="flex items-center gap-4">
-<button class="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300">
-<span class="material-symbols-outlined text-sm">reply</span> Reply
-                        </button>
-<button class="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300">
-<span class="material-symbols-outlined text-sm">thumb_up</span> 3
-                        </button>
-</div>
-</div>
-<div class="bg-surface-dark rounded-xl p-4 border border-border-dark">
-<div class="flex items-center justify-between mb-3">
-<div class="flex items-center gap-2">
-<div class="size-6 bg-indigo-500 rounded-full flex items-center justify-center text-[10px] font-bold">SM</div>
-<span class="text-sm font-medium text-slate-200">Sam Miller</span>
-<span class="text-xs text-slate-500">• 1h ago</span>
-</div>
-<span class="px-2 py-0.5 bg-slate-700 text-slate-300 text-[10px] font-bold uppercase rounded">Technical Notes</span>
-</div>
-<p class="text-sm text-slate-400 mb-3">The UUID for CostMetric should probably be linked to the ProjectID for easier partitioning.</p>
-<div class="flex items-center gap-4">
-<button class="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300">
-<span class="material-symbols-outlined text-sm">reply</span> Reply
-                        </button>
-</div>
-</div>
-</div>
-<div class="p-6 border-t border-border-dark bg-[#161618]">
-<div class="relative">
-<input class="w-full bg-surface-dark border-border-dark rounded-lg py-3 pl-4 pr-12 text-sm focus:ring-primary focus:border-primary" placeholder="Add a comment..." type="text"/>
-<button class="absolute right-3 top-1/2 -translate-y-1/2 text-primary hover:text-primary/80">
-<span class="material-symbols-outlined">send</span>
-</button>
-</div>
-</div>
-</aside>
-</main>
-<footer class="bg-surface-dark border-t border-border-dark p-4 z-50">
-<div class="max-w-[1400px] mx-auto flex items-center justify-between gap-6">
-<div class="flex flex-1 items-center gap-4">
-<div class="flex flex-col gap-1 w-1/3">
-<label class="text-[10px] uppercase font-bold text-slate-500 ml-1">Title</label>
-<input class="bg-background-dark border-border-dark rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary text-slate-200" type="text" value="Cost tracking dashboard"/>
-</div>
-<div class="flex flex-col gap-1 w-1/6">
-<label class="text-[10px] uppercase font-bold text-slate-500 ml-1">Type</label>
-<select class="bg-background-dark border-border-dark rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary text-slate-200 appearance-none">
-<option>Feature</option>
-<option>Bug</option>
-<option>Improvement</option>
-</select>
-</div>
-<div class="flex flex-col gap-1 w-1/6">
-<label class="text-[10px] uppercase font-bold text-slate-500 ml-1">Priority</label>
-<div class="relative">
-<div class="absolute left-3 top-1/2 -translate-y-1/2 size-2 bg-amber-400 rounded-full"></div>
-<select class="bg-background-dark border-border-dark rounded-lg pl-8 pr-3 py-2 text-sm focus:ring-primary focus:border-primary text-slate-200 w-full appearance-none">
-<option>Medium</option>
-<option>High</option>
-<option>Low</option>
-</select>
-</div>
-</div>
-<div class="flex flex-col gap-1 w-1/6">
-<label class="text-[10px] uppercase font-bold text-slate-500 ml-1">Template</label>
-<select class="bg-background-dark border-border-dark rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary text-slate-200 appearance-none">
-<option>Full Feature</option>
-<option>Quick Task</option>
-<option>Security Patch</option>
-</select>
-</div>
-</div>
-<button class="flex items-center gap-3 px-8 py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-xl shadow-primary/20 transition-all transform active:scale-95">
-<span>Create Ticket</span>
-<span class="material-symbols-outlined">rocket_launch</span>
-</button>
-</div>
-</footer>
 <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
@@ -221,18 +47,247 @@
             background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #3a3a3c;
+            background: #314d68;
             border-radius: 10px;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #4a4a4c;
-        }
-        select {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
-        }
     </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full border-b border-border-dark bg-background-dark/80 backdrop-blur-md px-6 py-3">
+<div class="max-w-[1440px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-white/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-400">arrow_back</span>
+</button>
+<div class="flex items-center gap-3">
+<div class="bg-primary/20 p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[20px]">psychology</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight">Brainstorm Review</h1>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-lg border border-slate-700 transition-all">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    Revise with AI
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all">
+<span class="material-symbols-outlined text-[18px]">add_task</span>
+                    Create Ticket
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content Layout -->
+<main class="flex-1 max-w-[1440px] mx-auto w-full flex gap-8 p-8 overflow-hidden">
+<!-- Left Column: Specification (60%) -->
+<div class="flex-[0.6] flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-4">
+<div class="bg-neutral-dark rounded-xl p-8 border border-border-dark shadow-sm">
+<div class="mb-8">
+<span class="text-xs font-bold uppercase tracking-widest text-primary mb-2 block">Feature Specification</span>
+<h2 class="text-3xl font-black text-white leading-tight">Cost Tracking Features</h2>
+<p class="text-slate-400 mt-1">Project: Suri Coder AI Dashboard</p>
+</div>
+<!-- Problem Section -->
+<section class="mb-10">
+<h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">error_outline</span>
+                        Problem
+                    </h3>
+<p class="text-slate-300 leading-relaxed">
+                        Users currently lack a centralized way to monitor real-time API costs and token usage across different models (GPT-4, Claude 3, Gemini). Without visibility, developer teams risk exceeding monthly budgets and have no insight into which projects are consuming the most resources.
+                    </p>
+</section>
+<!-- Solution Section -->
+<section class="mb-10">
+<h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-green-400 text-[20px]">check_circle</span>
+                        Solution
+                    </h3>
+<p class="text-slate-300 leading-relaxed">
+                        Implement a real-time analytics dashboard that hooks into the internal API proxy. This system will calculate costs based on model-specific pricing tiers and provide visual breakdowns by user, team, and feature tag.
+                    </p>
+</section>
+<!-- Requirements Section -->
+<section class="mb-10">
+<h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-400 text-[20px]">list</span>
+                        Requirements
+                    </h3>
+<ul class="space-y-3">
+<li class="flex gap-3 text-slate-300">
+<span class="text-primary">•</span>
+<span>Fetch daily usage metrics from the <code class="font-mono bg-slate-800 px-1.5 py-0.5 rounded">UsageStream</code> service.</span>
+</li>
+<li class="flex gap-3 text-slate-300">
+<span class="text-primary">•</span>
+<span>Calculate USD cost using dynamic pricing lookup table.</span>
+</li>
+<li class="flex gap-3 text-slate-300">
+<span class="text-primary">•</span>
+<span>Support filtering by date range (Today, 7D, 30D, Custom).</span>
+</li>
+<li class="flex gap-3 text-slate-300">
+<span class="text-primary">•</span>
+<span>Export capability to CSV and PDF for billing departments.</span>
+</li>
+</ul>
+</section>
+<!-- Acceptance Criteria -->
+<section class="mb-10">
+<h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-400 text-[20px]">fact_check</span>
+                        Acceptance Criteria
+                    </h3>
+<div class="space-y-4">
+<div class="flex gap-4 items-start">
+<span class="bg-slate-800 text-slate-400 font-bold text-xs w-6 h-6 rounded flex items-center justify-center shrink-0 mt-0.5">1</span>
+<p class="text-slate-300">The dashboard must load data in under 200ms for default time ranges.</p>
+</div>
+<div class="flex gap-4 items-start">
+<span class="bg-slate-800 text-slate-400 font-bold text-xs w-6 h-6 rounded flex items-center justify-center shrink-0 mt-0.5">2</span>
+<p class="text-slate-300">Accuracy of cost calculations must be within 0.01% of provider invoices.</p>
+</div>
+<div class="flex gap-4 items-start">
+<span class="bg-slate-800 text-slate-400 font-bold text-xs w-6 h-6 rounded flex items-center justify-center shrink-0 mt-0.5">3</span>
+<p class="text-slate-300">Mobile view must include the primary 'Total Spend' card.</p>
+</div>
+</div>
+</section>
+<!-- Technical Notes -->
+<section>
+<h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-purple-400 text-[20px]">code</span>
+                        Technical Notes
+                    </h3>
+<div class="bg-slate-900/50 rounded-lg p-5 border border-slate-800">
+<p class="text-slate-400 text-sm mb-3 italic">Data Schema &amp; Database References:</p>
+<div class="font-mono text-sm space-y-2">
+<div class="flex gap-4">
+<span class="text-blue-400">Schema:</span>
+<span class="text-slate-300">Billing_Analytics_V2</span>
+</div>
+<div class="flex gap-4">
+<span class="text-blue-400">Main Table:</span>
+<span class="text-slate-300">api_consumption_logs</span>
+</div>
+<div class="flex gap-4">
+<span class="text-blue-400">Service:</span>
+<span class="text-slate-300">PricingCalculator.compute()</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Right Column: Comments (40%) -->
+<div class="flex-[0.4] flex flex-col gap-6">
+<div class="bg-card-dark rounded-xl border border-border-dark flex flex-col h-full overflow-hidden">
+<div class="px-6 py-4 border-b border-border-dark flex items-center justify-between bg-slate-800/20">
+<h3 class="text-white font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">forum</span>
+                        Comments (2)
+                    </h3>
+<span class="bg-primary/20 text-primary text-[10px] font-black uppercase px-2 py-0.5 rounded-full">Active</span>
+</div>
+<div class="flex-1 p-6 space-y-6 overflow-y-auto custom-scrollbar">
+<!-- Comment Card 1 -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/40">
+<span class="text-xs font-bold text-blue-400">JD</span>
+</div>
+<div>
+<p class="text-sm font-bold text-white">James Dalton</p>
+<p class="text-[10px] text-slate-500 uppercase font-medium">Senior Architect</p>
+</div>
+</div>
+<span class="text-[10px] text-slate-500">2h ago</span>
+</div>
+<div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-bold mb-2 inline-block">Requirements</span>
+<p class="text-sm text-slate-300 leading-relaxed">
+                                We should also consider adding alerts when spending hits 80% of the daily quota. It's better to be proactive than reactive.
+                            </p>
+</div>
+</div>
+<!-- Comment Card 2 -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/40">
+<span class="text-xs font-bold text-purple-400">SC</span>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Sarah Chen</p>
+<p class="text-[10px] text-slate-500 uppercase font-medium">Lead Developer</p>
+</div>
+</div>
+<span class="text-[10px] text-slate-500">45m ago</span>
+</div>
+<div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
+<span class="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded font-bold mb-2 inline-block">Technical Notes</span>
+<p class="text-sm text-slate-300 leading-relaxed">
+<code class="bg-slate-900 px-1 rounded">PricingCalculator</code> needs to handle currency conversion if we're dealing with international provider accounts.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Add Comment Field -->
+<div class="p-4 border-t border-border-dark bg-slate-900/50">
+<div class="flex gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
+<button class="shrink-0 text-[11px] font-bold px-3 py-1 bg-primary text-white rounded-full">All</button>
+<button class="shrink-0 text-[11px] font-bold px-3 py-1 bg-slate-800 text-slate-400 hover:text-white rounded-full border border-slate-700">Problem</button>
+<button class="shrink-0 text-[11px] font-bold px-3 py-1 bg-slate-800 text-slate-400 hover:text-white rounded-full border border-slate-700">Solution</button>
+<button class="shrink-0 text-[11px] font-bold px-3 py-1 bg-slate-800 text-slate-400 hover:text-white rounded-full border border-slate-700">Requirements</button>
+</div>
+<div class="relative">
+<textarea class="w-full bg-slate-800 border-border-dark rounded-lg text-sm text-slate-200 focus:ring-primary focus:border-primary placeholder:text-slate-500 p-3" placeholder="Add a comment..." rows="2"></textarea>
+<button class="absolute bottom-3 right-3 text-primary hover:text-blue-400">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar -->
+<footer class="h-20 border-t border-border-dark bg-background-dark/90 px-8 flex items-center justify-between">
+<div class="flex items-center gap-6 flex-1 max-w-4xl">
+<div class="flex-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Ticket Title</label>
+<input class="w-full bg-slate-800/50 border-slate-700 rounded-lg text-sm text-white px-3 py-1.5 focus:ring-primary" type="text" value="Cost tracking dashboard"/>
+</div>
+<div class="w-40">
+<label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Type</label>
+<div class="relative">
+<select class="w-full bg-slate-800/50 border-slate-700 rounded-lg text-sm text-white px-3 py-1.5 appearance-none focus:ring-primary">
+<option>Feature</option>
+<option>Bug</option>
+<option>Task</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1.5 text-slate-500 pointer-events-none text-[18px]">expand_more</span>
+</div>
+</div>
+<div class="w-40">
+<label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">Priority</label>
+<div class="relative">
+<div class="flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-1.5 cursor-pointer">
+<div class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div>
+<span class="text-sm text-white">Medium</span>
+<span class="material-symbols-outlined ml-auto text-slate-500 text-[18px]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 pl-8">
+<button class="text-sm font-semibold text-slate-400 hover:text-white transition-colors">Discard</button>
+<button class="bg-primary hover:bg-blue-600 text-white font-bold py-3 px-10 rounded-lg shadow-xl shadow-primary/20 transition-all flex items-center gap-2">
+                Create Ticket
+                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</footer>
 </body></html>

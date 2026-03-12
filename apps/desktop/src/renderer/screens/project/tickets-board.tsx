@@ -185,8 +185,12 @@ function TicketCard({ ticket, onClick }: { ticket: TicketListItem; onClick: () =
       {/* Header: key + priority indicator */}
       <div className="mb-2 flex items-center justify-between">
         <span className={cn(
-          "font-mono text-[10px] font-bold",
-          isDone ? "text-muted-foreground" : isCriticalBug ? "text-[var(--destructive)]" : "text-[var(--accent)]"
+          "font-mono text-[11px] font-bold rounded px-1.5 py-0.5",
+          isDone
+            ? "bg-muted text-muted-foreground"
+            : isCriticalBug
+              ? "bg-red-500/20 text-red-400"
+              : "bg-blue-500/20 text-blue-400"
         )}>
           {ticket.key}
         </span>

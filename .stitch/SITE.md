@@ -53,10 +53,13 @@ A macOS-native desktop application for managing Claude Code workflow sessions. F
 - [x] ticket-session-transcript
 - [x] code-review-panel
 - [x] ticket-detail-activity
+- [x] brainstorm-quiz-v2 — Agent config wizard (Stitch-generated)
+- [x] agent-session-live — Full live session transcript (Stitch-generated)
+- [x] agent-session-compact — Compact 2-panel session with detail drawer + brainstorm quiz (hand-crafted)
 
 ## 5. Roadmap
 
-All Phase 1 and Phase 2 screens completed.
+All Phase 1, Phase 2, and Phase 3 (Agent Session) screens completed.
 
 ## 6. Design Notes
 

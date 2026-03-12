@@ -21,7 +21,10 @@
       "Bash(curl:*)",
       "mcp__ide__getDiagnostics",
       "WebFetch(domain:contribution.usercontent.google.com)",
-      "mcp__stitch__get_project"
+      "mcp__stitch__get_project",
+      "mcp__stitch__list_screens",
+      "Bash(npm exec:*)",
+      "WebFetch(domain:lh3.googleusercontent.com)"
     ]
   },
   "enableAllProjectMcpServers": true,

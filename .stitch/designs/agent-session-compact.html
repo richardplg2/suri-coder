@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agent Session — Compact 2-Panel with Detail Drawer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        bg: "#1E1E1E",
+        surface: "#252526",
+        "surface-el": "#2A2A2C",
+        "surface-hover": "#323234",
+        border: "#3C3C3C",
+        "glass-border": "rgba(255,255,255,0.08)",
+        accent: "#0A84FF",
+        "accent-hover": "#409CFF",
+        selection: "rgba(10,132,255,0.15)",
+        success: "#32D74B",
+        warning: "#FFD60A",
+        destructive: "#FF453A",
+        "text-pri": "#E5E5E5",
+        "text-sec": "#999999",
+        purple: "#BF5AF2",
+        teal: "#64D2FF",
+        orange: "#FF9F0A",
+        cyan: "#5AC8FA",
+        magenta: "#FF375F",
+      },
+      fontFamily: {
+        display: ["Inter", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
+      },
+    },
+  },
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; }
+.pulse-dot { animation: pulse 2s infinite; }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(50,215,75,0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(50,215,75,0); }
+  100% { box-shadow: 0 0 0 0 rgba(50,215,75,0); }
+}
+.glass { background: rgba(30,30,30,0.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-color: rgba(255,255,255,0.08); }
+.scroll::-webkit-scrollbar { width: 5px; }
+.scroll::-webkit-scrollbar-track { background: transparent; }
+.scroll::-webkit-scrollbar-thumb { background: #3C3C3C; border-radius: 10px; }
+.card-row { transition: background 150ms, border-color 150ms; }
+.card-row:hover { background: #2A2A2C; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20; }
+</style>
+</head>
+
+<body class="bg-bg text-text-pri antialiased h-screen flex flex-col overflow-hidden">
+
+<!-- ═══════════════ TOP BAR ═══════════════ -->
+<header class="glass border-b border-glass-border px-5 py-2.5 flex items-center justify-between shrink-0" style="height:44px">
+  <div class="flex items-center gap-4">
+    <!-- Back -->
+    <button class="p-1 rounded hover:bg-surface-hover transition-colors">
+      <span class="material-symbols-outlined text-text-sec text-[18px]">arrow_back</span>
+    </button>
+    <!-- Title -->
+    <div class="flex items-center gap-2.5">
+      <div class="bg-accent/15 p-1 rounded-md"><span class="material-symbols-outlined text-accent text-[16px]">terminal</span></div>
+      <div>
+        <h1 class="text-[13px] font-semibold text-text-pri leading-tight">Session #42 — Refactor Auth Module</h1>
+      </div>
+    </div>
+    <div class="h-4 w-px bg-border"></div>
+    <!-- Stats -->
+    <div class="flex items-center gap-3.5 text-[11px] font-mono text-text-sec">
+      <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">token</span>12.4K</span>
+      <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">payments</span>$0.47</span>
+      <span class="flex items-center gap-1 text-accent"><span class="material-symbols-outlined text-[13px]">schedule</span>3m 22s</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-2.5">
+    <div class="flex items-center gap-1.5 px-2.5 py-1 bg-success/10 border border-success/20 rounded-full">
+      <div class="w-1.5 h-1.5 bg-success rounded-full pulse-dot"></div>
+      <span class="text-success text-[10px] font-bold uppercase tracking-wider">Running</span>
+    </div>
+    <button class="flex items-center gap-1 px-2.5 py-1 bg-warning/10 border border-warning/20 rounded text-warning text-[11px] font-semibold hover:bg-warning/20 transition-colors">
+      <span class="material-symbols-outlined text-[14px]">pause</span>Pause
+    </button>
+    <button class="flex items-center gap-1 px-2.5 py-1 bg-destructive/10 border border-destructive/20 rounded text-destructive text-[11px] font-semibold hover:bg-destructive/20 transition-colors">
+      <span class="material-symbols-outlined text-[14px]">stop</span>Stop
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════ MAIN 2-PANEL ═══════════════ -->
+<div class="flex flex-1 overflow-hidden">
+
+  <!-- ─── LEFT PANEL: Compact Transcript (60%) ─── -->
+  <div class="w-[60%] border-r border-border flex flex-col">
+
+    <!-- Transcript scroll area -->
+    <div class="flex-1 overflow-y-auto scroll px-3 py-3 space-y-1">
+
+      <!-- ▸ User Message -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-accent bg-surface/50">
+        <span class="material-symbols-outlined text-accent text-[16px]">person</span>
+        <span class="text-[12px] font-medium text-text-pri flex-1 truncate">Refactor the auth module to use JWT tokens instead of sessions</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:00</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Thinking Block -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-purple">
+        <span class="material-symbols-outlined text-purple text-[16px]">psychology</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-purple shrink-0">Thinking</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate">Analyzing the current auth middleware structure and session management...</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:02</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Tool: Glob -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-teal">
+        <span class="material-symbols-outlined text-teal text-[16px]">search</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-teal shrink-0">Glob</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate font-mono">**/*auth*.{ts,tsx} — 7 matches</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:03</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Tool: Read (SELECTED) -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-success bg-selection ring-1 ring-accent/30">
+        <span class="material-symbols-outlined text-success text-[16px]">description</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-success shrink-0">Read</span>
+        <span class="text-[12px] text-text-pri flex-1 truncate font-mono">src/middleware/auth.ts</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:04</span>
+        <span class="material-symbols-outlined text-accent text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Tool: Read -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-success">
+        <span class="material-symbols-outlined text-success text-[16px]">description</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-success shrink-0">Read</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate font-mono">src/lib/session-store.ts</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:05</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Tool: Grep -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-orange">
+        <span class="material-symbols-outlined text-orange text-[16px]">code</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-orange shrink-0">Grep</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate font-mono">req.session — 14 matches in 5 files</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:06</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Thinking 2 -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-purple">
+        <span class="material-symbols-outlined text-purple text-[16px]">psychology</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-purple shrink-0">Thinking</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate">Planning the migration: need JWT signing, token refresh, and middleware updates...</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:08</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Plan Mode -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px]" style="border-image: linear-gradient(to bottom, #0A84FF, #BF5AF2) 1;">
+        <span class="material-symbols-outlined text-accent text-[16px]">map</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-accent shrink-0">Plan</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate">Entered plan mode — 4 implementation steps</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:12</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Task/Todo -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-accent">
+        <span class="material-symbols-outlined text-accent text-[16px]">checklist</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-accent shrink-0">Tasks</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate">3 of 5 tasks completed</span>
+        <div class="flex gap-0.5 shrink-0">
+          <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-success"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-border"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-border"></div>
+        </div>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Tool: Bash -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-destructive">
+        <span class="material-symbols-outlined text-destructive text-[16px]">terminal</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-destructive shrink-0">Bash</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate font-mono">npm install jsonwebtoken @types/jsonwebtoken</span>
+        <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-success/15 text-success shrink-0">Exit 0</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:18</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Tool: Write -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-cyan">
+        <span class="material-symbols-outlined text-cyan text-[16px]">note_add</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-cyan shrink-0">Write</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate font-mono">src/lib/jwt-utils.ts — new file</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:22</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Tool: Edit -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-warning">
+        <span class="material-symbols-outlined text-warning text-[16px]">edit_note</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-warning shrink-0">Edit</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate font-mono">src/middleware/auth.ts — lines 12–38</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:25</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Subagent Dispatch -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-magenta">
+        <span class="material-symbols-outlined text-magenta text-[16px]">account_tree</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-magenta shrink-0">Subagent</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate">Explore: Find all route handlers using session auth</span>
+        <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-success/15 text-success shrink-0">Done</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">0:45</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+      <!-- Nested subagent actions (indented) -->
+      <div class="ml-6 space-y-1">
+        <div class="card-row flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer border-l-[2px] border-teal/50 opacity-70">
+          <span class="material-symbols-outlined text-teal text-[14px]">search</span>
+          <span class="text-[11px] text-text-sec flex-1 truncate font-mono">Glob src/routes/**/*.ts</span>
+          <span class="text-[10px] text-text-sec font-mono shrink-0">+0:02</span>
+        </div>
+        <div class="card-row flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer border-l-[2px] border-orange/50 opacity-70">
+          <span class="material-symbols-outlined text-orange text-[14px]">code</span>
+          <span class="text-[11px] text-text-sec flex-1 truncate font-mono">Grep req.session — 8 route files</span>
+          <span class="text-[10px] text-text-sec font-mono shrink-0">+0:05</span>
+        </div>
+        <div class="card-row flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer border-l-[2px] border-success/50 opacity-70">
+          <span class="material-symbols-outlined text-success text-[14px]">description</span>
+          <span class="text-[11px] text-text-sec flex-1 truncate font-mono">Read src/routes/api/users.ts</span>
+          <span class="text-[10px] text-text-sec font-mono shrink-0">+0:07</span>
+        </div>
+      </div>
+
+      <!-- ▸ Tool: Edit -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-warning">
+        <span class="material-symbols-outlined text-warning text-[16px]">edit_note</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-warning shrink-0">Edit</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate font-mono">src/routes/api/users.ts — lines 5, 22–31</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">1:02</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Agent Response -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-border">
+        <span class="material-symbols-outlined text-accent text-[16px]">smart_toy</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-accent shrink-0">Response</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate">I've refactored the auth module. Here's a summary of changes...</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">1:15</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ▸ Tool: Bash (test) -->
+      <div class="card-row flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border-l-[3px] border-destructive">
+        <span class="material-symbols-outlined text-destructive text-[16px]">terminal</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-destructive shrink-0">Bash</span>
+        <span class="text-[12px] text-text-sec flex-1 truncate font-mono">npm run test -- --filter auth</span>
+        <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-success/15 text-success shrink-0">Exit 0</span>
+        <span class="text-[10px] text-text-sec font-mono shrink-0">1:42</span>
+        <span class="material-symbols-outlined text-text-sec text-[14px]">chevron_right</span>
+      </div>
+
+      <!-- ═══ BRAINSTORM QUIZ: Single Choice ═══ -->
+      <div class="mt-3 mx-1 bg-surface border border-border rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-accent text-[16px]">smart_toy</span>
+            <span class="text-[12px] font-semibold text-text-pri">Which token storage strategy do you prefer?</span>
+          </div>
+          <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-accent/15 text-accent uppercase tracking-wider">Single</span>
+        </div>
+        <div class="space-y-1.5">
+          <!-- Selected option -->
+          <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-accent/10 border border-accent/30 cursor-pointer transition-all">
+            <input type="radio" name="q1" checked class="w-3.5 h-3.5 text-accent border-border bg-surface focus:ring-accent"/>
+            <div>
+              <span class="text-[12px] font-medium text-text-pri">HTTP-only Cookie</span>
+              <span class="text-[10px] text-text-sec ml-2">Most secure, auto-sent with requests</span>
+            </div>
+          </label>
+          <!-- Unselected options -->
+          <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border hover:border-border cursor-pointer hover:bg-surface-hover transition-all">
+            <input type="radio" name="q1" class="w-3.5 h-3.5 text-accent border-border bg-surface focus:ring-accent"/>
+            <div>
+              <span class="text-[12px] font-medium text-text-sec">localStorage</span>
+              <span class="text-[10px] text-text-sec ml-2">Simple but XSS vulnerable</span>
+            </div>
+          </label>
+          <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border hover:border-border cursor-pointer hover:bg-surface-hover transition-all">
+            <input type="radio" name="q1" class="w-3.5 h-3.5 text-accent border-border bg-surface focus:ring-accent"/>
+            <div>
+              <span class="text-[12px] font-medium text-text-sec">In-memory + refresh token</span>
+              <span class="text-[10px] text-text-sec ml-2">Best for SPAs, no persistence</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- ═══ BRAINSTORM QUIZ: Multi Choice ═══ -->
+      <div class="mt-2 mx-1 bg-surface border border-border rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-accent text-[16px]">smart_toy</span>
+            <span class="text-[12px] font-semibold text-text-pri">Which JWT claims should be included?</span>
+          </div>
+          <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-orange/15 text-orange uppercase tracking-wider">Multi</span>
+        </div>
+        <div class="space-y-1.5">
+          <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-accent/10 border border-accent/30 cursor-pointer transition-all">
+            <input type="checkbox" checked class="w-3.5 h-3.5 rounded text-accent border-border bg-surface focus:ring-accent"/>
+            <span class="text-[12px] font-medium text-text-pri">sub (user ID)</span>
+          </label>
+          <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-accent/10 border border-accent/30 cursor-pointer transition-all">
+            <input type="checkbox" checked class="w-3.5 h-3.5 rounded text-accent border-border bg-surface focus:ring-accent"/>
+            <span class="text-[12px] font-medium text-text-pri">role (user role)</span>
+          </label>
+          <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border hover:bg-surface-hover cursor-pointer transition-all">
+            <input type="checkbox" class="w-3.5 h-3.5 rounded text-accent border-border bg-surface focus:ring-accent"/>
+            <span class="text-[12px] font-medium text-text-sec">org (organization ID)</span>
+          </label>
+          <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border hover:bg-surface-hover cursor-pointer transition-all">
+            <input type="checkbox" class="w-3.5 h-3.5 rounded text-accent border-border bg-surface focus:ring-accent"/>
+            <span class="text-[12px] font-medium text-text-sec">permissions (scope list)</span>
+          </label>
+        </div>
+        <div class="flex justify-end pt-1">
+          <button class="flex items-center gap-1.5 px-4 py-1.5 bg-accent hover:bg-accent-hover text-white text-[12px] font-semibold rounded-md transition-colors">
+            Continue
+            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Spacer for bottom bar -->
+      <div class="h-4"></div>
+    </div>
+
+    <!-- ─── BOTTOM INPUT BAR ─── -->
+    <div class="glass border-t border-glass-border px-4 py-2.5 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="flex-1 relative">
+          <input type="text" placeholder="Type a message..." class="w-full bg-bg border border-border rounded-lg py-2 pl-3 pr-10 text-[12px] text-text-pri placeholder-text-sec focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent transition-all"/>
+          <button class="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-accent rounded-md flex items-center justify-center hover:bg-accent-hover transition-colors">
+            <span class="material-symbols-outlined text-white text-[16px]">arrow_upward</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <select class="bg-surface border border-border rounded-md px-2 py-1.5 text-[11px] text-text-sec focus:outline-none focus:ring-1 focus:ring-accent/50 appearance-none cursor-pointer">
+            <option>Claude Opus 4.6</option>
+            <option>Claude Sonnet 4.6</option>
+            <option>Claude Haiku 4.5</option>
+          </select>
+          <div class="flex items-center gap-1 px-2 py-1 bg-success/10 border border-success/20 rounded text-[10px] text-success font-medium">
+            <span class="material-symbols-outlined text-[12px]">shield</span>
+            Auto
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RIGHT PANEL: Detail Drawer (40%) ─── -->
+  <div class="w-[40%] bg-surface flex flex-col">
+    <!-- Drawer Header -->
+    <div class="flex items-center justify-between px-4 py-2.5 border-b border-border shrink-0">
+      <div class="flex items-center gap-2.5">
+        <span class="material-symbols-outlined text-success text-[16px]">description</span>
+        <span class="text-[12px] font-semibold text-text-pri">Read — src/middleware/auth.ts</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-[10px] text-text-sec font-mono">48 lines • 1.2KB • 120ms</span>
+        <button class="p-0.5 rounded hover:bg-surface-hover transition-colors">
+          <span class="material-symbols-outlined text-text-sec text-[16px]">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Code Content -->
+    <div class="flex-1 overflow-y-auto scroll">
+      <div class="font-mono text-[11px] leading-[18px]">
+        <!-- Line numbers + code -->
+        <table class="w-full border-collapse">
+          <tbody>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none w-[40px]">1</td><td class="pr-4 py-0"><span class="text-purple">import</span> <span class="text-cyan">{ Request, Response, NextFunction }</span> <span class="text-purple">from</span> <span class="text-success">'express'</span>;</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">2</td><td class="pr-4 py-0"><span class="text-purple">import</span> <span class="text-cyan">{ SessionStore }</span> <span class="text-purple">from</span> <span class="text-success">'../lib/session-store'</span>;</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">3</td><td class="pr-4 py-0"><span class="text-purple">import</span> <span class="text-cyan">{ logger }</span> <span class="text-purple">from</span> <span class="text-success">'../utils/logger'</span>;</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">4</td><td class="pr-4 py-0"></td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">5</td><td class="pr-4 py-0"><span class="text-purple">interface</span> <span class="text-warning">AuthOptions</span> {</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">6</td><td class="pr-4 py-0">  <span class="text-cyan">requireAuth</span>: <span class="text-teal">boolean</span>;</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">7</td><td class="pr-4 py-0">  <span class="text-cyan">roles</span>?: <span class="text-teal">string</span>[];</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">8</td><td class="pr-4 py-0">}</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">9</td><td class="pr-4 py-0"></td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">10</td><td class="pr-4 py-0"><span class="text-purple">export function</span> <span class="text-accent">authMiddleware</span>(</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">11</td><td class="pr-4 py-0">  <span class="text-cyan">options</span>: <span class="text-warning">AuthOptions</span> = { requireAuth: <span class="text-orange">true</span> }</td></tr>
+            <tr class="bg-destructive/8"><td class="text-right pr-3 pl-4 py-0 text-destructive/60 select-none border-l-2 border-destructive">12</td><td class="pr-4 py-0"><span class="text-text-sec">−  const session = req.session;</span></td></tr>
+            <tr class="bg-destructive/8"><td class="text-right pr-3 pl-4 py-0 text-destructive/60 select-none border-l-2 border-destructive">13</td><td class="pr-4 py-0"><span class="text-text-sec">−  if (!session?.userId) {</span></td></tr>
+            <tr class="bg-destructive/8"><td class="text-right pr-3 pl-4 py-0 text-destructive/60 select-none border-l-2 border-destructive">14</td><td class="pr-4 py-0"><span class="text-text-sec">−    return res.status(401).json({ error: 'Not authenticated' });</span></td></tr>
+            <tr class="bg-destructive/8"><td class="text-right pr-3 pl-4 py-0 text-destructive/60 select-none border-l-2 border-destructive">15</td><td class="pr-4 py-0"><span class="text-text-sec">−  }</span></td></tr>
+            <tr class="bg-success/8"><td class="text-right pr-3 pl-4 py-0 text-success/60 select-none border-l-2 border-success">12</td><td class="pr-4 py-0"><span class="text-text-pri">+  const token = extractToken(req);</span></td></tr>
+            <tr class="bg-success/8"><td class="text-right pr-3 pl-4 py-0 text-success/60 select-none border-l-2 border-success">13</td><td class="pr-4 py-0"><span class="text-text-pri">+  if (!token) {</span></td></tr>
+            <tr class="bg-success/8"><td class="text-right pr-3 pl-4 py-0 text-success/60 select-none border-l-2 border-success">14</td><td class="pr-4 py-0"><span class="text-text-pri">+    return res.status(401).json({ error: 'Missing token' });</span></td></tr>
+            <tr class="bg-success/8"><td class="text-right pr-3 pl-4 py-0 text-success/60 select-none border-l-2 border-success">15</td><td class="pr-4 py-0"><span class="text-text-pri">+  }</span></td></tr>
+            <tr class="bg-success/8"><td class="text-right pr-3 pl-4 py-0 text-success/60 select-none border-l-2 border-success">16</td><td class="pr-4 py-0"><span class="text-text-pri">+  const decoded = verifyJWT(token);</span></td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">17</td><td class="pr-4 py-0"></td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">18</td><td class="pr-4 py-0">  <span class="text-purple">if</span> (options.roles?.length) {</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">19</td><td class="pr-4 py-0">    <span class="text-purple">const</span> hasRole = options.roles.some(</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">20</td><td class="pr-4 py-0">      r =&gt; decoded.roles.includes(r)</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">21</td><td class="pr-4 py-0">    );</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">22</td><td class="pr-4 py-0">    <span class="text-purple">if</span> (!hasRole) {</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">23</td><td class="pr-4 py-0">      logger.warn(<span class="text-success">'Insufficient permissions'</span>, {</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">24</td><td class="pr-4 py-0">        userId: decoded.sub,</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">25</td><td class="pr-4 py-0">        required: options.roles,</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">26</td><td class="pr-4 py-0">      });</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">27</td><td class="pr-4 py-0">      <span class="text-purple">return</span> res.status(403).json({</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">28</td><td class="pr-4 py-0">        error: <span class="text-success">'Forbidden'</span></td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">29</td><td class="pr-4 py-0">      });</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">30</td><td class="pr-4 py-0">    }</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">31</td><td class="pr-4 py-0">  }</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">32</td><td class="pr-4 py-0"></td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">33</td><td class="pr-4 py-0">  req.user = decoded;</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">34</td><td class="pr-4 py-0">  <span class="text-purple">next</span>();</td></tr>
+            <tr><td class="text-right pr-3 pl-4 py-0 text-text-sec/40 select-none">35</td><td class="pr-4 py-0">}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="border-t border-border px-4 py-2 flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3 text-[10px] text-text-sec">
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">schedule</span>120ms</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">data_usage</span>1.2KB</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="px-2 py-1 text-[10px] text-text-sec hover:text-text-pri border border-border rounded hover:bg-surface-hover transition-colors">Copy</button>
+        <button class="px-2 py-1 text-[10px] text-text-sec hover:text-text-pri border border-border rounded hover:bg-surface-hover transition-colors">Open in Editor</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
