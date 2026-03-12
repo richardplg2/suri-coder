@@ -1,3 +1,4 @@
+import { Loader2, PlusCircle } from 'lucide-react'
 import { ScrollArea, StatusBadge } from '@agent-coding/ui'
 import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useTabStore } from 'renderer/stores/use-tab-store'
@@ -11,8 +12,8 @@ const MOCK_NEEDS_ATTENTION = [
 ]
 
 const MOCK_RUNNING = [
-  { id: 't-14', key: 'T-14', title: 'Refactor database layer', step: 'Coding', project: 'my-app', projectId: 'p1' },
-  { id: 't-9', key: 'T-9', title: 'Add API rate limiting', step: 'Testing', project: 'api-srv', projectId: 'p2' },
+  { id: 't-14', key: 'T-14', title: 'Login Flow Implementation', step: 'Design', session: 2, duration: '12m', project: 'my-app', projectId: 'p1' },
+  { id: 't-19', key: 'T-19', title: 'Dashboard Widgets', step: 'Implementation', session: 1, duration: '3m', project: 'api-srv', projectId: 'p2' },
 ]
 
 const MOCK_ACTIVITY = [
@@ -76,24 +77,56 @@ export function HomeScreen() {
         </section>
 
         {/* Running Now */}
-        <section className="mb-8">
+        <section className="mb-10">
           <SectionDivider title="Running Now" />
           <div className="bento-grid-3">
             {MOCK_RUNNING.map((item) => (
-              <button
+              <div
                 key={item.id}
-                type="button"
-                onClick={() => navigateToTicket(item.projectId, item.id, item.key)}
-                className="bento-cell cursor-pointer text-left"
+                className="bento-cell relative overflow-hidden p-5"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold">{item.key}</span>
-                  <StatusBadge status="running" label={item.step} />
+                {/* Left accent bar */}
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-mono text-[11px] text-muted-foreground">{item.key}</span>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="size-[18px] text-primary animate-spin" style={{ animationDuration: '3s' }} />
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{item.step}</span>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground truncate">{item.title}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground/70">{item.project}</p>
-              </button>
+
+                <h3 className="text-base font-semibold text-foreground mb-1">{item.title}</h3>
+                <p className="text-xs text-muted-foreground">
+                  Session #{item.session} running for <span className="text-primary">{item.duration}</span>
+                </p>
+
+                <div className="mt-4 flex gap-2">
+                  <button
+                    type="button"
+                    className="bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold py-1 px-3 rounded-[6px] border border-primary/20 transition-colors duration-150 cursor-pointer"
+                  >
+                    STOP
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigateToTicket(item.projectId, item.id, item.key)}
+                    className="bg-muted/50 hover:bg-muted text-muted-foreground text-[11px] font-bold py-1 px-3 rounded-[6px] border border-border transition-colors duration-150 cursor-pointer"
+                  >
+                    DETAILS
+                  </button>
+                </div>
+              </div>
             ))}
+
+            {/* New Session placeholder */}
+            <button
+              type="button"
+              className="border border-dashed border-border rounded-[var(--bento-radius)] p-5 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-muted-foreground cursor-pointer transition-colors duration-150"
+            >
+              <PlusCircle className="size-8" />
+              <span className="text-xs font-medium">New Session</span>
+            </button>
           </div>
         </section>
 
