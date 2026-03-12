@@ -1,4 +1,3 @@
-import { AlertCircle, Play, Clock } from 'lucide-react'
 import { ScrollArea, StatusBadge } from '@agent-coding/ui'
 import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useTabStore } from 'renderer/stores/use-tab-store'
@@ -25,18 +24,11 @@ const MOCK_ACTIVITY = [
 
 // --- Component ---
 
-function SectionHeader({ icon: Icon, title, count }: {
-  icon: React.ElementType
-  title: string
-  count: number
-}) {
+function SectionDivider({ title }: Readonly<{ title: string }>) {
   return (
-    <div className="mb-3 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <Icon className="size-4 text-muted-foreground" />
-        <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
-      </div>
-      <span className="text-xs text-muted-foreground">{count}</span>
+    <div className="mb-4 flex items-center gap-3">
+      <h2 className="section-header shrink-0">{title}</h2>
+      <div className="h-px flex-1 bg-border/50" />
     </div>
   )
 }
@@ -57,7 +49,7 @@ export function HomeScreen() {
 
         {/* Needs Attention */}
         <section className="mb-8">
-          <SectionHeader icon={AlertCircle} title="Needs Attention" count={MOCK_NEEDS_ATTENTION.length} />
+          <SectionDivider title="Needs Attention" />
           <div className="bento-grid-3">
             {MOCK_NEEDS_ATTENTION.map((item) => (
               <button
@@ -79,7 +71,7 @@ export function HomeScreen() {
 
         {/* Running Now */}
         <section className="mb-8">
-          <SectionHeader icon={Play} title="Running Now" count={MOCK_RUNNING.length} />
+          <SectionDivider title="Running Now" />
           <div className="bento-grid-3">
             {MOCK_RUNNING.map((item) => (
               <button
@@ -101,7 +93,7 @@ export function HomeScreen() {
 
         {/* Recent Activity */}
         <section>
-          <SectionHeader icon={Clock} title="Recent Activity" count={MOCK_ACTIVITY.length} />
+          <SectionDivider title="Recent Activity" />
           <div className="bento-cell p-0">
             {MOCK_ACTIVITY.map((item) => (
               <button
