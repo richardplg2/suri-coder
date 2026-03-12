@@ -5,6 +5,7 @@ import type { Column } from '@agent-coding/ui'
 import { useTickets } from 'renderer/hooks/queries/use-tickets'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 import { useModalStore } from 'renderer/stores/use-modal-store'
+import { useBrainstormStore } from 'renderer/stores/use-brainstorm-store'
 
 const openCreateTicketModal = (projectId: string) =>
   useModalStore.getState().open('create-ticket', { projectId })
@@ -53,6 +54,7 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
   const openTicketTab = useTabStore((s) => s.openTicketTab)
   const openFigmaTab = useTabStore((s) => s.openFigmaTab)
   const openBrainstormTab = useTabStore((s) => s.openBrainstormTab)
+  const createSession = useBrainstormStore((s) => s.createSession)
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
 
   if (isLoading) {
@@ -78,7 +80,10 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
             ]}
             size="sm"
           />
-          <Button size="sm" variant="outline" onClick={() => openBrainstormTab(project.id, 'mock-brainstorm-1', 'Brainstorm')} className="cursor-pointer">
+          <Button size="sm" variant="outline" onClick={() => {
+            const id = createSession(project.id)
+            openBrainstormTab(project.id, id, 'New Brainstorm')
+          }} className="cursor-pointer">
             <Brain className="mr-1.5 size-3.5" />
             Brainstorm
           </Button>
