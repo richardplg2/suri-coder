@@ -11,7 +11,7 @@ import { AppSidebar } from './app-sidebar'
 import { StatusBar } from './status-bar'
 import { InspectorPanel } from './inspector-panel'
 import { useKeyboardShortcuts } from 'renderer/hooks/use-keyboard-shortcuts'
-import { NotificationDropdown } from './notification-dropdown'
+import { NotificationPanel } from './notification-panel'
 import { useNotificationsWs } from 'renderer/hooks/use-notifications-ws'
 
 function tabToBarTab(tab: AppTab): Tab | null {
@@ -75,7 +75,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span>
-                  <NotificationDropdown />
+                  <NotificationPanel />
                 </span>
               </TooltipTrigger>
               <TooltipContent side="bottom">Notifications</TooltipContent>
