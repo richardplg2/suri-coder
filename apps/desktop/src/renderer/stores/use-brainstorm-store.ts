@@ -197,19 +197,7 @@ interface BrainstormStore {
 }
 
 export const useBrainstormStore = create<BrainstormStore>()((set, get) => ({
-  sessions: {
-    'mock-brainstorm-1': {
-      id: 'mock-brainstorm-1',
-      projectId: 'mock-project',
-      title: 'Cost Tracking Features',
-      view: 'review',
-      sessionData: MOCK_SESSION_DATA,
-      spec: MOCK_SPEC,
-      comments: MOCK_COMMENTS,
-      ticketDraft: { title: 'Cost tracking dashboard', type: 'feature', priority: 'medium' },
-      createdAt: '2026-03-13T10:00:00Z',
-    },
-  },
+  sessions: {},
 
   createSession: (projectId) => {
     const id = `brainstorm-${Date.now()}`
