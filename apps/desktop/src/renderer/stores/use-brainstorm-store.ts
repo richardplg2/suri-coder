@@ -192,6 +192,8 @@ interface BrainstormStore {
   addComment: (sessionId: string, comment: Omit<SpecComment, 'id'>) => void
   removeComment: (sessionId: string, commentId: string) => void
   updateTicketDraft: (sessionId: string, draft: Partial<TicketDraft>) => void
+  generateSpec: (sessionId: string) => void
+  updateTitle: (sessionId: string, title: string) => void
 }
 
 export const useBrainstormStore = create<BrainstormStore>()((set, get) => ({
@@ -267,6 +269,36 @@ export const useBrainstormStore = create<BrainstormStore>()((set, get) => ({
           ...session,
           comments: session.comments.filter((c) => c.id !== commentId),
         },
+      },
+    })
+  },
+
+  generateSpec: (sessionId) => {
+    const sessions = get().sessions
+    const session = sessions[sessionId]
+    if (!session) return
+    set({
+      sessions: {
+        ...sessions,
+        [sessionId]: {
+          ...session,
+          view: 'review',
+          spec: MOCK_SPEC,
+          comments: MOCK_COMMENTS,
+          ticketDraft: { title: MOCK_SPEC.title, type: 'feature', priority: 'medium' },
+        },
+      },
+    })
+  },
+
+  updateTitle: (sessionId, title) => {
+    const sessions = get().sessions
+    const session = sessions[sessionId]
+    if (!session) return
+    set({
+      sessions: {
+        ...sessions,
+        [sessionId]: { ...session, title },
       },
     })
   },
