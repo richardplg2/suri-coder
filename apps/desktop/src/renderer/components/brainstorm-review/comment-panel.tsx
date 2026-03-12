@@ -40,7 +40,7 @@ export function CommentPanel({ comments, onAddComment, onRemoveComment }: Readon
   const handleSend = () => {
     if (!newComment.trim()) return
     onAddComment({
-      sectionId: 'requirements',
+      sectionId: filter !== 'all' ? filter : 'requirements',
       content: newComment.trim(),
       author: 'You',
       authorInitials: 'YO',
@@ -133,7 +133,7 @@ function CommentCard({ comment }: Readonly<{ comment: SpecComment }>) {
       </div>
       <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
         <span className={`mb-2 inline-block rounded px-2 py-0.5 text-[10px] font-bold ${sectionStyle}`}>
-          {comment.sectionId.replace('_', ' ')}
+          {comment.sectionId.replaceAll('_', ' ')}
         </span>
         <p className="text-sm leading-relaxed text-muted-foreground">{comment.content}</p>
       </div>

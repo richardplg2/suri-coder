@@ -7,7 +7,7 @@ interface BrainstormScreenProps {
   brainstormId: string
 }
 
-export function BrainstormScreen({ projectId, brainstormId }: Readonly<BrainstormScreenProps>) {
+export function BrainstormScreen({ brainstormId }: Readonly<BrainstormScreenProps>) {
   const session = useBrainstormStore((s) => s.sessions[brainstormId])
   const setView = useBrainstormStore((s) => s.setView)
 
