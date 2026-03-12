@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Frame, MoreHorizontal, CheckCircle2 } from 'lucide-react'
+import { Plus, Frame, Brain, MoreHorizontal, CheckCircle2 } from 'lucide-react'
 import { Button, SegmentedControl, EmptyState, Spinner, DataTable, Badge, ScrollArea, cn } from '@agent-coding/ui'
 import type { Column } from '@agent-coding/ui'
 import { useTickets } from 'renderer/hooks/queries/use-tickets'
@@ -52,6 +52,7 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
   const { data: tickets, isLoading } = useTickets(project.id)
   const openTicketTab = useTabStore((s) => s.openTicketTab)
   const openFigmaTab = useTabStore((s) => s.openFigmaTab)
+  const openBrainstormTab = useTabStore((s) => s.openBrainstormTab)
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
 
   if (isLoading) {
@@ -77,6 +78,10 @@ export function TicketsBoard({ project }: TicketsBoardProps) {
             ]}
             size="sm"
           />
+          <Button size="sm" variant="outline" onClick={() => openBrainstormTab(project.id, 'mock-brainstorm-1', 'Brainstorm')} className="cursor-pointer">
+            <Brain className="mr-1.5 size-3.5" />
+            Brainstorm
+          </Button>
           <Button size="sm" variant="outline" onClick={() => openFigmaTab(project.id)} className="cursor-pointer">
             <Frame className="mr-1.5 size-3.5" />
             Figma Import

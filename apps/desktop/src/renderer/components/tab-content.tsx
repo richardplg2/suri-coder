@@ -5,6 +5,7 @@ import { ProjectScreen } from 'renderer/screens/project'
 import { TicketScreen } from 'renderer/screens/ticket'
 import { SettingsScreen } from 'renderer/screens/settings'
 import { FigmaAnnotatorScreen } from 'renderer/screens/figma-annotator'
+import { BrainstormScreen } from 'renderer/screens/brainstorm'
 
 export function TabContent() {
   const activeProjectId = useProjectNavStore((s) => s.activeProjectId)
@@ -34,5 +35,7 @@ export function TabContent() {
       return <SettingsScreen projectId={activeTab.projectId} />
     case 'figma':
       return <FigmaAnnotatorScreen projectId={activeTab.projectId} />
+    case 'brainstorm':
+      return <BrainstormScreen projectId={activeTab.projectId} brainstormId={activeTab.brainstormId} />
   }
 }
