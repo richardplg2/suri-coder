@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { ScrollArea } from '@agent-coding/ui'
 import { SessionHeader } from './session-header'
 import { TranscriptRow } from './transcript-row'
 import { QuizCard } from './quiz-card'
@@ -32,10 +31,10 @@ export function SessionPanel({ session, config, onBack }: Readonly<SessionPanelP
         />
       )}
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Left: Transcript */}
-        <div className="w-[60%] flex flex-col border-r border-border">
-          <ScrollArea className="flex-1">
+        <div className="flex min-h-0 w-[60%] flex-col border-r border-border">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="space-y-1 px-3 py-3">
               {session.items.map((item) => (
                 <TranscriptItemRenderer
@@ -47,11 +46,11 @@ export function SessionPanel({ session, config, onBack }: Readonly<SessionPanelP
                 />
               ))}
             </div>
-          </ScrollArea>
+          </div>
 
-          {showInputBar && config?.onSendMessage && (
+          {showInputBar && (
             <SessionInputBar
-              onSend={config.onSendMessage}
+              onSend={config?.onSendMessage ?? (() => {})}
               isRunning={session.status === 'running'}
               statusText={session.status === 'running' ? 'Agent is working...' : undefined}
             />

@@ -213,7 +213,7 @@ export function TicketScreen({ ticketId, projectId }: TicketScreenProps) {
       ) : (
         <SessionPanel
           session={MOCK_SESSION}
-          config={{ showHeader: true, showInputBar: false }}
+          config={{ showHeader: true, showInputBar: true }}
         />
       )}
     </div>
