@@ -30,6 +30,16 @@
   --success: #28CD41;
   --warning: #FFCC00;
 
+  /* Tool-type accent colors */
+  --tool-thinking: #AF52DE;
+  --tool-search: #55BEF0;
+  --tool-read: #28CD41;
+  --tool-grep: #FF9F0A;
+  --tool-bash: #FF3B30;
+  --tool-write: #5AC8FA;
+  --tool-edit: #FFCC00;
+  --tool-subagent: #FF2D55;
+
   /* Glass / Vibrancy */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.2);
@@ -113,6 +123,16 @@
   --selection: rgba(10,132,255,0.15);
   --success: #32D74B;
   --warning: #FFD60A;
+
+  /* Tool-type accent colors */
+  --tool-thinking: #BF5AF2;
+  --tool-search: #64D2FF;
+  --tool-read: #32D74B;
+  --tool-grep: #FF9F0A;
+  --tool-bash: #FF453A;
+  --tool-write: #5AC8FA;
+  --tool-edit: #FFD60A;
+  --tool-subagent: #FF375F;
 
   /* Glass / Vibrancy — dark */
   --glass-bg: rgba(30, 30, 30, 0.72);

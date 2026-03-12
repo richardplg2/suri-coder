@@ -5,7 +5,7 @@ import { OverviewTab } from 'renderer/components/ticket-detail/overview-tab'
 import { SpecsTab } from 'renderer/components/ticket-detail/specs-tab'
 import { TasksTab } from 'renderer/components/ticket-detail/tasks-tab'
 import { ActivityTab } from 'renderer/components/ticket-detail/activity-tab'
-import { SessionView, type SessionData } from 'renderer/components/session/session-view'
+import { SessionPanel, type SessionData } from 'renderer/components/session/session-view'
 import type { TicketType } from 'renderer/types/api'
 
 const TYPE_COLORS: Record<TicketType, string> = {
@@ -23,33 +23,119 @@ const VIEW_ITEMS = [
   { value: 'sessions', label: 'Sessions' },
 ]
 
-const MOCK_SESSIONS: SessionData[] = [
-  {
-    id: '1',
-    stepName: 'Brainstorm',
-    status: 'completed',
-    duration: '2m 30s',
-    tokenCount: 4200,
-    messages: [
-      { id: 'm1', type: { kind: 'text', content: 'Let me analyze the requirements for this feature...', role: 'assistant' }, timestamp: '' },
-      { id: 'm2', type: { kind: 'tool_call', tool: 'Read', input: '{"file_path": "src/auth/login.tsx"}', output: 'import React from...', status: 'success' }, timestamp: '' },
-      { id: 'm3', type: { kind: 'text', content: 'Based on the codebase, I recommend the following approach...', role: 'assistant' }, timestamp: '' },
-      { id: 'm4', type: { kind: 'todo_list', items: [{ label: 'Add auth provider', done: true }, { label: 'Create login form', done: true }, { label: 'Add route guards', done: false }] }, timestamp: '' },
-    ],
-  },
-  {
-    id: '2',
-    stepName: 'Code',
-    status: 'running',
-    tokenCount: 1800,
-    messages: [
-      { id: 'm5', type: { kind: 'text', content: 'Implementing the authentication flow...', role: 'assistant' }, timestamp: '' },
-      { id: 'm6', type: { kind: 'tool_call', tool: 'Edit', input: '{"file_path": "src/auth/login.tsx"}', output: 'File edited successfully', status: 'success' }, timestamp: '' },
-      { id: 'm7', type: { kind: 'tool_call', tool: 'Bash', input: '{"command": "npm test -- --watch"}', output: 'PASS src/auth/login.test.tsx', status: 'success' }, timestamp: '' },
-      { id: 'm8', type: { kind: 'subagent', description: 'Run test suite', transcript: [] }, timestamp: '' },
-    ],
-  },
-]
+const MOCK_SESSION: SessionData = {
+  id: '1',
+  title: 'Session #1 — Refactor Auth Module',
+  status: 'running',
+  duration: '3m 22s',
+  tokenCount: 12400,
+  cost: '$0.47',
+  items: [
+    {
+      id: 'm1',
+      entry: { kind: 'user', content: 'Refactor the auth module to use JWT tokens instead of sessions' },
+      timestamp: '0:00',
+    },
+    {
+      id: 'm2',
+      entry: { kind: 'thinking', summary: 'Analyzing the current auth middleware structure and session management...' },
+      timestamp: '0:02',
+    },
+    {
+      id: 'm3',
+      entry: { kind: 'tool_call', tool: 'Glob', input: '**/*auth*.{ts,tsx}', output: '7 files found', status: 'success', label: '**/*auth*.{ts,tsx}', detail: '7 matches' },
+      timestamp: '0:03',
+    },
+    {
+      id: 'm4',
+      entry: { kind: 'tool_call', tool: 'Read', input: 'src/middleware/auth.ts', output: 'import { Request, Response } from "express";\n\ninterface AuthOptions {\n  requireAuth: boolean;\n  roles?: string[];\n}\n\nexport function authMiddleware(options: AuthOptions = { requireAuth: true }) {\n  const session = req.session;\n  if (!session?.userId) {\n    return res.status(401).json({ error: "Not authenticated" });\n  }\n}', status: 'success', label: 'src/middleware/auth.ts' },
+      timestamp: '0:04',
+    },
+    {
+      id: 'm5',
+      entry: { kind: 'tool_call', tool: 'Grep', input: 'req.session', output: '14 matches in 5 files', status: 'success', label: 'req.session', detail: '14 matches in 5 files' },
+      timestamp: '0:06',
+    },
+    {
+      id: 'm6',
+      entry: { kind: 'thinking', summary: 'Planning the migration: need JWT signing, token refresh, and middleware updates...' },
+      timestamp: '0:08',
+    },
+    {
+      id: 'm7',
+      entry: { kind: 'plan', summary: 'Entered plan mode — 4 implementation steps', stepCount: 4 },
+      timestamp: '0:12',
+    },
+    {
+      id: 'm8',
+      entry: {
+        kind: 'tasks',
+        items: [
+          { label: 'Install jsonwebtoken', done: true },
+          { label: 'Create JWT utility', done: true },
+          { label: 'Update auth middleware', done: true },
+          { label: 'Update route handlers', done: false },
+          { label: 'Run tests', done: false },
+        ],
+      },
+      timestamp: '0:13',
+    },
+    {
+      id: 'm9',
+      entry: { kind: 'tool_call', tool: 'Bash', input: 'npm install jsonwebtoken @types/jsonwebtoken', output: 'added 2 packages', status: 'success', label: 'npm install jsonwebtoken @types/jsonwebtoken' },
+      timestamp: '0:18',
+    },
+    {
+      id: 'm10',
+      entry: { kind: 'tool_call', tool: 'Write', input: 'src/lib/jwt-utils.ts', output: 'File created', status: 'success', label: 'src/lib/jwt-utils.ts', detail: 'new file' },
+      timestamp: '0:22',
+    },
+    {
+      id: 'm11',
+      entry: { kind: 'tool_call', tool: 'Edit', input: 'src/middleware/auth.ts', output: 'File edited', status: 'success', label: 'src/middleware/auth.ts', detail: 'lines 12–38' },
+      timestamp: '0:25',
+    },
+    {
+      id: 'm12',
+      entry: {
+        kind: 'subagent',
+        description: 'Explore: Find all route handlers using session auth',
+        status: 'done',
+        children: [
+          { id: 's1', entry: { kind: 'tool_call', tool: 'Glob', input: 'src/routes/**/*.ts', output: '12 files', status: 'success', label: 'src/routes/**/*.ts' }, timestamp: '+0:02' },
+          { id: 's2', entry: { kind: 'tool_call', tool: 'Grep', input: 'req.session', output: '8 route files', status: 'success', label: 'req.session — 8 route files' }, timestamp: '+0:05' },
+          { id: 's3', entry: { kind: 'tool_call', tool: 'Read', input: 'src/routes/api/users.ts', output: '...', status: 'success', label: 'src/routes/api/users.ts' }, timestamp: '+0:07' },
+        ],
+      },
+      timestamp: '0:45',
+    },
+    {
+      id: 'm13',
+      entry: { kind: 'response', content: "I've refactored the auth module. Here's a summary of changes..." },
+      timestamp: '1:15',
+    },
+    {
+      id: 'm14',
+      entry: { kind: 'tool_call', tool: 'Bash', input: 'npm run test -- --filter auth', output: 'Tests: 8 passed, 0 failed', status: 'success', label: 'npm run test -- --filter auth' },
+      timestamp: '1:42',
+    },
+    {
+      id: 'm15',
+      entry: {
+        kind: 'quiz',
+        question: 'Which token storage strategy do you prefer?',
+        mode: 'single',
+        options: [
+          { id: 'o1', label: 'HTTP-only Cookie', description: 'Most secure, auto-sent with requests' },
+          { id: 'o2', label: 'localStorage', description: 'Simple but XSS vulnerable' },
+          { id: 'o3', label: 'In-memory + refresh token', description: 'Best for SPAs, no persistence' },
+        ],
+        selectedIds: ['o1'],
+      },
+      timestamp: '1:50',
+    },
+  ],
+}
 
 type TabId = 'overview' | 'specs' | 'tasks' | 'activity'
 
@@ -125,7 +211,10 @@ export function TicketScreen({ ticketId, projectId }: TicketScreenProps) {
           </div>
         </>
       ) : (
-        <SessionView sessions={MOCK_SESSIONS} />
+        <SessionPanel
+          session={MOCK_SESSION}
+          config={{ showHeader: true, showInputBar: false }}
+        />
       )}
     </div>
   )
