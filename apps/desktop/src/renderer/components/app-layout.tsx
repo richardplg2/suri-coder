@@ -22,6 +22,8 @@ function tabToBarTab(tab: AppTab): Tab | null {
       return { id: tab.id, label: 'Settings', closable: true }
     case 'figma':
       return { id: tab.id, label: tab.label, closable: true }
+    case 'brainstorm':
+      return { id: tab.id, label: tab.label, closable: true }
     default:
       return null
   }
