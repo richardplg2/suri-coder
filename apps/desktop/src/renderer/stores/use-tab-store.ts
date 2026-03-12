@@ -11,6 +11,7 @@ interface TabStore {
   openTicketTab: (projectId: string, ticketId: string, label: string) => void
   openSettingsTab: (projectId: string) => void
   openFigmaTab: (projectId: string) => void
+  openBrainstormTab: (projectId: string, brainstormId: string, label?: string) => void
   closeTab: (projectId: string, tabId: string) => void
   setActiveTab: (projectId: string, tabId: string) => void
   updateTabLabel: (projectId: string, tabId: string, label: string) => void
@@ -72,6 +73,30 @@ export const useTabStore = create<TabStore>()(
           return
         }
         const newTab: AppTab = { id: tabId, type: 'figma', projectId, label: 'Figma Annotator' }
+        set({
+          tabsByProject: { ...tabsByProject, [projectId]: [...tabs, newTab] },
+          activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
+        })
+      },
+
+      openBrainstormTab: (projectId, brainstormId, label) => {
+        const { tabsByProject, activeTabByProject } = get()
+        const tabs = tabsByProject[projectId] ?? []
+        const tabId = `brainstorm-${brainstormId}`
+        const existing = tabs.find((t) => t.id === tabId)
+        if (existing) {
+          set({
+            activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
+          })
+          return
+        }
+        const newTab: AppTab = {
+          id: tabId,
+          type: 'brainstorm',
+          projectId,
+          brainstormId,
+          label: label ?? 'Brainstorm',
+        }
         set({
           tabsByProject: { ...tabsByProject, [projectId]: [...tabs, newTab] },
           activeTabByProject: { ...activeTabByProject, [projectId]: tabId },
