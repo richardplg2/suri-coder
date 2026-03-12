@@ -42,6 +42,7 @@ function CodeBlock({
       const result = highlighter.codeToHtml(code, {
         lang: language,
         themes: { dark: 'github-dark', light: 'github-light' },
+        defaultColor: false,
       })
       setHtml(result)
     })

@@ -12,6 +12,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Shiki dual-theme support: map CSS variables to active theme */
+html:not(.dark) .shiki,
+html:not(.dark) .shiki span {
+  color: var(--shiki-light) !important;
+  background-color: var(--shiki-light-bg) !important;
+}
+
+html.dark .shiki,
+html.dark .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -205,5 +218,24 @@
   
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Dark-friendly scrollbars */
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
   }
 }
