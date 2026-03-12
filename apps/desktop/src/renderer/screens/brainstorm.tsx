@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { SessionPanel } from 'renderer/components/session/session-view'
 import { BrainstormReview } from 'renderer/components/brainstorm-review/review-layout'
 import { useBrainstormStore } from 'renderer/stores/use-brainstorm-store'
@@ -14,8 +15,16 @@ export function BrainstormScreen({ projectId, brainstormId }: Readonly<Brainstor
   const generateSpec = useBrainstormStore((s) => s.generateSpec)
   const updateTabLabel = useTabStore((s) => s.updateTabLabel)
 
+  const closeTab = useTabStore((s) => s.closeTab)
+
+  useEffect(() => {
+    if (!session) {
+      closeTab(projectId, `brainstorm-${brainstormId}`)
+    }
+  }, [session, projectId, brainstormId, closeTab])
+
   if (!session) {
-    return <div className="flex h-full items-center justify-center text-muted-foreground">Brainstorm session not found</div>
+    return null
   }
 
   const handleGenerateSpec = () => {
