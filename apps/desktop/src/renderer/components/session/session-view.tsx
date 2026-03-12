@@ -33,7 +33,7 @@ export function SessionPanel({ session, config, onBack }: Readonly<SessionPanelP
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Left: Transcript */}
-        <div className="flex min-h-0 w-[60%] flex-col border-r border-border">
+        <div className={`flex min-h-0 flex-col ${selected ? 'w-[60%] border-r border-border' : 'w-full'}`}>
           <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="space-y-1 px-3 py-3">
               {session.items.map((item) => (
