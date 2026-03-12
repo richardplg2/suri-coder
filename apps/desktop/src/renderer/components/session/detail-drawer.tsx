@@ -2,7 +2,7 @@ import {
   X, Clock, Copy, ExternalLink,
   CheckCircle2, XCircle,
 } from 'lucide-react'
-import { cn, ScrollArea, Button } from '@agent-coding/ui'
+import { cn, ScrollArea, Button, CodeBlock } from '@agent-coding/ui'
 import type { TranscriptItem, TranscriptEntry } from './types'
 
 interface DetailDrawerProps {
@@ -107,11 +107,39 @@ function getHeaderInfo(entry: TranscriptEntry) {
   return { icon: null, title: entry.kind, meta: undefined }
 }
 
+function detectLanguage(entry: { tool: string; input: string; output: string }): string {
+  const tool = entry.tool.toLowerCase()
+  if (tool === 'bash') return 'bash'
+
+  // Try to detect from file path in input
+  const fileMatch = entry.input.match(/["']?([^"'\s]+\.\w+)["']?/)
+  if (fileMatch) {
+    const ext = fileMatch[1].split('.').pop()?.toLowerCase()
+    const extMap: Record<string, string> = {
+      ts: 'typescript', tsx: 'tsx', js: 'javascript', jsx: 'jsx',
+      py: 'python', json: 'json', css: 'css', html: 'html',
+      yaml: 'yaml', yml: 'yaml', md: 'markdown', sh: 'bash',
+    }
+    if (ext && ext in extMap) return extMap[ext]
+  }
+
+  // Grep results look like file paths with line numbers
+  if (tool === 'grep') return 'typescript'
+
+  return 'typescript'
+}
+
 function DrawerContent({ entry }: Readonly<{ entry: TranscriptEntry }>) {
   if (entry.kind === 'tool_call') {
+    const lang = detectLanguage(entry)
     return (
-      <div className="font-mono text-[11px] leading-[18px]">
-        <pre className="p-4 whitespace-pre-wrap break-all text-foreground">{entry.output}</pre>
+      <div className="p-3">
+        <CodeBlock
+          code={entry.output}
+          language={lang}
+          showLineNumbers={entry.tool.toLowerCase() === 'read'}
+          showCopyButton
+        />
       </div>
     )
   }
@@ -192,9 +220,7 @@ function DrawerContent({ entry }: Readonly<{ entry: TranscriptEntry }>) {
     return (
       <div className="p-4">
         <p className="text-[12px] font-semibold mb-2">Skill: {entry.name}</p>
-        <pre className="rounded-lg bg-[var(--surface-elevated)] p-3 text-[11px] font-mono whitespace-pre-wrap">
-          {entry.content}
-        </pre>
+        <CodeBlock code={entry.content} language="markdown" showCopyButton={false} />
       </div>
     )
   }
@@ -204,9 +230,7 @@ function DrawerContent({ entry }: Readonly<{ entry: TranscriptEntry }>) {
       <div className="p-4 space-y-2">
         <p className="text-[12px] font-semibold text-[var(--destructive)]">{entry.message}</p>
         {entry.stack && (
-          <pre className="rounded-lg bg-[var(--surface-elevated)] p-3 text-[11px] font-mono text-[var(--destructive)] whitespace-pre-wrap">
-            {entry.stack}
-          </pre>
+          <CodeBlock code={entry.stack} language="bash" showCopyButton={false} />
         )}
       </div>
     )
