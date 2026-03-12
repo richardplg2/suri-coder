@@ -141,7 +141,7 @@ export const useTabStore = create<TabStore>()(
           tabsByProject: {
             ...tabsByProject,
             [projectId]: tabs.map((t) =>
-              t.id === tabId && t.type === 'ticket' ? { ...t, label } : t,
+              t.id === tabId && (t.type === 'ticket' || t.type === 'brainstorm') ? { ...t, label } : t,
             ),
           },
         })
