@@ -1,5 +1,5 @@
 import { Loader2, PlusCircle } from 'lucide-react'
-import { ScrollArea, StatusBadge } from '@agent-coding/ui'
+import { ScrollArea, StatusBadge, Table, TableBody, TableRow, TableCell } from '@agent-coding/ui'
 import { useProjectNavStore } from 'renderer/stores/use-project-nav-store'
 import { useTabStore } from 'renderer/stores/use-tab-store'
 
@@ -17,10 +17,12 @@ const MOCK_RUNNING = [
 ]
 
 const MOCK_ACTIVITY = [
-  { id: '1', ticketKey: 'T-12', event: 'Review completed', time: '2m ago', projectId: 'p1' },
-  { id: '2', ticketKey: 'T-14', event: 'Coding started', time: '5m ago', projectId: 'p1' },
-  { id: '3', ticketKey: 'T-8', event: 'Test failed (3 errors)', time: '12m ago', projectId: 'p2' },
-  { id: '4', ticketKey: 'T-15', event: 'Agent needs input', time: '20m ago', projectId: 'p1' },
+  { id: '1', ticketKey: 'T-14', event: 'Design session #2 started', time: '2m ago', projectId: 'p1' },
+  { id: '2', ticketKey: 'T-08', event: 'Review requested for auth-refactor-v2', time: '14m ago', projectId: 'p1' },
+  { id: '3', ticketKey: 'T-15', event: 'Automated test agent failed on CI/CD Pipeline', time: '45m ago', projectId: 'p2' },
+  { id: '4', ticketKey: 'T-19', event: 'Task moved from Backlog to In Progress', time: '1h ago', projectId: 'p1' },
+  { id: '5', ticketKey: 'T-05', event: 'Deployment successful to production-web-01', time: '3h ago', projectId: 'p1' },
+  { id: '6', ticketKey: 'T-21', event: 'New comment from @alex_dev on requirements', time: '5h ago', projectId: 'p1' },
 ]
 
 // --- Component ---
@@ -133,21 +135,28 @@ export function HomeScreen() {
         {/* Recent Activity */}
         <section>
           <SectionDivider title="Recent Activity" />
-          <div className="bento-cell p-0">
-            {MOCK_ACTIVITY.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => navigateToTicket(item.projectId, item.id, item.ticketKey)}
-                className="flex w-full items-center justify-between px-4 py-2.5 text-left cursor-pointer transition-colors duration-150 hover:bg-[var(--surface-hover)] first:rounded-t-[12px] last:rounded-b-[12px]"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold text-[var(--accent)]">{item.ticketKey}</span>
-                  <span className="text-xs text-foreground">{item.event}</span>
-                </div>
-                <span className="text-[11px] text-muted-foreground">{item.time}</span>
-              </button>
-            ))}
+          <div className="bento-cell p-0 overflow-hidden">
+            <Table>
+              <TableBody>
+                {MOCK_ACTIVITY.map((item) => (
+                  <TableRow
+                    key={item.id}
+                    className="cursor-pointer hover:bg-[var(--surface-hover)] transition-colors duration-150 border-border/50"
+                    onClick={() => navigateToTicket(item.projectId, item.id, item.ticketKey)}
+                  >
+                    <TableCell className="w-20 font-mono text-xs text-muted-foreground py-4 px-4">
+                      {item.ticketKey}
+                    </TableCell>
+                    <TableCell className="text-xs text-foreground py-4 px-4">
+                      {item.event}
+                    </TableCell>
+                    <TableCell className="text-right text-[11px] text-muted-foreground py-4 px-4">
+                      {item.time}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </section>
       </div>
