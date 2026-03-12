@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Plus, Frame } from 'lucide-react'
-import { Button, SegmentedControl, EmptyState, Spinner, DataTable, Badge, ScrollArea } from '@agent-coding/ui'
+import { Plus, Frame, MoreHorizontal, CheckCircle2 } from 'lucide-react'
+import { Button, SegmentedControl, EmptyState, Spinner, DataTable, Badge, ScrollArea, cn } from '@agent-coding/ui'
 import type { Column } from '@agent-coding/ui'
 import { useTickets } from 'renderer/hooks/queries/use-tickets'
 import { useTabStore } from 'renderer/stores/use-tab-store'
@@ -32,8 +32,16 @@ const PRIORITY_COLORS: Record<TicketPriority, string> = {
   urgent: 'text-[var(--destructive)]',
   high: 'text-orange-400',
   medium: 'text-[var(--warning)]',
-  low: 'text-primary',
+  low: 'text-[var(--success)]',
   none: 'text-muted-foreground',
+}
+
+const PRIORITY_DOT_COLORS: Record<TicketPriority, string> = {
+  urgent: 'bg-[var(--destructive)]',
+  high: 'bg-orange-400',
+  medium: 'bg-[var(--warning)]',
+  low: 'bg-[var(--success)]',
+  none: 'bg-muted-foreground',
 }
 
 interface TicketsBoardProps {
@@ -121,21 +129,29 @@ function KanbanView({
   onTicketClick: (t: TicketListItem) => void
 }) {
   return (
-    <div className="flex gap-4 h-full">
+    <div className="flex gap-6 h-full">
       {KANBAN_COLUMNS.map((col) => {
         const colTickets = tickets.filter((t) => t.status === col.status)
         return (
-          <div key={col.status} className="flex w-64 shrink-0 flex-col">
-            <div className="mb-3 flex items-center gap-2 px-1">
-              <span className="section-header">
-                {col.label}
-              </span>
-              <span className="flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
-                {colTickets.length}
-              </span>
+          <div key={col.status} className="flex w-72 shrink-0 flex-col">
+            <div className="mb-3 flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <span className="section-header">{col.label}</span>
+                <span className={cn(
+                  "flex size-5 items-center justify-center rounded text-[10px] font-bold",
+                  col.status === 'in_progress'
+                    ? "bg-[var(--accent)]/20 text-[var(--accent)]"
+                    : "bg-muted text-muted-foreground"
+                )}>
+                  {colTickets.length}
+                </span>
+              </div>
+              <button type="button" className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors duration-150">
+                <MoreHorizontal className="size-4" />
+              </button>
             </div>
             <ScrollArea className="flex-1">
-              <div className="space-y-2 pr-2">
+              <div className="space-y-3 pr-2">
                 {colTickets.map((ticket) => (
                   <TicketCard key={ticket.id} ticket={ticket} onClick={() => onTicketClick(ticket)} />
                 ))}
@@ -151,23 +167,65 @@ function KanbanView({
 // --- Ticket card ---
 
 function TicketCard({ ticket, onClick }: { ticket: TicketListItem; onClick: () => void }) {
+  const isDone = ticket.status === 'done'
+  const isActive = ticket.status === 'in_progress'
+  const isCriticalBug = ticket.type === 'bug' && ticket.priority === 'urgent'
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className="bento-cell w-full cursor-pointer p-3 text-left"
+      className={cn(
+        "bento-cell w-full cursor-pointer p-4 text-left",
+        isDone && "opacity-60 grayscale-[0.5]",
+        isActive && "border-l-4 border-l-[var(--accent)] shadow-md",
+        isCriticalBug && "border-[var(--destructive)]/30",
+      )}
     >
-      <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-caption text-muted-foreground">{ticket.key}</span>
-        <Badge variant={TYPE_VARIANT[ticket.type]} className="text-[10px] px-1.5 py-0 font-medium uppercase">
-          {ticket.type}
-        </Badge>
-      </div>
-      <div className="mb-2 text-[13px] leading-snug line-clamp-2">{ticket.title}</div>
-      <div className="flex items-center justify-between">
-        <span className={`text-caption font-medium ${PRIORITY_COLORS[ticket.priority]}`}>
-          {ticket.priority !== 'none' ? ticket.priority : ''}
+      {/* Header: key + priority indicator */}
+      <div className="mb-2 flex items-center justify-between">
+        <span className={cn(
+          "font-mono text-[10px] font-bold",
+          isDone ? "text-muted-foreground" : isCriticalBug ? "text-[var(--destructive)]" : "text-[var(--accent)]"
+        )}>
+          {ticket.key}
         </span>
+        {isDone ? (
+          <CheckCircle2 className="size-4 text-[var(--success)]" />
+        ) : (
+          <div className={cn(
+            "size-2 rounded-full",
+            PRIORITY_DOT_COLORS[ticket.priority],
+            isCriticalBug && "animate-pulse"
+          )} />
+        )}
+      </div>
+
+      {/* Title */}
+      <p className={cn(
+        "text-sm font-medium mb-3 leading-snug line-clamp-2",
+        isDone && "line-through text-muted-foreground"
+      )}>
+        {ticket.title}
+      </p>
+
+      {/* Footer: type badge + priority label */}
+      <div className="flex items-center gap-2">
+        <span className={cn(
+          "rounded px-2 py-0.5 text-[10px] font-bold uppercase",
+          isDone ? "bg-muted text-muted-foreground" : TYPE_COLORS[ticket.type]
+        )}>
+          {ticket.type}
+        </span>
+        {!isDone && ticket.priority !== 'none' && (
+          <span className={cn(
+            "ml-auto text-[10px]",
+            PRIORITY_COLORS[ticket.priority],
+            ticket.priority === 'urgent' && "font-black italic"
+          )}>
+            {ticket.priority === 'urgent' ? 'CRITICAL' : ticket.priority}
+          </span>
+        )}
       </div>
     </button>
   )
