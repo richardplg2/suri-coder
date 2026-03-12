@@ -1,4 +1,4 @@
-export type TabType = 'home' | 'ticket' | 'settings' | 'figma'
+export type TabType = 'home' | 'ticket' | 'settings' | 'figma' | 'brainstorm'
 
 export interface HomeTab {
   id: 'home'
@@ -28,4 +28,12 @@ export interface FigmaTab {
   label: string
 }
 
-export type AppTab = HomeTab | TicketTab | SettingsTab | FigmaTab
+export interface BrainstormTab {
+  id: string
+  type: 'brainstorm'
+  projectId: string
+  brainstormId: string
+  label: string
+}
+
+export type AppTab = HomeTab | TicketTab | SettingsTab | FigmaTab | BrainstormTab
