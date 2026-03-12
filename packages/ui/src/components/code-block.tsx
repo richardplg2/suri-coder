@@ -17,6 +17,22 @@ function getHighlighter() {
   return highlighterPromise
 }
 
+function useIsDark() {
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains('dark'),
+  )
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
+  }, [])
+
+  return isDark
+}
+
 interface CodeBlockProps extends React.ComponentProps<'div'> {
   code: string
   language?: string
@@ -34,6 +50,7 @@ function CodeBlock({
 }: CodeBlockProps) {
   const [html, setHtml] = useState<string>('')
   const [copied, setCopied] = useState(false)
+  const isDark = useIsDark()
 
   useEffect(() => {
     let mounted = true
@@ -41,13 +58,12 @@ function CodeBlock({
       if (!mounted) return
       const result = highlighter.codeToHtml(code, {
         lang: language,
-        themes: { dark: 'github-dark', light: 'github-light' },
-        defaultColor: false,
+        theme: isDark ? 'github-dark' : 'github-light',
       })
       setHtml(result)
     })
     return () => { mounted = false }
-  }, [code, language])
+  }, [code, language, isDark])
 
   function handleCopy() {
     navigator.clipboard.writeText(code).then(() => {
