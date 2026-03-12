@@ -4,11 +4,11 @@
 
 set -euo pipefail
 
-BASE_URL="${1:-http://localhost:8000}"
+BASE_URL="${1:-http://localhost:8001}"
 
-EMAIL="test@example.com"
+EMAIL="richard.plg202@gmail.com"
 NAME="Test User"
-PASSWORD="testpass123"
+PASSWORD="Abc@12345"
 
 echo "Creating test account at ${BASE_URL}/auth/register ..."
 

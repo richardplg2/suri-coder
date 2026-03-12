@@ -17,7 +17,7 @@ test('login with invalid credentials shows error', async ({
   mockApi,
 }) => {
   // Override the login mock to return 401
-  await appPage.route('http://localhost:8000/auth/login', async (route) => {
+  await appPage.route('http://localhost:8001/auth/login', async (route) => {
     await route.fulfill({
       status: 401,
       contentType: 'application/json',

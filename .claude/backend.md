@@ -8,7 +8,7 @@ FastAPI + async SQLAlchemy + PostgreSQL + Redis (Python 3.12, uv).
 cd apps/backend
 uv sync                                              # Install Python deps
 cp .env.example .env                                  # First-time env setup
-uv run fastapi dev app/main.py --port 8000           # Dev server
+uv run fastapi dev app/main.py --port 8001           # Dev server
 uv run pytest tests/ -v                              # Run all tests
 uv run pytest tests/test_health.py -v                # Run single test file
 uv run alembic upgrade head                           # Run DB migrations

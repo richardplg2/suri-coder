@@ -1,6 +1,6 @@
 import { useAuthStore } from 'renderer/stores/use-auth-store'
 
-const API_BASE = 'http://localhost:8000'
+const API_BASE = 'http://localhost:8001'
 
 export class ApiError extends Error {
   constructor(

@@ -22,7 +22,7 @@ apps/desktop/e2e/
 ├── playwright.config.ts     # Two projects: mock, integration
 ├── fixtures/
 │   ├── app.fixture.ts       # Electron launch + cleanup (clears localStorage)
-│   ├── mock-api.fixture.ts  # Route interception for localhost:8000
+│   ├── mock-api.fixture.ts  # Route interception for localhost:8001
 │   ├── auth.fixture.ts      # Pre-authenticated page via Zustand persist
 │   └── integration.fixture.ts # Real backend health check
 ├── flows/                   # Mock tests: login, home, project creation
@@ -48,7 +48,7 @@ Fixtures chain: `app` → `mock-api` → `auth`. Each test clears `localStorage`
 ### Adding API Mocks
 Override specific routes in the test body after fixture setup:
 ```ts
-await appPage.route('http://localhost:8000/some/endpoint', async (route) => {
+await appPage.route('http://localhost:8001/some/endpoint', async (route) => {
   await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) })
 })
 ```

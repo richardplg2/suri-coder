@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient-bg" x1="256" y1="0" x2="256" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4FDEFF" />
+      <stop offset="100%" stop-color="#00AEEF" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="256" fill="url(#gradient-bg)"/>
+
+  <path d="M128 200 C 128 100, 384 100, 384 200 C 384 300, 128 300, 128 200" fill="#0A2F44"/>
+  <path d="M140 210 Q 256 120, 372 210" stroke="#0A2F44" stroke-width="12" fill="none" stroke-linecap="round"/>
+
+  <circle cx="256" cy="260" r="110" fill="#FFFFFF"/>
+
+  <path d="M190 250 H 322 M 256 250 V 270" stroke="#0A2F44" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="220" cy="260" r="25" stroke="#0A2F44" stroke-width="10" fill="none"/>
+  <circle cx="292" cy="260" r="25" stroke="#0A2F44" stroke-width="10" fill="none"/>
+
+  <path d="M220 310 Q 256 340, 292 310" stroke="#0A2F44" stroke-width="10" fill="none" stroke-linecap="round"/>
+</svg>

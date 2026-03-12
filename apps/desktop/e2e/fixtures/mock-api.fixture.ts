@@ -1,7 +1,7 @@
 import { test as appTest } from './app.fixture'
 import type { Page } from '@playwright/test'
 
-const API_BASE = 'http://localhost:8000'
+const API_BASE = 'http://localhost:8001'
 
 const TEST_USER = {
   id: 'test-user-id',

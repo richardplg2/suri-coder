@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 60 * 24  # 24 hours
     github_client_id: str = ""
     github_client_secret: str = ""
-    github_redirect_uri: str = "http://localhost:8000/auth/github/callback"
+    github_redirect_uri: str = "http://localhost:8001/auth/github/callback"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
@@ -824,14 +824,14 @@ git commit -m "feat: add project repository endpoints"
 
 ```bash
 cd apps/backend
-uv run fastapi dev app/main.py --port 8000
+uv run fastapi dev app/main.py --port 8001
 ```
 
 Expected: Server starts without import errors.
 
 **Step 2: Check API docs**
 
-Open `http://localhost:8000/docs` — verify new endpoints appear:
+Open `http://localhost:8001/docs` — verify new endpoints appear:
 - `/auth/github/authorize`
 - `/auth/github/callback`
 - `/users/me/github-accounts`
@@ -1731,7 +1731,7 @@ git commit -m "fix: resolve lint and typecheck issues"
 ```bash
 cd apps/backend
 uv run alembic upgrade head
-uv run fastapi dev app/main.py --port 8000
+uv run fastapi dev app/main.py --port 8001
 ```
 
 **Step 2: Start frontend**

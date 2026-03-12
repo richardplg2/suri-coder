@@ -24,7 +24,7 @@ pnpm --filter my-electron-app test:e2e:integration # E2E integration (needs back
 ### Backend (`apps/backend`)
 ```bash
 cd apps/backend
-uv run fastapi dev app/main.py --port 8000  # Dev server
+uv run fastapi dev app/main.py --port 8001  # Dev server
 uv run pytest tests/ -v                     # Run tests
 uv run alembic upgrade head                 # Run migrations
 ```
