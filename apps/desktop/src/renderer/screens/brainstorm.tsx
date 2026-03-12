@@ -1,18 +1,30 @@
 import { SessionPanel } from 'renderer/components/session/session-view'
 import { BrainstormReview } from 'renderer/components/brainstorm-review/review-layout'
 import { useBrainstormStore } from 'renderer/stores/use-brainstorm-store'
+import { useTabStore } from 'renderer/stores/use-tab-store'
 
 interface BrainstormScreenProps {
   projectId: string
   brainstormId: string
 }
 
-export function BrainstormScreen({ brainstormId }: Readonly<BrainstormScreenProps>) {
+export function BrainstormScreen({ projectId, brainstormId }: Readonly<BrainstormScreenProps>) {
   const session = useBrainstormStore((s) => s.sessions[brainstormId])
   const setView = useBrainstormStore((s) => s.setView)
+  const generateSpec = useBrainstormStore((s) => s.generateSpec)
+  const updateTabLabel = useTabStore((s) => s.updateTabLabel)
 
   if (!session) {
     return <div className="flex h-full items-center justify-center text-muted-foreground">Brainstorm session not found</div>
+  }
+
+  const handleGenerateSpec = () => {
+    generateSpec(brainstormId)
+    // Update tab label to match spec title
+    const updated = useBrainstormStore.getState().sessions[brainstormId]
+    if (updated?.spec) {
+      updateTabLabel(projectId, `brainstorm-${brainstormId}`, updated.spec.title)
+    }
   }
 
   if (session.view === 'session') {
@@ -23,8 +35,9 @@ export function BrainstormScreen({ brainstormId }: Readonly<BrainstormScreenProp
           showHeader: true,
           showInputBar: true,
           onSendMessage: () => {},
+          onGenerateSpec: handleGenerateSpec,
         }}
-        onBack={() => setView(brainstormId, 'review')}
+        onBack={session.spec ? () => setView(brainstormId, 'review') : undefined}
       />
     )
   }
