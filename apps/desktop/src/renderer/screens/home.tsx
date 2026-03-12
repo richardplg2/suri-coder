@@ -85,6 +85,8 @@ export function HomeScreen() {
             {MOCK_RUNNING.map((item) => (
               <div
                 key={item.id}
+                role="group"
+                aria-label={`${item.key}: ${item.title}`}
                 className="bento-cell relative overflow-hidden p-5"
               >
                 {/* Left accent bar */}
