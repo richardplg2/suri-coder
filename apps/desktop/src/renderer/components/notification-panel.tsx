@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   Bell,
   CheckCircle2,
@@ -48,9 +48,9 @@ function formatTime(dateStr: string): string {
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `${hours}h ago`
 
-  return new Date(dateStr).toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
+  return new Date(dateStr).toLocaleDateString([], {
+    month: 'short',
+    day: 'numeric',
   })
 }
 
@@ -157,14 +157,18 @@ function NotificationCard({
   )
 }
 
+// TODO: Replace mock data with real API hooks (useNotifications, useMarkRead, useMarkAllRead)
 export function NotificationPanel() {
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
   const [filter, setFilter] = useState<Filter>('all')
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications])
 
-  const filtered = filter === 'unread' ? notifications.filter((n) => !n.read) : notifications
-  const groups = groupByTime(filtered)
+  const filtered = useMemo(
+    () => (filter === 'unread' ? notifications.filter((n) => !n.read) : notifications),
+    [notifications, filter],
+  )
+  const groups = useMemo(() => groupByTime(filtered), [filtered])
 
   function markRead(id: string) {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
