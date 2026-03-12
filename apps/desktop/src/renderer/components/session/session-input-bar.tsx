@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import { ArrowUp, Shield } from 'lucide-react'
+import { ArrowUp, Shield, Sparkles } from 'lucide-react'
 
 interface SessionInputBarProps {
   onSend: (message: string) => void
   isRunning?: boolean
   statusText?: string
+  onGenerateSpec?: () => void
 }
 
 export function SessionInputBar({
   onSend,
   isRunning,
   statusText,
+  onGenerateSpec,
 }: Readonly<SessionInputBarProps>) {
   const [value, setValue] = useState('')
 
@@ -63,6 +65,17 @@ export function SessionInputBar({
             <ArrowUp className="size-4 text-white" />
           </button>
         </div>
+
+        {onGenerateSpec && (
+          <button
+            type="button"
+            onClick={onGenerateSpec}
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-[11px] font-bold text-accent cursor-pointer hover:bg-accent/20 transition-colors duration-150"
+          >
+            <Sparkles className="size-3.5" />
+            Generate Spec
+          </button>
+        )}
 
         <div className="flex items-center gap-1 shrink-0 rounded border border-[var(--success)]/20 bg-[var(--success)]/10 px-2 py-1 text-[10px] font-medium text-[var(--success)]">
           <Shield className="size-3" />
