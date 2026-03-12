@@ -1,65 +1,106 @@
 import { useState } from 'react'
-import { ScrollArea, StatusBadge } from '@agent-coding/ui'
-import { SessionMessage, type SessionMessageData } from './session-message'
-import { InspectorPanel } from './inspector-panel'
+import { ScrollArea } from '@agent-coding/ui'
+import { SessionHeader } from './session-header'
+import { TranscriptRow } from './transcript-row'
+import { QuizCard } from './quiz-card'
+import { DetailDrawer } from './detail-drawer'
+import { SessionInputBar } from './session-input-bar'
+import type { SessionData, SessionPanelConfig, TranscriptItem } from './types'
 
-export interface SessionData {
-  id: string
-  stepName: string
-  status: 'running' | 'completed' | 'failed'
-  duration?: string
-  tokenCount?: number
-  messages: SessionMessageData[]
+export type { SessionData, TranscriptItem, SessionPanelConfig } from './types'
+
+interface SessionPanelProps {
+  session: SessionData
+  config?: SessionPanelConfig
+  onBack?: () => void
 }
 
-interface SessionViewProps {
-  sessions: SessionData[]
-}
+export function SessionPanel({ session, config, onBack }: Readonly<SessionPanelProps>) {
+  const [selected, setSelected] = useState<TranscriptItem | null>(null)
 
-export function SessionView({ sessions }: SessionViewProps) {
-  const [selectedMessage, setSelectedMessage] = useState<SessionMessageData | null>(null)
+  const showHeader = config?.showHeader !== false
+  const showInputBar = config?.showInputBar !== false
 
   return (
-    <div className="flex h-full">
-      {/* Transcript */}
-      <ScrollArea className="flex-1">
-        <div className="py-2">
-          {sessions.map((session) => (
-            <div key={session.id} className="mb-4">
-              {/* Session header */}
-              <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-border/50 bg-background/80 backdrop-blur-sm px-4 py-2">
-                <StatusBadge status={session.status === 'running' ? 'running' : session.status === 'completed' ? 'passed' : 'failed'} />
-                <span className="text-xs font-semibold">{session.stepName}</span>
-                <span className="text-xs text-muted-foreground">Session #{session.id}</span>
-                {session.duration && (
-                  <span className="text-[11px] text-muted-foreground">{session.duration}</span>
-                )}
-                {session.tokenCount != null && (
-                  <span className="text-[11px] text-muted-foreground">{session.tokenCount.toLocaleString()} tokens</span>
-                )}
-              </div>
+    <div className="flex h-full flex-col overflow-hidden">
+      {showHeader && (
+        <SessionHeader
+          session={session}
+          onBack={onBack}
+          onStop={config?.onStop}
+          onPause={config?.onPause}
+        />
+      )}
 
-              {/* Messages */}
-              {session.messages.map((msg) => (
-                <SessionMessage
-                  key={msg.id}
-                  message={msg}
-                  isSelected={selectedMessage?.id === msg.id}
-                  onSelect={setSelectedMessage}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left: Transcript */}
+        <div className="w-[60%] flex flex-col border-r border-border">
+          <ScrollArea className="flex-1">
+            <div className="space-y-1 px-3 py-3">
+              {session.items.map((item) => (
+                <TranscriptItemRenderer
+                  key={item.id}
+                  item={item}
+                  selectedId={selected?.id ?? null}
+                  onSelect={setSelected}
+                  onQuizAnswer={config?.onQuizAnswer}
                 />
               ))}
             </div>
-          ))}
-        </div>
-      </ScrollArea>
+          </ScrollArea>
 
-      {/* Inspector */}
-      {selectedMessage && (
-        <InspectorPanel
-          message={selectedMessage}
-          onClose={() => setSelectedMessage(null)}
-        />
-      )}
+          {showInputBar && config?.onSendMessage && (
+            <SessionInputBar
+              onSend={config.onSendMessage}
+              isRunning={session.status === 'running'}
+              statusText={session.status === 'running' ? 'Agent is working...' : undefined}
+            />
+          )}
+        </div>
+
+        {/* Right: Detail Drawer */}
+        {selected && (
+          <DetailDrawer item={selected} onClose={() => setSelected(null)} />
+        )}
+      </div>
     </div>
+  )
+}
+
+interface TranscriptItemRendererProps {
+  item: TranscriptItem
+  selectedId: string | null
+  onSelect: (item: TranscriptItem) => void
+  onQuizAnswer?: (itemId: string, selectedIds: string[]) => void
+}
+
+function TranscriptItemRenderer({
+  item,
+  selectedId,
+  onSelect,
+  onQuizAnswer,
+}: Readonly<TranscriptItemRendererProps>) {
+  if (item.entry.kind === 'quiz') {
+    return <QuizCard item={item} onAnswer={onQuizAnswer} />
+  }
+
+  return (
+    <>
+      <TranscriptRow
+        item={item}
+        isSelected={item.id === selectedId}
+        onSelect={onSelect}
+      />
+      {item.entry.kind === 'subagent' &&
+        item.entry.children.map((child) => (
+          <TranscriptRow
+            key={child.id}
+            item={child}
+            isSelected={child.id === selectedId}
+            onSelect={onSelect}
+            indented
+          />
+        ))}
+    </>
   )
 }
