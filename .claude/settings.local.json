@@ -18,7 +18,10 @@
       "mcp__stitch__generate_screen_from_text",
       "Skill(react-components)",
       "Skill(shadcn-ui)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:contribution.usercontent.google.com)",
+      "mcp__stitch__get_project"
     ]
   },
   "enableAllProjectMcpServers": true,

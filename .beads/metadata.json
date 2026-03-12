@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "agent_coding",
+  "project_id": "7ef0227b-ff30-4dfa-8da9-02e754bb643e"
+}

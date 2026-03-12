@@ -162,6 +162,22 @@
       "y": 32030,
       "width": 2560,
       "height": 2454
+    },
+    "brainstorm-quiz-v2": {
+      "id": "7c707ae7acd84b88b0a6bc1eb6f62d13",
+      "sourceScreen": "projects/12778645771598198040/screens/7c707ae7acd84b88b0a6bc1eb6f62d13",
+      "x": 0,
+      "y": 31941,
+      "width": 2560,
+      "height": 3308
+    },
+    "agent-session-live": {
+      "id": "0dce58bed1824f148e819bb4c52e8e25",
+      "sourceScreen": "projects/12778645771598198040/screens/0dce58bed1824f148e819bb4c52e8e25",
+      "x": 0,
+      "y": 33595,
+      "width": 2560,
+      "height": 6234
     }
   }
 }

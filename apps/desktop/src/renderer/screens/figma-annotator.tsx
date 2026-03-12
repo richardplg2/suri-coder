@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import {
   SplitPane, SplitPanePanel, SplitPaneHandle,
   Button, Input, Badge, Spinner,
@@ -16,6 +16,7 @@ import type { DesignEntry } from 'renderer/types/figma'
 import { useBrainstormStart } from 'renderer/hooks/queries/use-brainstorm'
 import { generateFigmaMarkdown } from 'renderer/lib/figma-export'
 import { useTabStore } from 'renderer/stores/use-tab-store'
+import { useStatusBarStore } from 'renderer/stores/use-status-bar-store'
 
 function flattenNodes(node: FigmaNode, depth: number, result: FlatNode[]) {
   if (!node.absoluteBoundingBox) return
@@ -186,6 +187,34 @@ export function FigmaAnnotatorScreen({ projectId }: FigmaAnnotatorScreenProps) {
   const isConnected = figma.state.status === 'connected'
   const errorMessage = figma.state.error || loadError
 
+  // Register contextual status bar items
+  const setItem = useStatusBarStore((s) => s.setItem)
+  const removeItem = useStatusBarStore((s) => s.removeItem)
+
+  useEffect(() => {
+    setItem({
+      id: 'figma-connection',
+      content: (
+        <>
+          <span className={`size-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-zinc-500'}`} />
+          <span>Figma: {isConnected ? 'Connected' : 'Disconnected'}</span>
+        </>
+      ),
+      order: 10,
+    })
+    setItem({
+      id: 'figma-designs',
+      content: (
+        <span>{designEntries.length} design{designEntries.length !== 1 ? 's' : ''} loaded</span>
+      ),
+      order: 11,
+    })
+    return () => {
+      removeItem('figma-connection')
+      removeItem('figma-designs')
+    }
+  }, [isConnected, designEntries.length, setItem, removeItem])
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -335,17 +364,6 @@ export function FigmaAnnotatorScreen({ projectId }: FigmaAnnotatorScreenProps) {
         </div>
       )}
 
-      {/* Footer */}
-      <div className="flex h-8 shrink-0 items-center gap-2 border-t border-border px-4 text-[11px] text-muted-foreground">
-        <span
-          className={`size-2 rounded-full ${
-            isConnected ? 'bg-green-500' : 'bg-zinc-500'
-          }`}
-        />
-        <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
-        <span className="mx-1">|</span>
-        <span>{designEntries.length} design{designEntries.length !== 1 ? 's' : ''} loaded</span>
-      </div>
     </div>
   )
 }
