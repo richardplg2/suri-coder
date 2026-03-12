@@ -53,6 +53,7 @@ export function SessionPanel({ session, config, onBack }: Readonly<SessionPanelP
               onSend={config?.onSendMessage ?? (() => {})}
               isRunning={session.status === 'running'}
               statusText={session.status === 'running' ? 'Agent is working...' : undefined}
+              onGenerateSpec={config?.onGenerateSpec}
             />
           )}
         </div>

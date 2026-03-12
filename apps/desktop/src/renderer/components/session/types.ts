@@ -59,4 +59,5 @@ export interface SessionPanelConfig {
   onQuizAnswer?: (itemId: string, selectedIds: string[]) => void
   onStop?: () => void
   onPause?: () => void
+  onGenerateSpec?: () => void
 }
