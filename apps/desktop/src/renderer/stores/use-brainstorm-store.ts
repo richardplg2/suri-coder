@@ -206,12 +206,7 @@ export const useBrainstormStore = create<BrainstormStore>()((set, get) => ({
       projectId,
       title: 'New Brainstorm',
       view: 'session',
-      sessionData: {
-        id,
-        title: 'New Brainstorm Session',
-        status: 'running',
-        items: [],
-      },
+      sessionData: { ...MOCK_SESSION_DATA, id },
       spec: null,
       comments: [],
       ticketDraft: { title: '', type: 'feature', priority: 'medium' },
