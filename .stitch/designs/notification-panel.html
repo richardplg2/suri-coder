@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suri Coder - Notifications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0A84FF",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1923",
+                        "panel-bg": "rgba(30, 30, 30, 0.72)",
+                        "panel-border": "rgba(255, 255, 255, 0.08)",
+                        "card-bg": "rgba(255, 255, 255, 0.05)",
+                        "card-border": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .backdrop-blur-panel {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 overflow-hidden min-h-screen relative">
+<!-- Dimmed Background -->
+<div class="absolute inset-0 bg-black/20 backdrop-blur-[2px] z-10"></div>
+<!-- Notification Panel -->
+<div class="absolute right-0 top-0 bottom-0 w-[380px] bg-panel-bg backdrop-blur-panel border-l border-panel-border z-20 flex flex-col shadow-2xl">
+<!-- Header -->
+<div class="px-5 py-4 border-b border-panel-border shrink-0">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-xl font-semibold">Notifications</h2>
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="px-3 py-1 rounded-full bg-card-bg border border-card-border text-sm font-medium">All</button>
+<button class="px-3 py-1 rounded-full text-slate-400 hover:bg-card-bg border border-transparent hover:border-card-border text-sm font-medium transition-all">Unread</button>
+</div>
+<button class="text-primary text-sm font-medium hover:text-primary/80 transition-colors">Mark all read</button>
+</div>
+</div>
+<!-- Notification List -->
+<div class="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+<!-- TODAY -->
+<div class="space-y-3">
+<h3 class="text-xs font-semibold text-slate-400 px-1 tracking-wider">TODAY</h3>
+<!-- Card 1 -->
+<div class="relative bg-card-bg border border-card-border rounded-lg p-3 hover:bg-white/[0.08] transition-colors cursor-pointer group">
+<div class="absolute left-2 top-4 w-2 h-2 rounded-full bg-primary"></div>
+<div class="pl-4 flex items-start justify-between gap-3">
+<div class="flex gap-3">
+<div class="mt-0.5 text-green-500">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div>
+<h4 class="text-sm font-semibold mb-0.5">Build step completed</h4>
+<p class="text-xs text-slate-400">Project Workflow Manager...</p>
+</div>
+</div>
+<span class="text-[11px] text-slate-500 whitespace-nowrap mt-1 group-hover:text-slate-400">2m ago</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="relative bg-card-bg border border-card-border rounded-lg p-3 hover:bg-white/[0.08] transition-colors cursor-pointer group">
+<div class="absolute left-2 top-4 w-2 h-2 rounded-full bg-primary"></div>
+<div class="pl-4 flex items-start justify-between gap-3">
+<div class="flex gap-3 w-full">
+<div class="mt-0.5 text-yellow-500">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div class="w-full">
+<div class="flex justify-between items-start w-full">
+<h4 class="text-sm font-semibold mb-0.5">Approval required</h4>
+<span class="text-[11px] text-slate-500 whitespace-nowrap mt-1 group-hover:text-slate-400">1h ago</span>
+</div>
+<p class="text-xs text-slate-400 mb-2">Deploy to production...</p>
+<button class="px-3 py-1.5 bg-primary text-white text-xs font-medium rounded hover:bg-primary/90 transition-colors w-fit">
+                                    Approve
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="relative bg-card-bg border border-card-border rounded-lg p-3 hover:bg-white/[0.08] transition-colors cursor-pointer group">
+<div class="absolute left-2 top-4 w-2 h-2 rounded-full bg-primary"></div>
+<div class="pl-4 flex items-start justify-between gap-3">
+<div class="flex gap-3 w-full">
+<div class="mt-0.5 text-red-500">
+<span class="material-symbols-outlined text-[20px]">cancel</span>
+</div>
+<div class="w-full">
+<div class="flex justify-between items-start w-full">
+<h4 class="text-sm font-semibold mb-0.5">Test step failed</h4>
+<span class="text-[11px] text-slate-500 whitespace-nowrap mt-1 group-hover:text-slate-400">3h ago</span>
+</div>
+<p class="text-xs text-slate-400 mb-2">Integration tests failed...</p>
+<button class="px-3 py-1.5 bg-white/10 text-slate-200 border border-white/10 text-xs font-medium rounded hover:bg-white/20 transition-colors w-fit">
+                                    View Logs
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- YESTERDAY -->
+<div class="space-y-3">
+<h3 class="text-xs font-semibold text-slate-400 px-1 tracking-wider">YESTERDAY</h3>
+<!-- Card 4 -->
+<div class="relative bg-card-bg border border-card-border rounded-lg p-3 hover:bg-white/[0.08] transition-colors cursor-pointer group opacity-80">
+<div class="pl-4 flex items-start justify-between gap-3">
+<div class="flex gap-3">
+<div class="mt-0.5 text-green-500">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div>
+<h4 class="text-sm font-semibold mb-0.5">Workflow completed</h4>
+</div>
+</div>
+<span class="text-[11px] text-slate-500 whitespace-nowrap mt-1 group-hover:text-slate-400">4:32 PM</span>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="relative bg-card-bg border border-card-border rounded-lg p-3 hover:bg-white/[0.08] transition-colors cursor-pointer group opacity-80">
+<div class="pl-4 flex items-start justify-between gap-3">
+<div class="flex gap-3 w-full">
+<div class="mt-0.5 text-primary">
+<span class="material-symbols-outlined text-[20px]">info</span>
+</div>
+<div class="w-full">
+<div class="flex justify-between items-start w-full">
+<h4 class="text-sm font-semibold mb-0.5">Code review requested</h4>
+<span class="text-[11px] text-slate-500 whitespace-nowrap mt-1 group-hover:text-slate-400">10:15 AM</span>
+</div>
+<p class="text-xs text-slate-400 mb-2">PR #42...</p>
+<button class="px-3 py-1.5 bg-primary text-white text-xs font-medium rounded hover:bg-primary/90 transition-colors w-fit">
+                                    Review
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- EARLIER -->
+<div class="space-y-3 pb-8">
+<h3 class="text-xs font-semibold text-slate-400 px-1 tracking-wider">EARLIER</h3>
+<div class="relative bg-card-bg border border-card-border rounded-lg p-3 hover:bg-white/[0.08] transition-colors cursor-pointer group opacity-70">
+<div class="pl-4 flex items-start justify-between gap-3">
+<div class="flex gap-3 w-full">
+<div class="mt-0.5 text-slate-400">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</div>
+<div class="w-full">
+<div class="flex justify-between items-start w-full">
+<h4 class="text-sm font-semibold mb-0.5">Welcome to Suri Coder</h4>
+<span class="text-[11px] text-slate-500 whitespace-nowrap mt-1">Oct 12</span>
+</div>
+<p class="text-xs text-slate-400">Get started with your first project.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>
