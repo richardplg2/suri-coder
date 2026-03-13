@@ -1,0 +1,73 @@
+<h2>Implementation Approach</h2>
+<p class="subtitle">Cách tổ chức code và refactor từ flow hiện tại sang flow mới</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Incremental Refactor</h3>
+      <p>Giữ nguyên structure hiện tại, mở rộng dần:</p>
+      <ul style="font-size:13px;margin-top:8px;color:#aaa;">
+        <li>Mở rộng <code>DesignEntry</code> → thêm <code>frames: FrameEntry[]</code>, mỗi frame có notes + tags</li>
+        <li>Refactor <code>figma-annotator.tsx</code> — thêm view mode state (grid/detail), update sidebar thành tree</li>
+        <li>Tách annotations-panel thành 2 component: <code>DesignTreeSidebar</code> + <code>FrameAnnotationPanel</code></li>
+        <li>Update <code>handleLoadDesign</code> — thêm smart detection logic</li>
+      </ul>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Ít breaking changes, build on existing code</li>
+          <li>Có thể ship từng phần</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>File figma-annotator.tsx sẽ phình to</li>
+          <li>State management phức tạp hơn trong 1 file</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Store-based Architecture (Recommended ⭐)</h3>
+      <p>Extract state vào Zustand store riêng, tách UI thành focused components:</p>
+      <ul style="font-size:13px;margin-top:8px;color:#aaa;">
+        <li>Tạo <code>use-figma-design-store.ts</code> — quản lý designs, frames, annotations, view mode, selection</li>
+        <li>Data model mới: <code>Design → FrameEntry[] → { notes, tags[] }</code></li>
+        <li>Tách UI: <code>DesignTreeSidebar</code>, <code>FrameGrid</code>, <code>FrameDetailView</code>, <code>FrameAnnotationPanel</code>, <code>TagPicker</code></li>
+        <li><code>figma-annotator.tsx</code> trở thành layout shell, compose các components</li>
+      </ul>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Clean separation: state logic tách khỏi UI</li>
+          <li>Components nhỏ, dễ test và maintain</li>
+          <li>Consistent với pattern đã dùng (useTabStore, useStatusBarStore)</li>
+          <li>Dễ extend sau này (persistence, undo/redo...)</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Nhiều files mới hơn approach A</li>
+          <li>Cần refactor nhiều hơn upfront</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Full Rewrite</h3>
+      <p>Viết lại toàn bộ figma-annotator screen từ đầu với architecture mới.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Không bị ràng buộc bởi code cũ</li>
+          <li>Clean architecture từ đầu</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Mất hết code đang hoạt động tốt (connection, canvas, tree)</li>
+          <li>Rủi ro regression cao</li>
+          <li>Tốn thời gian nhất</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+</div>

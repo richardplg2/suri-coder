@@ -7,7 +7,7 @@
         "--access-mode=unrestricted"
       ],
       "env": {
-        "DATABASE_URI": "postgresql://postgres:postgres@localhost:5432/agent_coding"
+        "DATABASE_URI": "postgresql://postgres:postgres@localhost:5433/agent_coding"
       }
     }
   }

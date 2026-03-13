@@ -1,0 +1,79 @@
+<h2>Cách lấy nodes khi bấm "Load Design"?</h2>
+<p class="subtitle">Chọn cách phù hợp nhất với workflow Figma → App</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Multi-select từ Figma</h3>
+      <p>User chọn nhiều frames trong Figma → bấm Load Design → app import tất cả nodes đang selected thành 1 Design.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>User chủ động chọn chính xác frames nào muốn import</li>
+            <li>Linh hoạt — có thể chọn frames từ nhiều nơi khác nhau</li>
+            <li>Đơn giản để implement (Figma API đã hỗ trợ multi-selection)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Phải multi-select thủ công trong Figma (Ctrl/Cmd+click)</li>
+            <li>Dễ miss frame nếu có nhiều</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Select parent → auto import children frames</h3>
+      <p>User chọn 1 parent node (page/section) → bấm Load Design → app tự lấy tất cả direct children frames.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Nhanh — chỉ cần select 1 node là import cả batch</li>
+            <li>Phù hợp khi design đã tổ chức gọn theo section/page</li>
+            <li>Không sợ miss frame</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Import hết children — có thể lấy cả frames không cần thiết</li>
+            <li>Phụ thuộc vào cách tổ chức file Figma</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Kết hợp A + B (Recommended ⭐)</h3>
+      <p>App kiểm tra selection: nếu user chọn <strong>nhiều nodes</strong> → import tất cả (như A). Nếu chọn <strong>1 node có children frames</strong> → hỏi "Import children frames?" hoặc auto expand.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Linh hoạt nhất — hỗ trợ cả 2 workflow</li>
+            <li>Smart behavior: select 1 parent → auto expand, select nhiều → import trực tiếp</li>
+            <li>UX tự nhiên, user không cần nhớ rule</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Phức tạp hơn để implement</li>
+            <li>Cần logic xác định khi nào expand vs import trực tiếp</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -24,7 +24,8 @@
       "mcp__stitch__get_project",
       "mcp__stitch__list_screens",
       "Bash(npm exec:*)",
-      "WebFetch(domain:lh3.googleusercontent.com)"
+      "WebFetch(domain:lh3.googleusercontent.com)",
+      "mcp__plugin_claude-mem_mcp-search__smart_outline"
     ]
   },
   "enableAllProjectMcpServers": true,

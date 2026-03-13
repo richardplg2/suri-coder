@@ -1,0 +1,80 @@
+<h2>Navigate giữa node frames trong 1 Design?</h2>
+<p class="subtitle">Sau khi load 1 Design có nhiều frames, user sẽ duyệt chúng như thế nào</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Sidebar list + Canvas đơn</h3>
+      <p>Panel trái liệt kê tất cả node frames dạng thumbnail/list. Click 1 frame → canvas giữa hiển thị frame đó + panel phải hiện annotation cho frame đang chọn.</p>
+      <div style="margin-top:12px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.05);font-family:monospace;font-size:12px;">
+        ┌─────────┬──────────────────┬──────────┐<br>
+        │ Designs │                  │ Notes    │<br>
+        │ ├ Frame1│   Canvas:        │ [tags]   │<br>
+        │ ├ Frame2│   Frame1 image   │ text...  │<br>
+        │ └ Frame3│                  │          │<br>
+        └─────────┴──────────────────┴──────────┘
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Quen thuộc — giống Figma layers panel</li>
+          <li>Canvas lớn, xem chi tiết từng frame</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Chỉ thấy 1 frame tại 1 thời điểm</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Grid overview + Detail view</h3>
+      <p>Mặc định hiển thị grid tất cả frames (thumbnails). Click 1 frame → zoom vào detail view (canvas + layers + annotation). Có nút back để quay lại grid.</p>
+      <div style="margin-top:12px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.05);font-family:monospace;font-size:12px;">
+        Grid view:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Detail view:<br>
+        ┌──────────────────┐&nbsp;&nbsp;&nbsp;┌─────┬──────────┬──────┐<br>
+        │ [img1] [img2]    │ → │Layer│ Canvas   │Notes │<br>
+        │ [img3] [img4]    │&nbsp;&nbsp;&nbsp;│     │ Frame1   │      │<br>
+        └──────────────────┘&nbsp;&nbsp;&nbsp;└─────┴──────────┴──────┘
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Tổng quan tốt — thấy hết frames cùng lúc</li>
+          <li>Dễ so sánh visual giữa các frames</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Thêm 1 bước navigate (grid → detail → back)</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Kết hợp: Sidebar tree + Grid/Detail toggle (Recommended ⭐)</h3>
+      <p>Sidebar trái hiện tree: Designs → Node frames. Panel giữa có toggle giữa <strong>Grid view</strong> (overview tất cả frames) và <strong>Detail view</strong> (canvas + layers cho 1 frame). Panel phải: annotations cho frame đang active.</p>
+      <div style="margin-top:12px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.05);font-family:monospace;font-size:12px;">
+        ┌──────────┬──────────────────┬──────────┐<br>
+        │ Designs  │ [Grid] [Detail]  │ Annotate │<br>
+        │ ▼ Design1│                  │          │<br>
+        │&nbsp;&nbsp; Frame1 │ (grid or canvas)  │ notes    │<br>
+        │&nbsp;&nbsp; Frame2 │                  │ [tags]   │<br>
+        │ ▼ Design2│                  │          │<br>
+        └──────────┴──────────────────┴──────────┘
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Best of both — overview khi cần, detail khi annotate</li>
+          <li>Tree sidebar cho phép navigate nhanh giữa designs + frames</li>
+          <li>Không mất context khi switch view</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Phức tạp nhất để implement</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+</div>
