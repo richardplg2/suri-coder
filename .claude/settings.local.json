@@ -25,7 +25,13 @@
       "mcp__stitch__list_screens",
       "Bash(npm exec:*)",
       "WebFetch(domain:lh3.googleusercontent.com)",
-      "mcp__plugin_claude-mem_mcp-search__smart_outline"
+      "mcp__plugin_claude-mem_mcp-search__smart_outline",
+      "Bash(which ruff:*)",
+      "Bash(cd:*)",
+      "Bash(/home/richard/workspace/personal/suri-coder/.worktrees/figma-multi-design/node_modules/.bin/biome --version 2>&1)",
+      "Bash(/home/richard/workspace/personal/suri-coder/.worktrees/figma-multi-design/node_modules/.bin/biome check:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

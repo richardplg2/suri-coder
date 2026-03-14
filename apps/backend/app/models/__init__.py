@@ -1,5 +1,4 @@
 from app.models.agent_config import AgentConfig, AgentSkill
-from app.models.brainstorm_message import BrainstormMessage
 from app.models.figma import FigmaNode, FigmaTask
 from app.models.github_account import UserGitHubAccount
 from app.models.notification import Notification
@@ -43,5 +42,4 @@ __all__ = [
     "TicketSpec",
     "TicketSpecReference",
     "Notification",
-    "BrainstormMessage",
 ]
