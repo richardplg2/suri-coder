@@ -1,6 +1,6 @@
 import uuid
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.enums import SessionStatus
@@ -75,3 +75,47 @@ async def test_create_session_raises_on_concurrency_conflict(manager, mock_db):
         )
 
     assert exc_info.value.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_start_session_brainstorm(manager, mock_db):
+    """start_session transitions to running → waiting_input and emits an event."""
+    session_id = uuid.uuid4()
+    agent_config_id = uuid.uuid4()
+
+    session = MagicMock(spec=Session)
+    session.id = session_id
+    session.status = SessionStatus.created
+    session.agent_config_id = agent_config_id
+
+    agent_config = MagicMock(spec=AgentConfig)
+    agent_config.agent_type = "brainstorm"
+    agent_config.system_prompt = "sys"
+    agent_config.output_format = None
+    agent_config.mcp_servers = None
+
+    mock_db.get.side_effect = lambda model, id: (
+        session if model == Session else agent_config
+    )
+    mock_db.execute.return_value = MagicMock(scalars=MagicMock(return_value=[]))
+
+    fake_result = MagicMock()
+    fake_result.output = '{"message_type": "quiz", "content": "Q?"}'
+
+    # Patch the claude_agent_sdk imports inside SessionManager
+    with patch("app.services.session_manager.ClaudeSDKClient") as mock_client_cls, \
+         patch("app.services.session_manager.ClaudeAgentOptions", MagicMock()):
+        mock_client = AsyncMock()
+        mock_client.query = AsyncMock(return_value=fake_result)
+        mock_client_cls.return_value = mock_client
+
+        import app.services.strategies.brainstorm  # noqa — triggers registration
+        from app.services.strategies.registry import STRATEGY_REGISTRY
+        with patch.dict(
+            "app.services.strategies.registry.STRATEGY_REGISTRY",
+            STRATEGY_REGISTRY,
+        ):
+            await manager.start_session(session_id, "Tell me about X")
+
+    mock_client.query.assert_called_once_with("Tell me about X")
+    manager.redis.publish.assert_called()

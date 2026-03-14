@@ -16,6 +16,12 @@ from app.models.enums import EventType, SessionStatus
 from app.models.session import Session
 from app.models.session_event import SessionEvent
 
+try:
+    from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient
+except ImportError:  # SDK not installed in dev/test
+    ClaudeAgentOptions = None  # type: ignore[assignment,misc]
+    ClaudeSDKClient = None  # type: ignore[assignment,misc]
+
 logger = logging.getLogger(__name__)
 
 
@@ -112,25 +118,121 @@ class SessionManager:
         )
         return list(result.scalars().all())
 
-    async def start_session(self, session_id: uuid.UUID, initial_prompt: str) -> None:
-        """Start SDK execution. Implemented by Phase 1b (brainstorm) and 1c (backend).
+    async def start_session(
+        self, session_id: uuid.UUID, initial_prompt: str
+    ) -> None:
+        """Start SDK execution for a session. Runs as a background task."""
+        from app.services.strategies.registry import get_strategy
 
-        NOTE: Called via BackgroundTasks — NotImplementedError will be silently
-        swallowed until a strategy implementation replaces this stub.
-        """
-        raise NotImplementedError("start_session requires a strategy implementation")
+        session = await self._get_or_404(session_id)
+        agent_config = await self.db.get(AgentConfig, session.agent_config_id)
+        if agent_config is None:
+            raise HTTPException(
+                status_code=500, detail="AgentConfig missing for session"
+            )
+
+        strategy = get_strategy(agent_config.agent_type)
+        await self._transition(session, SessionStatus.running)
+        await self.db.flush()
+
+        try:
+            if strategy.get_sdk_type() == "claude_agent":
+                await self._run_claude_agent(
+                    session, agent_config, strategy, initial_prompt
+                )
+            else:
+                await self._run_claude_code(
+                    session, agent_config, strategy, initial_prompt
+                )
+
+            await strategy.on_session_complete(session, self.db)
+            # Brainstorm stays in waiting_input after each query;
+            # backend agent transitions to completed when SDK finishes
+            if session.status == SessionStatus.running:
+                await self._transition(session, SessionStatus.completed)
+                session.finished_at = datetime.now(UTC)
+
+        except Exception as exc:
+            logger.exception("Session %s failed: %s", session_id, exc)
+            session.error_message = str(exc)
+            session.finished_at = datetime.now(UTC)
+            await self._transition(session, SessionStatus.failed)
+        finally:
+            self._clients.pop(session_id, None)
+            await self.db.commit()
 
     async def send_message(self, session_id: uuid.UUID, content: str) -> None:
-        """Send follow-up message into multi-turn session. Implemented in Phase 1b.
+        """Send a follow-up message to a waiting_input session."""
+        from app.services.strategies.registry import get_strategy
 
-        NOTE: Called via BackgroundTasks — NotImplementedError will be silently
-        swallowed until a strategy implementation replaces this stub.
-        """
-        raise NotImplementedError("send_message requires a strategy implementation")
+        session = await self._get_or_404(session_id)
+        if session.status != SessionStatus.waiting_input:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Session is not waiting for input (status: {session.status})",
+            )
+
+        agent_config = await self.db.get(AgentConfig, session.agent_config_id)
+        strategy = get_strategy(agent_config.agent_type)
+
+        # Record user message event
+        await self._emit_event(
+            session, EventType.message, content={"text": content}, role="user"
+        )
+
+        await self._transition(session, SessionStatus.running)
+        await self.db.flush()
+
+        try:
+            if strategy.get_sdk_type() == "claude_agent":
+                await self._run_claude_agent(session, agent_config, strategy, content)
+            else:
+                await self._run_claude_code(session, agent_config, strategy, content)
+
+            # After sending a message, brainstorm goes back to waiting_input
+            if session.status == SessionStatus.running:
+                await self._transition(session, SessionStatus.waiting_input)
+                await self._save_checkpoint(session)
+
+        except Exception as exc:
+            logger.exception("Session %s send_message failed: %s", session_id, exc)
+            session.error_message = str(exc)
+            await self._transition(session, SessionStatus.failed)
+        finally:
+            await self.db.commit()
 
     # -------------------------------------------------------------------------
     # Internal helpers
     # -------------------------------------------------------------------------
+
+    async def _run_claude_agent(
+        self,
+        session: Session,
+        agent_config: AgentConfig,
+        strategy: Any,
+        prompt: str,
+    ) -> None:
+        """Execute a single claude_agent_sdk query."""
+        options = strategy.build_sdk_options(session, agent_config)
+        client = ClaudeSDKClient(ClaudeAgentOptions(**options))
+        self._clients[session.id] = client
+
+        result = await client.query(prompt)
+        await self._process_event(session, strategy, result)
+
+        # Transition to waiting_input after single-turn completes
+        await self._transition(session, SessionStatus.waiting_input)
+        await self._save_checkpoint(session)
+
+    async def _run_claude_code(
+        self,
+        session: Session,
+        agent_config: AgentConfig,
+        strategy: Any,
+        prompt: str,
+    ) -> None:
+        """Execute a claude_code_sdk streaming run (implemented in Phase 1c)."""
+        raise NotImplementedError("claude_code SDK integration added in Phase 1c")
 
     async def _check_concurrency(
         self, agent_config: AgentConfig, project_id: uuid.UUID
