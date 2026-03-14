@@ -1,7 +1,8 @@
 import { ScrollArea, Badge } from '@agent-coding/ui'
 import { cn } from '@agent-coding/ui'
 import { ChevronDown, ChevronRight, Trash2, Image } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { TYPE_BADGE_COLORS } from 'renderer/types/figma'
 import type { Design } from 'renderer/types/figma'
 
 interface DesignTreeSidebarProps {
@@ -11,13 +12,6 @@ interface DesignTreeSidebarProps {
   readonly onSelectDesign: (id: string) => void
   readonly onSelectFrame: (designId: string, frameId: string) => void
   readonly onRemoveDesign: (id: string) => void
-}
-
-const TYPE_BADGE_COLORS: Record<string, string> = {
-  FRAME: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  COMPONENT: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  INSTANCE: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
-  GROUP: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
 }
 
 export function DesignTreeSidebar({
@@ -31,6 +25,16 @@ export function DesignTreeSidebar({
   const [expandedDesigns, setExpandedDesigns] = useState<Set<string>>(
     () => new Set(designs.map((d) => d.id)),
   )
+
+  useEffect(() => {
+    setExpandedDesigns((prev) => {
+      const next = new Set(prev)
+      for (const d of designs) {
+        if (!next.has(d.id)) next.add(d.id)
+      }
+      return next
+    })
+  }, [designs])
 
   const toggleExpand = (id: string) => {
     setExpandedDesigns((prev) => {

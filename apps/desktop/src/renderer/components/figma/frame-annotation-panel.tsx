@@ -2,14 +2,8 @@
 import { ScrollArea, Badge, Textarea } from '@agent-coding/ui'
 import { cn } from '@agent-coding/ui'
 import { TagPicker } from 'renderer/components/figma/tag-picker'
+import { TYPE_BADGE_COLORS } from 'renderer/types/figma'
 import type { FrameEntry, Tag } from 'renderer/types/figma'
-
-const TYPE_BADGE_COLORS: Record<string, string> = {
-  FRAME: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  COMPONENT: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  INSTANCE: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
-  GROUP: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-}
 
 interface FrameAnnotationPanelProps {
   readonly frame: FrameEntry | null
