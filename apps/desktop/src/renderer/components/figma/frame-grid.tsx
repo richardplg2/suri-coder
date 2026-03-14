@@ -16,7 +16,7 @@ export function FrameGrid({
   onSelectFrame,
 }: FrameGridProps) {
   return (
-    <div className="grid grid-cols-3 gap-3 p-4">
+    <div className="bento-grid-3 p-4">
       {frames.map((frame) => {
         const isActive = frame.id === activeFrameId
         const hasNotes = frame.annotation.notes.length > 0
@@ -27,11 +27,10 @@ export function FrameGrid({
             type="button"
             onClick={() => onSelectFrame(frame.id)}
             className={cn(
-              'flex flex-col rounded-xl border p-4 text-left transition-all duration-150 cursor-pointer',
-              'bg-surface-elevated hover:shadow-md',
+              'bento-cell flex flex-col border p-4 text-left transition-all duration-150 cursor-pointer',
               isActive
                 ? 'border-accent shadow-md'
-                : 'border-border hover:border-border',
+                : 'border-border hover:shadow-md',
             )}
           >
             {/* Thumbnail */}
