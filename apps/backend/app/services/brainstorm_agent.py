@@ -115,23 +115,44 @@ def build_initial_prompt(
 
     if source == "figma" and figma_data:
         parts.append("## Design Context (from Figma)\n")
+
+        # Legacy flat fields
         if figma_data.get("file_name"):
             parts.append(f"**File:** {figma_data['file_name']}")
         if figma_data.get("page_name"):
             parts.append(f"**Page:** {figma_data['page_name']}")
-        if figma_data.get("node_names"):
+        if figma_data.get("figma_url"):
+            parts.append(f"**Figma URL:** {figma_data['figma_url']}")
+        if figma_data.get("description"):
+            parts.append(f"**Description:** {figma_data['description']}")
+
+        # New hierarchical designs → frames structure
+        designs = figma_data.get("designs", [])
+        if designs:
+            for design in designs:
+                parts.append(f"\n### Design: {design.get('name', 'Unnamed')}")
+                frames = design.get("frames", [])
+                for frame in frames:
+                    parts.append(
+                        f"\n#### Frame: {frame.get('name', 'Unnamed')} "
+                        f"({frame.get('type', 'FRAME')})"
+                    )
+                    tags = frame.get("tags", [])
+                    if tags:
+                        parts.append(f"**Tags:** {', '.join(tags)}")
+                    notes = frame.get("notes", "")
+                    if notes:
+                        parts.append(f"**Notes:** {notes}")
+                    markdown = frame.get("markdown", "")
+                    if markdown:
+                        parts.append(f"\n{markdown}")
+        elif figma_data.get("node_names"):
+            # Legacy: flat node_names list
             parts.append(
                 "**Selected elements:** "
                 f"{', '.join(figma_data['node_names'])}"
             )
-        if figma_data.get("description"):
-            parts.append(
-                f"**Description:** {figma_data['description']}"
-            )
-        if figma_data.get("figma_url"):
-            parts.append(
-                f"**Figma URL:** {figma_data['figma_url']}"
-            )
+
         parts.append("")
         parts.append(
             "Use this design context to inform your questions. "
