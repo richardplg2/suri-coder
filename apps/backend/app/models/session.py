@@ -37,14 +37,18 @@ class Session(UUIDMixin, Base):
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # New fields
-    project_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("projects.id", ondelete="CASCADE"), nullable=True
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        # DB nullable for Phase 1a safety; always set in app; NOT NULL in Phase 1b
+        nullable=True,
     )
     ticket_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("tickets.id", ondelete="SET NULL"), nullable=True
     )
-    agent_config_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("agent_configs.id", ondelete="RESTRICT"), nullable=True
+    agent_config_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("agent_configs.id", ondelete="RESTRICT"),
+        # DB nullable for Phase 1a safety; always set in app; NOT NULL in Phase 1b
+        nullable=True,
     )
     parent_session_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("sessions.id", ondelete="SET NULL"), nullable=True

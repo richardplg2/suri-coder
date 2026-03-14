@@ -114,11 +114,18 @@ class SessionManager:
 
     async def start_session(self, session_id: uuid.UUID, initial_prompt: str) -> None:
         """Start SDK execution. Implemented by Phase 1b (brainstorm) and 1c (backend).
+
+        NOTE: Called via BackgroundTasks — NotImplementedError will be silently
+        swallowed until a strategy implementation replaces this stub.
         """
         raise NotImplementedError("start_session requires a strategy implementation")
 
     async def send_message(self, session_id: uuid.UUID, content: str) -> None:
-        """Send follow-up message into multi-turn session. Implemented in Phase 1b."""
+        """Send follow-up message into multi-turn session. Implemented in Phase 1b.
+
+        NOTE: Called via BackgroundTasks — NotImplementedError will be silently
+        swallowed until a strategy implementation replaces this stub.
+        """
         raise NotImplementedError("send_message requires a strategy implementation")
 
     # -------------------------------------------------------------------------
@@ -245,6 +252,7 @@ class SessionManager:
         self, events: list[SessionEvent]
     ) -> list[dict]:
         """Convert session events to Claude API conversation format."""
+        # TODO(Phase 1b): include tool_call/tool_result events in history
         history = []
         for event in events:
             is_message = event.event_type == EventType.message
@@ -256,6 +264,8 @@ class SessionManager:
         return history
 
     def _next_sequence(self, session_id: uuid.UUID) -> int:
+        # TODO(Phase 1b): Replace with DB-side sequence (MAX(sequence)+1)
+        # to support multiple workers
         n = self._sequences.get(session_id, 0)
         self._sequences[session_id] = n + 1
         return n
