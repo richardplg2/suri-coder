@@ -7,6 +7,7 @@ from app.models.project import Project, ProjectMember
 from app.models.project_repository import ProjectRepository
 from app.models.review import FileReview, ReviewSession
 from app.models.session import Session, SessionMessage
+from app.models.session_event import SessionEvent
 from app.models.skill import Skill
 from app.models.step_review import StepReview
 from app.models.testing import TestResult, TestRun
@@ -29,6 +30,7 @@ __all__ = [
     "WorkflowStepDependency",
     "Session",
     "SessionMessage",
+    "SessionEvent",
     "FigmaTask",
     "FigmaNode",
     "TestRun",
