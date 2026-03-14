@@ -50,10 +50,26 @@ class ReviewStatus(str, enum.Enum):
 
 
 class SessionStatus(str, enum.Enum):
-    running = "running"
-    completed = "completed"
-    failed = "failed"
-    cancelled = "cancelled"
+    created = "created"           # record exists, SDK not started
+    running = "running"           # SDK executing
+    waiting_input = "waiting_input"  # agent turn done, awaiting user message
+    completed = "completed"       # task finished successfully
+    failed = "failed"             # unrecoverable error
+    cancelled = "cancelled"       # user or system cancelled
+
+
+class EventType(str, enum.Enum):
+    message = "message"
+    thinking = "thinking"
+    tool_call = "tool_call"
+    tool_result = "tool_result"
+    subagent_start = "subagent_start"
+    subagent_complete = "subagent_complete"
+    cost_update = "cost_update"
+    status_change = "status_change"
+    structured_output = "structured_output"
+    error = "error"
+    permission_request = "permission_request"
 
 
 class WsAction(str, enum.Enum):
