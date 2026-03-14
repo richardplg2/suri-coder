@@ -1,14 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from 'renderer/lib/api-client'
-import type { BrainstormMessage } from 'renderer/types/api'
 
 interface BrainstormStartResponse {
   session_id: string
-  initial_message: BrainstormMessage
+  status: string
+  ws_channel: string
+  ws_ref: string
 }
 
 interface BrainstormMessageResponse {
-  message: BrainstormMessage
+  status: string
+  session_id: string
 }
 
 interface BrainstormCompleteResponse {

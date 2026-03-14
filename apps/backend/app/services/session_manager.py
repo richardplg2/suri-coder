@@ -121,21 +121,34 @@ class SessionManager:
     async def start_session(
         self, session_id: uuid.UUID, initial_prompt: str
     ) -> None:
-        """Start SDK execution for a session. Runs as a background task."""
+        """Start SDK execution for a session. Runs as a background task.
+
+        NOTE(TODO): This method receives the request-scoped DB session via
+        __init__. For production multi-worker deployments, background tasks
+        should open their own DB session rather than reusing the request session
+        to avoid identity-map staleness after commit.
+        """
         from app.services.strategies.registry import get_strategy
 
         session = await self._get_or_404(session_id)
         agent_config = await self.db.get(AgentConfig, session.agent_config_id)
-        if agent_config is None:
-            raise HTTPException(
-                status_code=500, detail="AgentConfig missing for session"
-            )
-
-        strategy = get_strategy(agent_config.agent_type)
-        await self._transition(session, SessionStatus.running)
-        await self.db.flush()
 
         try:
+            if agent_config is None:
+                raise ValueError("AgentConfig missing for session")
+
+            # Record the initial user prompt so conversation history is complete
+            await self._emit_event(
+                session,
+                EventType.message,
+                content={"text": initial_prompt},
+                role="user",
+            )
+
+            strategy = get_strategy(agent_config.agent_type)
+            await self._transition(session, SessionStatus.running)
+            await self.db.flush()
+
             if strategy.get_sdk_type() == "claude_agent":
                 await self._run_claude_agent(
                     session, agent_config, strategy, initial_prompt
@@ -146,8 +159,8 @@ class SessionManager:
                 )
 
             await strategy.on_session_complete(session, self.db)
-            # Brainstorm stays in waiting_input after each query;
-            # backend agent transitions to completed when SDK finishes
+            # _run_claude_agent transitions to waiting_input for single-turn strategies.
+            # If status is still running (claude_code / future), complete the session.
             if session.status == SessionStatus.running:
                 await self._transition(session, SessionStatus.completed)
                 session.finished_at = datetime.now(UTC)
@@ -162,28 +175,39 @@ class SessionManager:
             await self.db.commit()
 
     async def send_message(self, session_id: uuid.UUID, content: str) -> None:
-        """Send a follow-up message to a waiting_input session."""
+        """Send a follow-up message to a waiting_input session.
+
+        Called via BackgroundTasks — HTTPException would be silently swallowed.
+        Status validation uses an early-return so invalid-state calls are logged
+        and committed cleanly without spuriously marking the session as failed.
+        """
         from app.services.strategies.registry import get_strategy
 
         session = await self._get_or_404(session_id)
-        if session.status != SessionStatus.waiting_input:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Session is not waiting for input (status: {session.status})",
-            )
-
         agent_config = await self.db.get(AgentConfig, session.agent_config_id)
-        strategy = get_strategy(agent_config.agent_type)
-
-        # Record user message event
-        await self._emit_event(
-            session, EventType.message, content={"text": content}, role="user"
-        )
-
-        await self._transition(session, SessionStatus.running)
-        await self.db.flush()
 
         try:
+            if session.status != SessionStatus.waiting_input:
+                logger.warning(
+                    "Session %s: send_message ignored — status '%s' != waiting_input",
+                    session_id,
+                    session.status,
+                )
+                return
+
+            if agent_config is None:
+                raise ValueError("AgentConfig missing for session")
+
+            strategy = get_strategy(agent_config.agent_type)
+
+            # Record user message event
+            await self._emit_event(
+                session, EventType.message, content={"text": content}, role="user"
+            )
+
+            await self._transition(session, SessionStatus.running)
+            await self.db.flush()
+
             if strategy.get_sdk_type() == "claude_agent":
                 await self._run_claude_agent(session, agent_config, strategy, content)
             else:
@@ -212,7 +236,13 @@ class SessionManager:
         strategy: Any,
         prompt: str,
     ) -> None:
-        """Execute a single claude_agent_sdk query."""
+        """Execute a single claude_agent_sdk query.
+
+        TODO(Phase 1c): The waiting_input transition here is coupled to brainstorm
+        semantics. When BackendAgentStrategy arrives it may use claude_agent too
+        but want completed semantics. Delegate post-run status to the strategy
+        (e.g. via on_session_complete or a new post_run_status() hook).
+        """
         options = strategy.build_sdk_options(session, agent_config)
         client = ClaudeSDKClient(ClaudeAgentOptions(**options))
         self._clients[session.id] = client

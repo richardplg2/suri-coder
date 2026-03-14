@@ -99,9 +99,10 @@ export function FigmaAnnotatorScreen({ projectId }: FigmaAnnotatorScreenProps) {
     activeDesign?.frames.find((f) => f.id === store.activeFrameId) ?? null
 
   // Cleanup on unmount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     return () => store.reset()
-  }, [store])
+  }, [])
 
   const handleBack = useCallback(() => {
     closeTab(projectId, `figma-${projectId}`)

@@ -271,18 +271,6 @@ export interface QuizData {
   allow_custom: boolean
 }
 
-export type BrainstormMessageType = 'text' | 'quiz' | 'summary' | 'figma_context'
-
-export interface BrainstormMessage {
-  id: string
-  session_id: string
-  role: 'user' | 'assistant' | 'system'
-  content: string | null
-  message_type: BrainstormMessageType
-  structured_data: QuizData | Record<string, unknown> | null
-  created_at: string
-}
-
 export type TicketSource = 'ai_brainstorm' | 'figma' | 'manual'
 
 export interface TestResult {

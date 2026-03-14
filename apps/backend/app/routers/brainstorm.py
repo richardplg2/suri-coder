@@ -7,8 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.agent_config import AgentConfig
-from app.models.enums import SpecType, TicketSource
+from app.models.enums import SessionStatus, SpecType, TicketSource
 from app.models.project import Project, ProjectMember
+from app.models.session import Session
 from app.models.session_event import SessionEvent
 from app.models.user import User
 from app.schemas.brainstorm import (
@@ -115,6 +116,14 @@ async def send_brainstorm_message(
     db: AsyncSession = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ) -> dict:
+    session = await db.get(Session, session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session.status != SessionStatus.waiting_input:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Session is not waiting for input (status: {session.status})",
+        )
     manager = SessionManager(db=db, redis=redis)
 
     # Format quiz response if provided
@@ -147,6 +156,14 @@ async def complete_brainstorm(
     redis: aioredis.Redis = Depends(get_redis),
 ) -> dict:
     """Request final summary generation."""
+    session = await db.get(Session, session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session.status != SessionStatus.waiting_input:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Session is not waiting for input (status: {session.status})",
+        )
     manager = SessionManager(db=db, redis=redis)
     summary_prompt = (
         "Please generate the final summary now. "
@@ -169,6 +186,14 @@ async def batch_update_brainstorm(
     db: AsyncSession = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ) -> dict:
+    session = await db.get(Session, session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session.status != SessionStatus.waiting_input:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Session is not waiting for input (status: {session.status})",
+        )
     manager = SessionManager(db=db, redis=redis)
     formatted = "\n".join(
         f"- [{c.get('section_id', 'general')}]: {c.get('text', '')}"

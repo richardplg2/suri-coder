@@ -110,12 +110,7 @@ async def test_start_session_brainstorm(manager, mock_db):
         mock_client_cls.return_value = mock_client
 
         import app.services.strategies.brainstorm  # noqa — triggers registration
-        from app.services.strategies.registry import STRATEGY_REGISTRY
-        with patch.dict(
-            "app.services.strategies.registry.STRATEGY_REGISTRY",
-            STRATEGY_REGISTRY,
-        ):
-            await manager.start_session(session_id, "Tell me about X")
+        await manager.start_session(session_id, "Tell me about X")
 
     mock_client.query.assert_called_once_with("Tell me about X")
     manager.redis.publish.assert_called()
