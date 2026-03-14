@@ -1,6 +1,14 @@
 import uuid
 
-from sqlalchemy import Boolean, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -35,5 +43,7 @@ class AgentConfig(UUIDMixin, TimestampMixin, Base):
     tools_config: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     max_turns: Mapped[int] = mapped_column(Integer, default=25)
     default_requires_approval: Mapped[bool] = mapped_column(Boolean, default=False)
+    agent_type: Mapped[str] = mapped_column(String(50), default="backend")
+    output_format: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     skills: Mapped[list["AgentSkill"]] = relationship(cascade="all, delete-orphan")
