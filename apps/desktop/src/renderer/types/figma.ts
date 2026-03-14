@@ -54,16 +54,3 @@ export const TYPE_BADGE_COLORS: Record<string, string> = {
   INSTANCE: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
   GROUP: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
 }
-
-/** @deprecated Use Design + FrameEntry instead */
-export interface DesignEntry {
-  id: string
-  name: string
-  type: string
-  nodeTree: FigmaNode
-  flatNodes: FlatNode[]
-  imageDataUrl: string
-  rootBBox: { x: number; y: number; width: number; height: number }
-  notes: string
-  addedAt: number
-}
