@@ -1,5 +1,7 @@
 """Default agent configs and workflow templates seeded into every new project."""
 
+from app.services.brainstorm_agent import BRAINSTORM_SYSTEM_PROMPT, QUIZ_OUTPUT_SCHEMA
+
 # --------------------------------------------------------------------------- #
 # Shared tool lists
 # --------------------------------------------------------------------------- #
@@ -44,6 +46,21 @@ SPEC_PREAMBLE = (
 # --------------------------------------------------------------------------- #
 
 DEFAULT_AGENT_CONFIGS: list[dict] = [
+    {
+        "name": "brainstorm",
+        "description": "Interactive brainstorming partner",
+        "system_prompt": BRAINSTORM_SYSTEM_PROMPT,
+        "claude_model": "sonnet",
+        "tools_list": None,
+        "max_turns": 1,
+        "default_requires_approval": False,
+        "skill_names": [],
+        "agent_type": "brainstorm",
+        "output_format": {
+            "type": "json_schema",
+            "schema": QUIZ_OUTPUT_SCHEMA,
+        },
+    },
     {
         "name": "planner",
         "description": (

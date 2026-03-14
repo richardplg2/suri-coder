@@ -61,11 +61,13 @@ async def seed_project_defaults(
             description=agent_data["description"],
             system_prompt=agent_data["system_prompt"],
             claude_model=agent_data["claude_model"],
-            tools_list=agent_data["tools_list"],
+            tools_list=agent_data.get("tools_list"),
             max_turns=agent_data["max_turns"],
             default_requires_approval=agent_data[
                 "default_requires_approval"
             ],
+            agent_type=agent_data.get("agent_type", "backend"),
+            output_format=agent_data.get("output_format"),
         )
         db.add(agent)
         await db.flush()

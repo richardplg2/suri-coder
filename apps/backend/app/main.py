@@ -4,6 +4,7 @@ import redis.asyncio as aioredis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import app.services.strategies.brainstorm  # noqa: F401  — registers BrainstormStrategy
 from app.config import settings
 from app.routers import (
     agents,
